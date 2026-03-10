@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HOA Auditor — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #F3F4F6; }
+    .loading {
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 1rem; color: #9CA3AF;
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading" id="loading">Checking authentication...</div>
+
+<script type="module">
+  import { getCurrentUser, signOut } from './src/services/authService.js'
+
+  // Protect this page — redirect to auth if not logged in
+  const user = await getCurrentUser()
+  if (!user) {
+    window.location.href = '/auth.html'
+  } else {
+    // User is logged in — hide loading, show dashboard
+    document.getElementById('loading').style.display = 'none'
+    document.body.innerHTML = `
+      <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
+        <h1 style="font-family:'DM Serif Display',serif; font-size:2rem; color:#0F1E2E">
+          Welcome back! 👋
+        </h1>
+        <p style="color:#4B5563">Logged in as <strong>${user.email}</strong></p>
+        <button onclick="handleSignOut()" style="padding:.6rem 1.5rem; background:#EF4444; color:white; border:none; border-radius:8px; cursor:pointer; font-size:.9rem;">
+          Sign Out
+        </button>
+      </div>
+    `
+  }
+
+  window.handleSignOut = async function() {
+    await signOut()
+    window.location.href = '/auth.html'
+  }
+</script>
+</body>
+</html>
