@@ -11,7 +11,6 @@
       --blue: #2E5BFF;
       --blue-light: #4A73FF;
       --gray-400: #9CA3AF;
-      --gray-600: #4B5563;
       --white: #FFFFFF;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,11 +34,11 @@
       padding: 2rem;
       backdrop-filter: blur(12px);
     }
-    .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .tabs { display: flex; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,.1); }
     .tab {
       flex: 1; padding: .6rem; text-align: center; color: var(--gray-400);
-      font-size: .9rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent;
-      transition: all .2s;
+      font-size: .9rem; font-weight: 500; cursor: pointer;
+      border-bottom: 2px solid transparent; transition: all .2s;
     }
     .tab.active { color: var(--white); border-bottom-color: var(--blue-light); }
     .form { display: none; }
@@ -70,19 +69,16 @@
     .error {
       background: #FEF2F2; color: #B91C1C;
       border-radius: 8px; padding: .75rem 1rem;
-      font-size: .85rem; margin-top: 1rem;
-      display: none;
+      font-size: .85rem; margin-top: 1rem; display: none;
     }
     .success {
       background: #ECFDF5; color: #065F46;
       border-radius: 8px; padding: .75rem 1rem;
-      font-size: .85rem; margin-top: 1rem;
-      display: none;
+      font-size: .85rem; margin-top: 1rem; display: none;
     }
-    .forgot { 
+    .forgot {
       text-align: right; margin-top: .5rem;
-      font-size: .8rem; color: var(--blue-light);
-      cursor: pointer;
+      font-size: .8rem; color: var(--blue-light); cursor: pointer;
     }
   </style>
 </head>
@@ -90,41 +86,36 @@
 <div class="wrap">
   <div class="logo">HOA<span>Auditor</span></div>
   <div class="tagline">AI-powered HOA document analysis</div>
-
   <div class="card">
-    <!-- Tabs -->
     <div class="tabs">
-      <div class="tab active" onclick="switchTab('signin')">Sign In</div>
-      <div class="tab" onclick="switchTab('signup')">Create Account</div>
+      <div class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</div>
+      <div class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
     </div>
 
-    <!-- Sign In Form -->
     <div id="form-signin" class="form active">
       <label>Email Address</label>
       <input type="email" id="signin-email" placeholder="you@example.com" />
       <label>Password</label>
       <input type="password" id="signin-password" placeholder="••••••••" />
       <div class="forgot" onclick="switchTab('forgot')">Forgot password?</div>
-      <button class="btn" onclick="handleSignIn()">Sign In</button>
+      <button class="btn" id="btn-signin" onclick="handleSignIn()">Sign In</button>
       <div class="error" id="signin-error"></div>
     </div>
 
-    <!-- Sign Up Form -->
     <div id="form-signup" class="form">
       <label>Email Address</label>
       <input type="email" id="signup-email" placeholder="you@example.com" />
       <label>Password</label>
       <input type="password" id="signup-password" placeholder="At least 8 characters" />
-      <button class="btn" onclick="handleSignUp()">Create Account</button>
+      <button class="btn" id="btn-signup" onclick="handleSignUp()">Create Account</button>
       <div class="error" id="signup-error"></div>
       <div class="success" id="signup-success"></div>
     </div>
 
-    <!-- Forgot Password Form -->
     <div id="form-forgot" class="form">
       <label>Email Address</label>
       <input type="email" id="forgot-email" placeholder="you@example.com" />
-      <button class="btn" onclick="handleForgotPassword()">Send Reset Link</button>
+      <button class="btn" id="btn-forgot" onclick="handleForgotPassword()">Send Reset Link</button>
       <div class="error" id="forgot-error"></div>
       <div class="success" id="forgot-success"></div>
     </div>
@@ -132,28 +123,29 @@
 </div>
 
 <script type="module">
-  import { signIn, signUp } from './src/services/authService.js'
+  import { signIn, signUp, getCurrentUser } from './src/services/authService.js'
   import { supabase } from './src/services/supabase.js'
 
-  // Tab switching
+  // If already logged in, redirect to dashboard
+  getCurrentUser().then(user => {
+    if (user) window.location.href = '/dashboard.html'
+  })
+
   window.switchTab = function(tab) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
     document.querySelectorAll('.form').forEach(f => f.classList.remove('active'))
-    document.querySelectorAll('.tab')[['signin','signup','forgot'].indexOf(tab)].classList.add('active')
+    document.getElementById('tab-' + tab).classList.add('active')
     document.getElementById('form-' + tab).classList.add('active')
   }
 
-  // Sign In
   window.handleSignIn = async function() {
     const email = document.getElementById('signin-email').value
     const password = document.getElementById('signin-password').value
     const errorEl = document.getElementById('signin-error')
-    const btn = document.querySelector('#form-signin .btn')
-
+    const btn = document.getElementById('btn-signin')
     btn.disabled = true
     btn.textContent = 'Signing in...'
     errorEl.style.display = 'none'
-
     try {
       await signIn(email, password)
       window.location.href = '/dashboard.html'
@@ -165,18 +157,15 @@
     }
   }
 
-  // Sign Up
   window.handleSignUp = async function() {
     const email = document.getElementById('signup-email').value
     const password = document.getElementById('signup-password').value
     const errorEl = document.getElementById('signup-error')
     const successEl = document.getElementById('signup-success')
-    const btn = document.querySelector('#form-signup .btn')
-
+    const btn = document.getElementById('btn-signup')
     btn.disabled = true
     btn.textContent = 'Creating account...'
     errorEl.style.display = 'none'
-
     try {
       await signUp(email, password)
       successEl.textContent = '✅ Account created! Check your email to confirm your account.'
@@ -191,22 +180,19 @@
     }
   }
 
-  // Forgot Password
   window.handleForgotPassword = async function() {
     const email = document.getElementById('forgot-email').value
     const errorEl = document.getElementById('forgot-error')
     const successEl = document.getElementById('forgot-success')
-    const btn = document.querySelector('#form-forgot .btn')
-
+    const btn = document.getElementById('btn-forgot')
     btn.disabled = true
     btn.textContent = 'Sending...'
-
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/dashboard.html`
       })
       if (error) throw error
-      successEl.textContent = '✅ Password reset link sent! Check your email.'
+      successEl.textContent = '✅ Reset link sent! Check your email.'
       successEl.style.display = 'block'
       btn.disabled = false
       btn.textContent = 'Send Reset Link'
@@ -217,12 +203,6 @@
       btn.textContent = 'Send Reset Link'
     }
   }
-
-  // If already logged in, redirect to dashboard
-  import { getCurrentUser } from './src/services/authService.js'
-  getCurrentUser().then(user => {
-    if (user) window.location.href = '/dashboard.html'
-  })
 </script>
 </body>
 </html>
