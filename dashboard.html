@@ -6,45 +6,316 @@
   <title>HOA Auditor — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
+    :root {
+      --navy: #0F1E2E;
+      --navy-mid: #1A2B3C;
+      --blue: #2E5BFF;
+      --blue-light: #4A73FF;
+      --emerald: #10B981;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-400: #9CA3AF;
+      --gray-600: #4B5563;
+      --gray-800: #1F2937;
+      --white: #FFFFFF;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #F3F4F6; }
-    .loading {
-      min-height: 100vh; display: flex;
-      align-items: center; justify-content: center;
-      font-size: 1rem; color: #9CA3AF;
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar {
+      background: var(--navy); padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { font-family: 'DM Serif Display', serif; color: var(--white); font-size: 1.3rem; }
+    .brand span { color: var(--blue-light); }
+    .user-info { display: flex; align-items: center; gap: 1rem; }
+    .user-email { color: var(--gray-400); font-size: .85rem; }
+    .btn-signout {
+      padding: .4rem .9rem; background: transparent;
+      border: 1px solid rgba(255,255,255,.2); border-radius: 6px;
+      color: rgba(255,255,255,.6); font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; cursor: pointer; transition: all .2s;
+    }
+    .btn-signout:hover { border-color: rgba(255,255,255,.5); color: var(--white); }
+
+    /* MAIN */
+    .main { max-width: 680px; margin: 3rem auto; padding: 0 1.5rem; }
+    .main h1 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--navy); margin-bottom: .5rem; }
+    .main p { color: var(--gray-600); font-size: .95rem; margin-bottom: 2rem; }
+
+    /* UPLOAD CARD */
+    .upload-card {
+      background: var(--white); border-radius: 16px;
+      padding: 2.5rem; box-shadow: 0 4px 24px rgba(0,0,0,.07);
+    }
+
+    /* PROPERTY NAME */
+    .field-label {
+      display: block; color: var(--gray-600); font-size: .78rem;
+      font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+      margin-bottom: .4rem;
+    }
+    .field-input {
+      width: 100%; padding: .7rem 1rem; border: 1px solid var(--gray-200);
+      border-radius: 8px; font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; color: var(--gray-800); outline: none;
+      transition: border .2s; margin-bottom: 1.5rem;
+    }
+    .field-input:focus { border-color: var(--blue); }
+
+    /* DROP ZONE */
+    .drop-zone {
+      border: 2px dashed var(--gray-200); border-radius: 12px;
+      padding: 2.5rem 2rem; cursor: pointer; text-align: center;
+      transition: border .2s, background .2s; margin-bottom: 1.5rem;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: #EEF2FF; }
+    .drop-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+    .drop-zone p { color: var(--gray-600); font-size: .9rem; margin: 0; }
+    .drop-zone p strong { color: var(--blue); }
+    .drop-zone .file-types { color: var(--gray-400); font-size: .78rem; margin-top: .5rem; }
+
+    /* FILE LIST */
+    .file-list { list-style: none; margin-bottom: 1.5rem; }
+    .file-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .6rem .75rem; background: var(--gray-100);
+      border-radius: 8px; margin-bottom: .4rem; font-size: .88rem;
+    }
+    .file-item .file-name { flex: 1; color: var(--gray-800); }
+    .file-item .file-size { color: var(--gray-400); font-size: .78rem; }
+    .file-item .file-status { font-size: .78rem; font-weight: 600; }
+    .file-item .file-status.pending { color: var(--gray-400); }
+    .file-item .file-status.uploading { color: var(--blue); }
+    .file-item .file-status.done { color: var(--emerald); }
+    .file-item .file-status.error { color: #EF4444; }
+    .file-item .remove { color: var(--gray-400); cursor: pointer; font-size: 1.1rem; margin-left: auto; }
+    .file-item .remove:hover { color: #EF4444; }
+
+    /* PROGRESS */
+    .progress-bar {
+      height: 4px; background: var(--gray-200); border-radius: 999px;
+      margin-bottom: 1.5rem; overflow: hidden; display: none;
+    }
+    .progress-fill {
+      height: 100%; background: var(--blue); border-radius: 999px;
+      transition: width .3s; width: 0%;
+    }
+
+    /* BUTTONS */
+    .btn-primary {
+      width: 100%; padding: .8rem; background: var(--blue); color: var(--white);
+      border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .btn-primary:hover { background: var(--blue-light); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* SUCCESS */
+    .success-banner {
+      background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px;
+      padding: 1rem 1.25rem; display: none; margin-top: 1rem;
+    }
+    .success-banner h3 { color: #065F46; font-size: .95rem; margin-bottom: .25rem; }
+    .success-banner p { color: #047857; font-size: .85rem; }
+
+    /* ERROR */
+    .error-banner {
+      background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px;
+      padding: 1rem 1.25rem; display: none; margin-top: 1rem;
+      color: #B91C1C; font-size: .85rem;
     }
   </style>
 </head>
 <body>
 
-<div class="loading" id="loading">Checking authentication...</div>
+<div class="topbar">
+  <div class="brand">HOA<span>Auditor</span></div>
+  <div class="user-info">
+    <span class="user-email" id="user-email"></span>
+    <button class="btn-signout" onclick="handleSignOut()">Sign out</button>
+  </div>
+</div>
+
+<div class="main">
+  <h1>New HOA Audit</h1>
+  <p>Upload your HOA documents below. We support individual PDFs or a ZIP package.</p>
+
+  <div class="upload-card">
+    <label class="field-label">Property Name or Address</label>
+    <input type="text" class="field-input" id="property-name" placeholder="e.g. 4512 Lakeview Dr Unit 7B" />
+
+    <label class="field-label">HOA Documents</label>
+    <div class="drop-zone" id="drop-zone"
+      onclick="document.getElementById('file-input').click()"
+      ondrop="handleDrop(event)"
+      ondragover="event.preventDefault(); this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')">
+      <div class="drop-icon">📂</div>
+      <p>Drag & drop files here, or <strong>browse</strong></p>
+      <p class="file-types">PDF or ZIP · Max 50MB per file</p>
+    </div>
+    <input type="file" id="file-input" multiple accept=".pdf,.zip" style="display:none" onchange="handleFileSelect(this.files)" />
+
+    <ul class="file-list" id="file-list"></ul>
+
+    <div class="progress-bar" id="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <button class="btn-primary" id="upload-btn" onclick="handleUpload()">
+      Upload & Start Analysis →
+    </button>
+
+    <div class="success-banner" id="success-banner">
+      <h3>✅ Documents uploaded successfully!</h3>
+      <p id="success-message"></p>
+    </div>
+    <div class="error-banner" id="error-banner"></div>
+  </div>
+</div>
 
 <script type="module">
   import { getCurrentUser, signOut } from './src/services/authService.js'
+  import { uploadFiles } from './src/services/uploadService.js'
+  import JSZip from 'jszip'
 
-  // Protect this page — redirect to auth if not logged in
-  const user = await getCurrentUser()
-  if (!user) {
+  let currentUser = null
+  let selectedFiles = []
+
+  // Auth check
+  currentUser = await getCurrentUser()
+  if (!currentUser) {
     window.location.href = '/auth.html'
   } else {
-    // User is logged in — hide loading, show dashboard
-    document.getElementById('loading').style.display = 'none'
-    document.body.innerHTML = `
-      <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
-        <h1 style="font-family:'DM Serif Display',serif; font-size:2rem; color:#0F1E2E">
-          Welcome back! 👋
-        </h1>
-        <p style="color:#4B5563">Logged in as <strong>${user.email}</strong></p>
-        <button onclick="handleSignOut()" style="padding:.6rem 1.5rem; background:#EF4444; color:white; border:none; border-radius:8px; cursor:pointer; font-size:.9rem;">
-          Sign Out
-        </button>
-      </div>
-    `
+    document.getElementById('user-email').textContent = currentUser.email
   }
 
+  // Sign out
   window.handleSignOut = async function() {
     await signOut()
     window.location.href = '/auth.html'
+  }
+
+  // Handle file selection
+  window.handleFileSelect = function(files) {
+    addFiles([...files])
+  }
+
+  window.handleDrop = function(e) {
+    e.preventDefault()
+    document.getElementById('drop-zone').classList.remove('drag-over')
+    addFiles([...e.dataTransfer.files])
+  }
+
+  function addFiles(files) {
+    files.forEach(file => {
+      if (!selectedFiles.find(f => f.name === file.name)) {
+        selectedFiles.push(file)
+      }
+    })
+    renderFileList()
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B'
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  }
+
+  function renderFileList() {
+    const ul = document.getElementById('file-list')
+    ul.innerHTML = selectedFiles.map((f, i) => `
+      <li class="file-item">
+        <span>📄</span>
+        <span class="file-name">${f.name}</span>
+        <span class="file-size">${formatSize(f.size)}</span>
+        <span class="file-status pending" id="status-${i}">Pending</span>
+        <span class="remove" onclick="removeFile(${i})">✕</span>
+      </li>
+    `).join('')
+  }
+
+  window.removeFile = function(i) {
+    selectedFiles.splice(i, 1)
+    renderFileList()
+  }
+
+  // Handle upload
+  window.handleUpload = async function() {
+    const propertyName = document.getElementById('property-name').value.trim()
+    const errorEl = document.getElementById('error-banner')
+    const successEl = document.getElementById('success-banner')
+    const btn = document.getElementById('upload-btn')
+
+    errorEl.style.display = 'none'
+    successEl.style.display = 'none'
+
+    if (!propertyName) {
+      errorEl.textContent = 'Please enter a property name or address.'
+      errorEl.style.display = 'block'
+      return
+    }
+
+    if (selectedFiles.length === 0) {
+      errorEl.textContent = 'Please select at least one file to upload.'
+      errorEl.style.display = 'block'
+      return
+    }
+
+    btn.disabled = true
+    btn.textContent = 'Uploading...'
+
+    // Show progress bar
+    const progressBar = document.getElementById('progress-bar')
+    const progressFill = document.getElementById('progress-fill')
+    progressBar.style.display = 'block'
+
+    try {
+      // Extract ZIPs and collect all PDFs
+      const allPdfs = []
+      for (const file of selectedFiles) {
+        if (file.name.endsWith('.zip')) {
+          const zip = await JSZip.loadAsync(file)
+          const pdfFiles = Object.keys(zip.files).filter(name => name.endsWith('.pdf'))
+          for (const pdfName of pdfFiles) {
+            const blob = await zip.files[pdfName].async('blob')
+            const pdfFile = new File([blob], pdfName.split('/').pop(), { type: 'application/pdf' })
+            allPdfs.push(pdfFile)
+          }
+        } else {
+          allPdfs.push(file)
+        }
+      }
+
+      // Update progress
+      progressFill.style.width = '30%'
+
+      // Upload all PDFs
+      const result = await uploadFiles(allPdfs, currentUser.id)
+      progressFill.style.width = '100%'
+
+      // Update file statuses
+      selectedFiles.forEach((_, i) => {
+        const statusEl = document.getElementById('status-' + i)
+        if (statusEl) { statusEl.textContent = '✓ Uploaded'; statusEl.className = 'file-status done' }
+      })
+
+      // Show success
+      document.getElementById('success-message').textContent =
+        `${allPdfs.length} document${allPdfs.length > 1 ? 's' : ''} uploaded for "${propertyName}". Audit ID: ${result.auditId}`
+      successEl.style.display = 'block'
+      btn.textContent = 'Upload & Start Analysis →'
+      btn.disabled = false
+
+    } catch (err) {
+      errorEl.textContent = 'Upload failed: ' + err.message
+      errorEl.style.display = 'block'
+      btn.disabled = false
+      btn.textContent = 'Upload & Start Analysis →'
+      progressBar.style.display = 'none'
+    }
   }
 </script>
 </body>
