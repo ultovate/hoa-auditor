@@ -8,10 +8,11 @@
   <style>
     :root {
       --navy: #0F1E2E;
-      --navy-mid: #1A2B3C;
       --blue: #2E5BFF;
       --blue-light: #4A73FF;
       --emerald: #10B981;
+      --amber: #F59E0B;
+      --crimson: #EF4444;
       --gray-100: #F3F4F6;
       --gray-200: #E5E7EB;
       --gray-400: #9CA3AF;
@@ -38,19 +39,69 @@
       font-size: .82rem; cursor: pointer; transition: all .2s;
     }
     .btn-signout:hover { border-color: rgba(255,255,255,.5); color: var(--white); }
-
+    .btn-delete {
+      background: none; border: none; cursor: pointer;
+      font-size: 1rem; padding: .25rem .5rem; border-radius: 6px;
+      transition: background .15s; color: var(--gray-400);
+    }
+    .btn-delete:hover { background: #FEF2F2; color: var(--crimson); }
     /* MAIN */
-    .main { max-width: 680px; margin: 3rem auto; padding: 0 1.5rem; }
-    .main h1 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--navy); margin-bottom: .5rem; }
-    .main p { color: var(--gray-600); font-size: .95rem; margin-bottom: 2rem; }
+    .main { max-width: 780px; margin: 2.5rem auto; padding: 0 1.5rem; }
 
-    /* UPLOAD CARD */
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* PAGE HEADER */
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .page-header h1 { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--navy); }
+    .btn-primary {
+      padding: .65rem 1.25rem; background: var(--blue); color: var(--white);
+      border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .btn-primary:hover { background: var(--blue-light); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* AUDIT CARDS */
+    .audit-card {
+      background: var(--white); border-radius: 12px; border: 1px solid var(--gray-200);
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex;
+      align-items: center; justify-content: space-between; cursor: pointer;
+      transition: border .15s, box-shadow .15s;
+    }
+    .audit-card:hover { border-color: var(--blue); box-shadow: 0 2px 12px rgba(46,91,255,.1); }
+    .audit-card-left h3 { font-size: 1rem; font-weight: 600; color: var(--gray-800); margin-bottom: .25rem; }
+    .audit-card-left .meta { font-size: .82rem; color: var(--gray-400); }
+    .audit-card-right { display: flex; align-items: center; gap: 1rem; }
+    .status-badge {
+      padding: .25rem .75rem; border-radius: 999px; font-size: .75rem; font-weight: 700;
+    }
+    .status-badge.uploaded { background: #EEF2FF; color: var(--blue); }
+    .status-badge.processing { background: #FEF3C7; color: #B45309; }
+    .status-badge.complete { background: #ECFDF5; color: #065F46; }
+    .status-badge.error { background: #FEF2F2; color: #B91C1C; }
+    .chevron { color: var(--gray-400); font-size: 1.2rem; }
+
+    .empty-state {
+      background: var(--white); border-radius: 12px; border: 1px solid var(--gray-200);
+      padding: 3rem; text-align: center;
+    }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--navy); margin-bottom: .5rem; }
+    .empty-state p { color: var(--gray-600); font-size: .9rem; margin-bottom: 1.5rem; }
+
+    /* UPLOAD VIEW */
+    .back-btn {
+      display: flex; align-items: center; gap: .5rem; color: var(--gray-600);
+      font-size: .88rem; cursor: pointer; margin-bottom: 1.5rem;
+      background: none; border: none; font-family: 'DM Sans', sans-serif;
+    }
+    .back-btn:hover { color: var(--blue); }
     .upload-card {
       background: var(--white); border-radius: 16px;
       padding: 2.5rem; box-shadow: 0 4px 24px rgba(0,0,0,.07);
     }
-
-    /* PROPERTY NAME */
     .field-label {
       display: block; color: var(--gray-600); font-size: .78rem;
       font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
@@ -63,20 +114,16 @@
       transition: border .2s; margin-bottom: 1.5rem;
     }
     .field-input:focus { border-color: var(--blue); }
-
-    /* DROP ZONE */
     .drop-zone {
       border: 2px dashed var(--gray-200); border-radius: 12px;
-      padding: 2.5rem 2rem; cursor: pointer; text-align: center;
+      padding: 2rem; cursor: pointer; text-align: center;
       transition: border .2s, background .2s; margin-bottom: 1.5rem;
     }
     .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: #EEF2FF; }
-    .drop-icon { font-size: 2.5rem; margin-bottom: .75rem; }
-    .drop-zone p { color: var(--gray-600); font-size: .9rem; margin: 0; }
+    .drop-icon { font-size: 2rem; margin-bottom: .5rem; }
+    .drop-zone p { color: var(--gray-600); font-size: .88rem; }
     .drop-zone p strong { color: var(--blue); }
-    .drop-zone .file-types { color: var(--gray-400); font-size: .78rem; margin-top: .5rem; }
-
-    /* FILE LIST */
+    .drop-zone .file-types { color: var(--gray-400); font-size: .75rem; margin-top: .4rem; }
     .file-list { list-style: none; margin-bottom: 1.5rem; }
     .file-item {
       display: flex; align-items: center; gap: .75rem;
@@ -87,40 +134,30 @@
     .file-item .file-size { color: var(--gray-400); font-size: .78rem; }
     .file-item .file-status { font-size: .78rem; font-weight: 600; }
     .file-item .file-status.pending { color: var(--gray-400); }
+    .file-item .file-status.duplicate { color: var(--amber); }
     .file-item .file-status.uploading { color: var(--blue); }
     .file-item .file-status.done { color: var(--emerald); }
-    .file-item .file-status.error { color: #EF4444; }
-    .file-item .remove { color: var(--gray-400); cursor: pointer; font-size: 1.1rem; margin-left: auto; }
-    .file-item .remove:hover { color: #EF4444; }
-
-    /* PROGRESS */
+    .file-item .file-status.error { color: var(--crimson); }
+    .file-item .remove { color: var(--gray-400); cursor: pointer; margin-left: auto; }
+    .file-item .remove:hover { color: var(--crimson); }
     .progress-bar {
       height: 4px; background: var(--gray-200); border-radius: 999px;
       margin-bottom: 1.5rem; overflow: hidden; display: none;
     }
-    .progress-fill {
-      height: 100%; background: var(--blue); border-radius: 999px;
-      transition: width .3s; width: 0%;
-    }
-
-    /* BUTTONS */
-    .btn-primary {
+    .progress-fill { height: 100%; background: var(--blue); border-radius: 999px; transition: width .3s; width: 0%; }
+    .btn-full {
       width: 100%; padding: .8rem; background: var(--blue); color: var(--white);
       border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif;
       font-size: .95rem; font-weight: 600; cursor: pointer; transition: background .2s;
     }
-    .btn-primary:hover { background: var(--blue-light); }
-    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
-
-    /* SUCCESS */
+    .btn-full:hover { background: var(--blue-light); }
+    .btn-full:disabled { opacity: .6; cursor: not-allowed; }
     .success-banner {
       background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px;
       padding: 1rem 1.25rem; display: none; margin-top: 1rem;
     }
     .success-banner h3 { color: #065F46; font-size: .95rem; margin-bottom: .25rem; }
     .success-banner p { color: #047857; font-size: .85rem; }
-
-    /* ERROR */
     .error-banner {
       background: #FEF2F2; border: 1px solid #FECACA; border-radius: 10px;
       padding: 1rem 1.25rem; display: none; margin-top: 1rem;
@@ -139,50 +176,72 @@
 </div>
 
 <div class="main">
-  <h1>New HOA Audit</h1>
-  <p>Upload your HOA documents below. We support individual PDFs or a ZIP package.</p>
 
-  <div class="upload-card">
-    <label class="field-label">Property Name or Address</label>
-    <input type="text" class="field-input" id="property-name" placeholder="e.g. 4512 Lakeview Dr Unit 7B" />
-
-    <label class="field-label">HOA Documents</label>
-    <div class="drop-zone" id="drop-zone"
-      onclick="document.getElementById('file-input').click()"
-      ondrop="handleDrop(event)"
-      ondragover="event.preventDefault(); this.classList.add('drag-over')"
-      ondragleave="this.classList.remove('drag-over')">
-      <div class="drop-icon">📂</div>
-      <p>Drag & drop files here, or <strong>browse</strong></p>
-      <p class="file-types">PDF or ZIP · Max 50MB per file</p>
+  <!-- VIEW 1: AUDITS LIST -->
+  <div id="view-list" class="view active">
+    <div class="page-header">
+      <h1>Properties Review</h1>
+      <button class="btn-primary" onclick="showUploadView()">+ New Property</button>
     </div>
-    <input type="file" id="file-input" multiple accept=".pdf,.zip" style="display:none" onchange="handleFileSelect(this.files)" />
-
-    <ul class="file-list" id="file-list"></ul>
-
-    <div class="progress-bar" id="progress-bar">
-      <div class="progress-fill" id="progress-fill"></div>
+    <div id="audits-container">
+      <div class="empty-state">
+        <div class="icon">📋</div>
+        <h3>No properties yet</h3>
+        <p>Upload your first HOA document package to get started.</p>
+        <button class="btn-primary" onclick="showUploadView()">+ New Property</button>
+      </div>
     </div>
-
-    <button class="btn-primary" id="upload-btn" onclick="handleUpload()">
-      Upload & Start Analysis →
-    </button>
-
-    <div class="success-banner" id="success-banner">
-      <h3>✅ Documents uploaded successfully!</h3>
-      <p id="success-message"></p>
-    </div>
-    <div class="error-banner" id="error-banner"></div>
   </div>
+
+  <!-- VIEW 2: UPLOAD -->
+  <div id="view-upload" class="view">
+    <button class="back-btn" onclick="showListView()">← Back to Properties Review</button>
+    <div class="upload-card">
+      <h2 id="upload-title" style="font-family:'DM Serif Display',serif; font-size:1.5rem; color:var(--navy); margin-bottom:1.5rem;">New Property</h2>
+
+      <label class="field-label">Property Name or Address</label>
+      <input type="text" class="field-input" id="property-name" placeholder="e.g. 4512 Lakeview Dr Unit 7B" />
+
+      <label class="field-label">HOA Documents</label>
+      <div class="drop-zone" id="drop-zone"
+        onclick="document.getElementById('file-input').click()"
+        ondrop="handleDrop(event)"
+        ondragover="event.preventDefault(); this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')">
+        <div class="drop-icon">📂</div>
+        <p>Drag & drop files here, or <strong>browse</strong></p>
+        <p class="file-types">PDF or ZIP · Max 50MB per file</p>
+      </div>
+      <input type="file" id="file-input" multiple accept=".pdf,.zip" style="display:none" onchange="handleFileSelect(this.files)" />
+
+      <ul class="file-list" id="file-list"></ul>
+
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+
+      <button class="btn-full" id="upload-btn" onclick="handleUpload()">
+        Upload & Start Analysis →
+      </button>
+
+      <div class="success-banner" id="success-banner">
+        <h3>✅ Documents uploaded successfully!</h3>
+        <p id="success-message"></p>
+      </div>
+      <div class="error-banner" id="error-banner"></div>
+    </div>
+  </div>
+
 </div>
 
 <script type="module">
   import { getCurrentUser, signOut } from './src/services/authService.js'
-  import { uploadFiles } from './src/services/uploadService.js'
+  import { uploadFiles, createAuditRecord, getUserAudits, checkFileExists, deleteFile, getAuditFiles, deleteAudit } from './src/services/uploadService.js'
   import JSZip from 'jszip'
 
   let currentUser = null
   let selectedFiles = []
+  let currentAuditId = null
 
   // Auth check
   currentUser = await getCurrentUser()
@@ -190,6 +249,7 @@
     window.location.href = '/auth.html'
   } else {
     document.getElementById('user-email').textContent = currentUser.email
+    loadAudits()
   }
 
   // Sign out
@@ -198,28 +258,133 @@
     window.location.href = '/auth.html'
   }
 
-  // Handle file selection
-  window.handleFileSelect = function(files) {
-    addFiles([...files])
+  // Load audits list
+  async function loadAudits() {
+    const audits = await getUserAudits(currentUser.id)
+    const container = document.getElementById('audits-container')
+
+    if (audits.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📋</div>
+          <h3>No properties yet</h3>
+          <p>Upload your first HOA document package to get started.</p>
+          <button class="btn-primary" onclick="showUploadView()">+ New Property</button>
+        </div>`
+      return
+    }
+
+    container.innerHTML = audits.map(audit => `
+      <div class="audit-card" onclick="openAudit('${audit.audit_id}', '${audit.property_name}')">
+        <div class="audit-card-left">
+          <h3>${audit.property_name}</h3>
+          <div class="meta">${audit.file_count} document${audit.file_count !== 1 ? 's' : ''} · ${new Date(audit.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+        </div>
+        <div class="audit-card-right">
+          <span class="status-badge ${audit.status}">${audit.status}</span>
+          <button class="btn-delete" onclick="handleDeleteAudit(event, '${audit.audit_id}', '${audit.property_name}')">🗑</button>
+          <span class="chevron">›</span>
+        </div>
+      </div>
+    `).join('')
   }
 
+  // Show/hide views
+  window.showUploadView = function(auditId = null, propertyName = null) {
+    document.getElementById('view-list').classList.remove('active')
+    document.getElementById('view-upload').classList.add('active')
+    currentAuditId = auditId
+    selectedFiles = []
+    document.getElementById('file-list').innerHTML = ''
+    document.getElementById('success-banner').style.display = 'none'
+    document.getElementById('error-banner').style.display = 'none'
+    document.getElementById('progress-bar').style.display = 'none'
+
+    if (auditId && propertyName) {
+      document.getElementById('upload-title').textContent = 'Add Files — ' + propertyName
+      document.getElementById('property-name').value = propertyName
+      document.getElementById('property-name').disabled = true
+    } else {
+      document.getElementById('upload-title').textContent = 'New Property'
+      document.getElementById('property-name').value = ''
+      document.getElementById('property-name').disabled = false
+    }
+  }
+
+  window.showListView = function() {
+    document.getElementById('view-upload').classList.remove('active')
+    document.getElementById('view-list').classList.add('active')
+    loadAudits()
+  }
+
+ window.openAudit = async function(auditId, propertyName) {
+    showUploadView(auditId, propertyName)
+    
+    // Load existing files for this audit
+    const files = await getAuditFiles(currentUser.id, auditId)
+    const ul = document.getElementById('file-list')
+    
+    if (files.length > 0) {
+      ul.innerHTML = files.map(f => `
+        <li class="file-item" id="file-${f.name}">
+          <span>📄</span>
+          <span class="file-name">${f.name}</span>
+          <span class="file-size">${formatSize(f.metadata?.size || 0)}</span>
+          <span class="file-status done">✓ Uploaded</span>
+          <span class="remove" onclick="handleDeleteFile('${auditId}', '${f.name}')">✕</span>
+        </li>
+      `).join('')
+    }
+  }
+
+  window.handleDeleteFile = async function(auditId, fileName) {
+    if (!confirm(`Remove "${fileName}" from this audit?`)) return
+    
+    try {
+      await deleteFile(currentUser.id, auditId, fileName)
+      const el = document.getElementById('file-' + fileName)
+      if (el) el.remove()
+
+      // Update file count in database
+      const { supabase } = await import('./src/services/supabase.js')
+      const { data: existing } = await supabase.from('audits').select('file_count').eq('audit_id', auditId).single()
+      const newCount = Math.max(0, (existing?.file_count || 1) - 1)
+      await supabase.from('audits').update({ file_count: newCount, updated_at: new Date().toISOString() }).eq('audit_id', auditId)
+
+    } catch (err) {
+      alert('Failed to remove file: ' + err.message)
+    }
+  }
+
+  // File handling
+  window.handleFileSelect = function(files) { addFiles([...files]) }
   window.handleDrop = function(e) {
     e.preventDefault()
     document.getElementById('drop-zone').classList.remove('drag-over')
     addFiles([...e.dataTransfer.files])
   }
-
+ window.handleDeleteAudit = async function(event, auditId, propertyName) {
+    event.stopPropagation() // prevent opening the audit
+    
+    if (!confirm(`Delete "${propertyName}" and all its documents?\n\nThis cannot be undone. If you need to re-analyze this property, you will need to re-upload all documents.`)) return
+    
+    try {
+      await deleteAudit(currentUser.id, auditId)
+      loadAudits()
+    } catch (err) {
+      alert('Failed to delete audit: ' + err.message)
+    }
+  }
   function addFiles(files) {
     files.forEach(file => {
       if (!selectedFiles.find(f => f.name === file.name)) {
-        selectedFiles.push(file)
+        selectedFiles.push({ file, status: 'pending', duplicate: false })
       }
     })
     renderFileList()
   }
 
   function formatSize(bytes) {
-    if (bytes < 1024) return bytes + ' B'
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
@@ -229,10 +394,12 @@
     ul.innerHTML = selectedFiles.map((f, i) => `
       <li class="file-item">
         <span>📄</span>
-        <span class="file-name">${f.name}</span>
-        <span class="file-size">${formatSize(f.size)}</span>
-        <span class="file-status pending" id="status-${i}">Pending</span>
-        <span class="remove" onclick="removeFile(${i})">✕</span>
+        <span class="file-name">${f.file.name}</span>
+        <span class="file-size">${formatSize(f.file.size)}</span>
+        <span class="file-status ${f.duplicate ? 'duplicate' : f.status}" id="status-${i}">
+          ${f.duplicate ? '⚠️ Already uploaded' : f.status}
+        </span>
+        ${f.duplicate ? '' : `<span class="remove" onclick="removeFile(${i})">✕</span>`}
       </li>
     `).join('')
   }
@@ -242,12 +409,14 @@
     renderFileList()
   }
 
-  // Handle upload
+  // Upload handler
   window.handleUpload = async function() {
     const propertyName = document.getElementById('property-name').value.trim()
     const errorEl = document.getElementById('error-banner')
     const successEl = document.getElementById('success-banner')
     const btn = document.getElementById('upload-btn')
+    const progressBar = document.getElementById('progress-bar')
+    const progressFill = document.getElementById('progress-fill')
 
     errorEl.style.display = 'none'
     successEl.style.display = 'none'
@@ -257,7 +426,6 @@
       errorEl.style.display = 'block'
       return
     }
-
     if (selectedFiles.length === 0) {
       errorEl.textContent = 'Please select at least one file to upload.'
       errorEl.style.display = 'block'
@@ -266,48 +434,82 @@
 
     btn.disabled = true
     btn.textContent = 'Uploading...'
-
-    // Show progress bar
-    const progressBar = document.getElementById('progress-bar')
-    const progressFill = document.getElementById('progress-fill')
     progressBar.style.display = 'block'
+    progressFill.style.width = '10%'
 
     try {
-      // Extract ZIPs and collect all PDFs
+      // Extract ZIPs
       const allPdfs = []
-      for (const file of selectedFiles) {
+      for (const { file } of selectedFiles) {
         if (file.name.endsWith('.zip')) {
           const zip = await JSZip.loadAsync(file)
-          const pdfFiles = Object.keys(zip.files).filter(name => name.endsWith('.pdf'))
+          const pdfFiles = Object.keys(zip.files).filter(n => n.endsWith('.pdf'))
           for (const pdfName of pdfFiles) {
             const blob = await zip.files[pdfName].async('blob')
-            const pdfFile = new File([blob], pdfName.split('/').pop(), { type: 'application/pdf' })
-            allPdfs.push(pdfFile)
+            allPdfs.push(new File([blob], pdfName.split('/').pop(), { type: 'application/pdf' }))
           }
         } else {
           allPdfs.push(file)
         }
       }
 
-      // Update progress
-      progressFill.style.width = '30%'
+      progressFill.style.width = '20%'
 
-      // Upload all PDFs
-      const result = await uploadFiles(allPdfs, currentUser.id)
+      // Check for duplicates if adding to existing audit
+      const auditId = currentAuditId || ('audit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9))
+      const newFiles = []
+
+      for (let i = 0; i < allPdfs.length; i++) {
+        const pdf = allPdfs[i]
+        if (currentAuditId) {
+          const isDuplicate = await checkFileExists(currentUser.id, currentAuditId, pdf.name)
+          if (isDuplicate) {
+            selectedFiles[i].duplicate = true
+            continue
+          }
+        }
+        newFiles.push(pdf)
+      }
+
+      renderFileList()
+      progressFill.style.width = '40%'
+
+      if (newFiles.length === 0) {
+        errorEl.textContent = 'All selected files have already been uploaded to this audit.'
+        errorEl.style.display = 'block'
+        btn.disabled = false
+        btn.textContent = 'Upload & Start Analysis →'
+        progressBar.style.display = 'none'
+        return
+      }
+
+      // Upload new files
+      const result = await uploadFiles(newFiles, currentUser.id, auditId)
+      progressFill.style.width = '80%'
+
+      // Create or update audit record
+      if (!currentAuditId) {
+        await createAuditRecord(currentUser.id, auditId, propertyName, newFiles.length)
+      } else {
+        // Update file count
+        const { supabase } = await import('./src/services/supabase.js')
+        const { data: existing } = await supabase.from('audits').select('file_count').eq('audit_id', auditId).single()
+        await supabase.from('audits').update({ file_count: (existing?.file_count || 0) + newFiles.length, updated_at: new Date().toISOString() }).eq('audit_id', auditId)
+      }
+
       progressFill.style.width = '100%'
 
-      // Update file statuses
-      selectedFiles.forEach((_, i) => {
-        const statusEl = document.getElementById('status-' + i)
-        if (statusEl) { statusEl.textContent = '✓ Uploaded'; statusEl.className = 'file-status done' }
+      // Update statuses
+      selectedFiles.forEach((f, i) => {
+        if (!f.duplicate) { f.status = 'done' }
       })
+      renderFileList()
 
-      // Show success
       document.getElementById('success-message').textContent =
-        `${allPdfs.length} document${allPdfs.length > 1 ? 's' : ''} uploaded for "${propertyName}". Audit ID: ${result.auditId}`
+        `${newFiles.length} document${newFiles.length > 1 ? 's' : ''} uploaded for "${propertyName}".`
       successEl.style.display = 'block'
-      btn.textContent = 'Upload & Start Analysis →'
       btn.disabled = false
+      btn.textContent = 'Upload & Start Analysis →'
 
     } catch (err) {
       errorEl.textContent = 'Upload failed: ' + err.message
