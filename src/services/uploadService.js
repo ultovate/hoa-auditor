@@ -134,3 +134,21 @@ export async function deleteAudit(userId, auditId) {
 
   if (error) throw error
 }
+// Create job records in the jobs table (triggers Railway worker)
+export async function createJobRecords(userId, auditId, uploadedFiles) {
+  const jobs = uploadedFiles.map(file => ({
+    audit_id: auditId,
+    user_id: userId,
+    file_name: file.name,
+    file_path: file.path,
+    status: 'pending',
+    retry_count: 0
+  }))
+  const { data, error } = await supabase
+    .from('jobs')
+    .insert(jobs)
+    .select()
+  if (error) throw error
+  return data
+}
+
