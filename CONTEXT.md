@@ -7,10 +7,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-14 21:03 UTC
-- **Commit:** `a8f2c78` — trigger: redeploy to Vercel
+- **Timestamp:** 2026-03-14 21:08 UTC
+- **Commit:** `2c964cd` — fix: add multi-page vite config for auth and dashboard
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
