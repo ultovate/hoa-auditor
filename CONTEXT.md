@@ -8,10 +8,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-14 21:08 UTC
-- **Commit:** `2c964cd` — fix: add multi-page vite config for auth and dashboard
+- **Timestamp:** 2026-03-14 21:11 UTC
+- **Commit:** `eb5fa3a` — fix: set build target to esnext for top-level await
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
