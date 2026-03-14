@@ -6,10 +6,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-14 20:38 UTC
-- **Commit:** `cbf5184` — Merge branch 'dev' of https://github.com/ultovate/hoa-auditor into dev
+- **Timestamp:** 2026-03-14 21:03 UTC
+- **Commit:** `a8f2c78` — trigger: redeploy to Vercel
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
