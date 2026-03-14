@@ -5,10 +5,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-14 20:34 UTC
-- **Commit:** `7eec632` — feat: replace landing page with coming soon
+- **Timestamp:** 2026-03-14 20:38 UTC
+- **Commit:** `cbf5184` — Merge branch 'dev' of https://github.com/ultovate/hoa-auditor into dev
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
