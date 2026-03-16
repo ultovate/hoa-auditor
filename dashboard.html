@@ -593,13 +593,13 @@
 
     let html = ''
       // TOP DISCLAIMER
-     html += `
+    html += `
       <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:1rem 1.25rem;margin-bottom:.5rem;display:flex;gap:.75rem;align-items:flex-start">
-        <span style="font-size:1rem;flex-shrink:0">⚠️</span>
+        <span style="font-size:1rem;flex-shrink:0">&#9888;</span>
         <p style="color:#64748B;font-size:.78rem;line-height:1.6">
-          <strong style="color:#475569">AI-Generated Analysis — Not Legal Advice.</strong>
-          This report is produced by artificial intelligence for informational purposes only. 
-          It does not constitute legal, financial, or professional advice. Always verify findings 
+          <strong style="color:#475569">AI-Generated Analysis - Not Legal Advice.</strong>
+          This report is produced by artificial intelligence for informational purposes only.
+          It does not constitute legal, financial, or professional advice. Always verify findings
           with a licensed attorney or real estate professional before making decisions.
           Personal identifiers have been automatically redacted from this report.
         </p>
@@ -839,6 +839,7 @@
       errorEl.textContent = 'Please enter a property name or address.'
       errorEl.style.display = 'block'
       return
+    }
     if (!propertyState) {
       errorEl.textContent = 'Please select the property state.'
       errorEl.style.display = 'block'
