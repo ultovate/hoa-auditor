@@ -10,10 +10,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-16 18:12 UTC
-- **Commit:** `3310040` — feat: add terms acceptance, privacy policy, trust badges to auth
+- **Timestamp:** 2026-03-16 18:27 UTC
+- **Commit:** `2f78b70` — feat: add disclaimers, needs_review status, PII notice to results
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
