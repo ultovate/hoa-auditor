@@ -833,10 +833,14 @@
 
   // ── UPLOAD HANDLER ────────────────────────────────────
   window.handleUpload = async function() {
+    const btn = document.getElementById('upload-btn')
+    if (btn.disabled) return  // prevent double submission
+    btn.disabled = true
+    btn.textContent = 'Uploading...'
     const propertyName = document.getElementById('property-name').value.trim()
     const errorEl = document.getElementById('error-banner')
     const successEl = document.getElementById('success-banner')
-    const btn = document.getElementById('upload-btn')
+    
     const progressBar = document.getElementById('progress-bar')
     const progressFill = document.getElementById('progress-fill')
     const propertyState = document.getElementById('property-state').value
@@ -860,8 +864,6 @@
       return
     }
 
-    btn.disabled = true
-    btn.textContent = 'Uploading...'
     progressBar.style.display = 'block'
     progressFill.style.width = '10%'
 
