@@ -10,7 +10,9 @@
       --navy: #0F1E2E;
       --blue: #2E5BFF;
       --blue-light: #4A73FF;
+      --emerald: #10B981;
       --gray-400: #9CA3AF;
+      --gray-600: #4B5563;
       --white: #FFFFFF;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,7 +50,7 @@
       font-weight: 500; letter-spacing: .05em; text-transform: uppercase;
       margin-bottom: .4rem; margin-top: 1rem;
     }
-    input {
+    input[type="email"], input[type="password"], input[type="text"] {
       width: 100%; padding: .7rem 1rem;
       background: rgba(255,255,255,0.07);
       border: 1px solid rgba(255,255,255,0.12);
@@ -56,68 +58,261 @@
       font-family: 'DM Sans', sans-serif; font-size: .95rem;
       outline: none; transition: border .2s;
     }
-    input:focus { border-color: var(--blue-light); }
+    input:focus { border-color: rgba(46,91,255,0.6); }
+    input::placeholder { color: rgba(255,255,255,0.25); }
     .btn {
-      width: 100%; padding: .8rem; margin-top: 1.5rem;
-      background: var(--blue); color: var(--white);
-      border: none; border-radius: 8px;
-      font-family: 'DM Sans', sans-serif; font-size: .95rem;
-      font-weight: 600; cursor: pointer; transition: background .2s;
+      width: 100%; margin-top: 1.25rem; padding: .75rem;
+      background: var(--blue); color: var(--white); border: none;
+      border-radius: 8px; font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 600; cursor: pointer; transition: background .2s;
     }
     .btn:hover { background: var(--blue-light); }
     .btn:disabled { opacity: .6; cursor: not-allowed; }
-    .error {
-      background: #FEF2F2; color: #B91C1C;
-      border-radius: 8px; padding: .75rem 1rem;
-      font-size: .85rem; margin-top: 1rem; display: none;
+    .error-msg {
+      display: none; margin-top: .75rem; padding: .6rem .9rem;
+      background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 6px; color: #FCA5A5; font-size: .83rem;
     }
-    .success {
-      background: #ECFDF5; color: #065F46;
-      border-radius: 8px; padding: .75rem 1rem;
-      font-size: .85rem; margin-top: 1rem; display: none;
+    .success-msg {
+      display: none; margin-top: .75rem; padding: .6rem .9rem;
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 6px; color: #6EE7B7; font-size: .83rem;
     }
-    .forgot {
-      text-align: right; margin-top: .5rem;
-      font-size: .8rem; color: var(--blue-light); cursor: pointer;
+    .forgot-link {
+      display: block; text-align: right; color: var(--blue-light);
+      font-size: .82rem; margin-top: .5rem; cursor: pointer; text-decoration: none;
     }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* Terms checkbox */
+    .terms-row {
+      display: flex; align-items: flex-start; gap: .6rem;
+      margin-top: 1.25rem; padding: .75rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+    }
+    .terms-row input[type="checkbox"] {
+      width: 16px; height: 16px; flex-shrink: 0; margin-top: .15rem;
+      accent-color: var(--blue); cursor: pointer;
+    }
+    .terms-row label {
+      font-size: .82rem; color: var(--gray-400); text-transform: none;
+      letter-spacing: 0; margin: 0; cursor: pointer; line-height: 1.5;
+    }
+    .terms-row label a {
+      color: var(--blue-light); text-decoration: none;
+    }
+    .terms-row label a:hover { text-decoration: underline; }
+
+    /* Privacy trust badges */
+    .trust-badges {
+      display: flex; flex-wrap: wrap; gap: .5rem;
+      margin-top: 1.5rem; justify-content: center;
+    }
+    .trust-badge {
+      display: flex; align-items: center; gap: .3rem;
+      color: rgba(255,255,255,0.35); font-size: .72rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7); z-index: 100;
+      align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #1A2B3C; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; max-width: 560px; width: 100%;
+      max-height: 80vh; display: flex; flex-direction: column;
+    }
+    .modal-header {
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { color: var(--white); font-size: 1rem; font-weight: 600; }
+    .modal-close {
+      color: var(--gray-400); cursor: pointer; font-size: 1.2rem;
+      background: none; border: none; padding: .25rem;
+    }
+    .modal-close:hover { color: var(--white); }
+    .modal-body {
+      padding: 1.5rem; overflow-y: auto; color: var(--gray-400);
+      font-size: .85rem; line-height: 1.7;
+    }
+    .modal-body h4 { color: var(--white); font-size: .9rem; margin: 1.25rem 0 .5rem; }
+    .modal-body h4:first-child { margin-top: 0; }
+    .modal-body p { margin-bottom: .75rem; }
+    .modal-body ul { margin: .5rem 0 .75rem 1.25rem; }
+    .modal-body ul li { margin-bottom: .35rem; }
+    .modal-footer {
+      padding: 1rem 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .modal-footer .btn { margin-top: 0; }
   </style>
 </head>
 <body>
+
 <div class="wrap">
   <div class="logo">HOA<span>Auditor</span></div>
-  <div class="tagline">AI-powered HOA document analysis</div>
+  <p class="tagline">AI-powered HOA document analysis</p>
+
   <div class="card">
     <div class="tabs">
       <div class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</div>
       <div class="tab" id="tab-signup" onclick="switchTab('signup')">Create Account</div>
     </div>
 
-    <div id="form-signin" class="form active">
-      <label>Email Address</label>
+    <!-- SIGN IN -->
+    <div class="form active" id="form-signin">
+      <label for="signin-email">Email Address</label>
       <input type="email" id="signin-email" placeholder="you@example.com" />
-      <label>Password</label>
+      <label for="signin-password">Password</label>
       <input type="password" id="signin-password" placeholder="••••••••" />
-      <div class="forgot" onclick="switchTab('forgot')">Forgot password?</div>
+      <a class="forgot-link" onclick="switchTab('forgot')">Forgot password?</a>
       <button class="btn" id="btn-signin" onclick="handleSignIn()">Sign In</button>
-      <div class="error" id="signin-error"></div>
+      <div class="error-msg" id="signin-error"></div>
     </div>
 
-    <div id="form-signup" class="form">
-      <label>Email Address</label>
+    <!-- SIGN UP -->
+    <div class="form" id="form-signup">
+      <label for="signup-email">Email Address</label>
       <input type="email" id="signup-email" placeholder="you@example.com" />
-      <label>Password</label>
-      <input type="password" id="signup-password" placeholder="At least 8 characters" />
+      <label for="signup-password">Password</label>
+      <input type="password" id="signup-password" placeholder="Min. 8 characters" />
+
+      <!-- Terms acceptance -->
+      <div class="terms-row">
+        <input type="checkbox" id="terms-checkbox" />
+        <label for="terms-checkbox">
+          I have read and agree to the
+          <a href="#" onclick="showModal('terms'); return false;">Terms of Service</a>
+          and
+          <a href="#" onclick="showModal('privacy'); return false;">Privacy Policy</a>,
+          including data retention and deletion practices.
+        </label>
+      </div>
+
       <button class="btn" id="btn-signup" onclick="handleSignUp()">Create Account</button>
-      <div class="error" id="signup-error"></div>
-      <div class="success" id="signup-success"></div>
+      <div class="error-msg" id="signup-error"></div>
+      <div class="success-msg" id="signup-success"></div>
     </div>
 
-    <div id="form-forgot" class="form">
-      <label>Email Address</label>
+    <!-- FORGOT PASSWORD -->
+    <div class="form" id="form-forgot">
+      <label for="forgot-email">Email Address</label>
       <input type="email" id="forgot-email" placeholder="you@example.com" />
       <button class="btn" id="btn-forgot" onclick="handleForgotPassword()">Send Reset Link</button>
-      <div class="error" id="forgot-error"></div>
-      <div class="success" id="forgot-success"></div>
+      <div class="error-msg" id="forgot-error"></div>
+      <div class="success-msg" id="forgot-success"></div>
+      <a class="forgot-link" style="text-align:left; margin-top:.75rem" onclick="switchTab('signin')">← Back to Sign In</a>
+    </div>
+  </div>
+
+  <!-- Trust badges -->
+  <div class="trust-badges">
+    <div class="trust-badge">🔒 Encrypted at rest</div>
+    <div class="trust-badge">🗑 Auto-deleted after 30 days</div>
+    <div class="trust-badge">🚫 Never shared with third parties</div>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE MODAL -->
+<div class="modal-overlay" id="modal-terms">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Terms of Service</h3>
+      <button class="modal-close" onclick="closeModal('terms')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>1. Acceptance of Terms</h4>
+      <p>By creating an account and using HOA Auditor ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.</p>
+
+      <h4>2. Description of Service</h4>
+      <p>HOA Auditor is an AI-powered document analysis tool that processes HOA documents to surface restrictions, financial health signals, and compliance information. The Service is provided by Ultovate.</p>
+
+      <h4>3. Important Disclaimer — Not Legal Advice</h4>
+      <p>The analysis provided by HOA Auditor is for informational purposes only and does not constitute legal, financial, or professional advice. You should always consult a licensed attorney, real estate professional, or financial advisor before making decisions based on this analysis.</p>
+      <p>HOA Auditor makes no warranty that the analysis is complete, accurate, or current. Document OCR and AI analysis may contain errors.</p>
+
+      <h4>4. Authorized Use</h4>
+      <ul>
+        <li>You may only upload documents you are legally authorized to process</li>
+        <li>You may not use the Service for any unlawful purpose</li>
+        <li>You are responsible for maintaining the confidentiality of your account</li>
+      </ul>
+
+      <h4>5. Data & Privacy</h4>
+      <p>Your use of the Service is also governed by our Privacy Policy. By using the Service, you consent to the collection and use of information as described therein.</p>
+
+      <h4>6. Limitation of Liability</h4>
+      <p>To the maximum extent permitted by law, Ultovate shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service.</p>
+
+      <h4>7. Changes to Terms</h4>
+      <p>We reserve the right to modify these Terms at any time. Continued use of the Service constitutes acceptance of the updated Terms.</p>
+
+      <h4>8. Contact</h4>
+      <p>For questions about these Terms, contact us at legal@ultovate.com.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="acceptAndClose('terms')">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY POLICY MODAL -->
+<div class="modal-overlay" id="modal-privacy">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Privacy Policy</h3>
+      <button class="modal-close" onclick="closeModal('privacy')">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>1. Information We Collect</h4>
+      <ul>
+        <li>Account information: email address and encrypted password</li>
+        <li>Uploaded documents: HOA document packages you upload for analysis</li>
+        <li>Analysis results: AI-generated reports stored on your behalf</li>
+        <li>Usage data: how you interact with the Service</li>
+      </ul>
+
+      <h4>2. How We Use Your Information</h4>
+      <ul>
+        <li>To provide and improve the Service</li>
+        <li>To process your HOA documents and generate analysis reports</li>
+        <li>To send you notifications about your analysis results</li>
+        <li>We never sell your data to third parties</li>
+        <li>We never use your documents to train AI models</li>
+      </ul>
+
+      <h4>3. PII Protection</h4>
+      <p>HOA documents may contain personally identifiable information (PII) such as buyer and seller names. HOA Auditor automatically redacts names and personal identifiers from analysis reports. Raw document text is stored securely and never displayed in reports.</p>
+
+      <h4>4. Data Retention & Deletion</h4>
+      <ul>
+        <li><strong>Documents:</strong> Automatically deleted after 30 days</li>
+        <li><strong>Analysis reports:</strong> Retained until you delete them or your account</li>
+        <li><strong>Account data:</strong> Retained until you delete your account</li>
+        <li><strong>Your control:</strong> You can delete individual audits or your entire account at any time</li>
+      </ul>
+
+      <h4>5. Data Security</h4>
+      <p>All data is encrypted at rest and in transit. We use Supabase for secure data storage with enterprise-grade security controls. Access to your data is restricted to your account only.</p>
+
+      <h4>6. Your Rights</h4>
+      <ul>
+        <li>Access your data at any time through your dashboard</li>
+        <li>Delete individual audits and documents</li>
+        <li>Request complete account deletion by emailing privacy@ultovate.com</li>
+        <li>Export your analysis reports</li>
+      </ul>
+
+      <h4>7. Contact</h4>
+      <p>For privacy questions, contact us at privacy@ultovate.com.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="acceptAndClose('privacy')">I Understand</button>
     </div>
   </div>
 </div>
@@ -134,8 +329,22 @@
   window.switchTab = function(tab) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
     document.querySelectorAll('.form').forEach(f => f.classList.remove('active'))
-    document.getElementById('tab-' + tab).classList.add('active')
+    const tabEl = document.getElementById('tab-' + tab)
+    if (tabEl) tabEl.classList.add('active')
     document.getElementById('form-' + tab).classList.add('active')
+  }
+
+  window.showModal = function(type) {
+    document.getElementById('modal-' + type).classList.add('active')
+  }
+
+  window.closeModal = function(type) {
+    document.getElementById('modal-' + type).classList.remove('active')
+  }
+
+  window.acceptAndClose = function(type) {
+    closeModal(type)
+    document.getElementById('terms-checkbox').checked = true
   }
 
   window.handleSignIn = async function() {
@@ -160,12 +369,30 @@
   window.handleSignUp = async function() {
     const email = document.getElementById('signup-email').value
     const password = document.getElementById('signup-password').value
+    const termsChecked = document.getElementById('terms-checkbox').checked
     const errorEl = document.getElementById('signup-error')
     const successEl = document.getElementById('signup-success')
     const btn = document.getElementById('btn-signup')
+
+    errorEl.style.display = 'none'
+    successEl.style.display = 'none'
+
+    // Validate terms acceptance
+    if (!termsChecked) {
+      errorEl.textContent = 'Please read and accept the Terms of Service and Privacy Policy to continue.'
+      errorEl.style.display = 'block'
+      return
+    }
+
+    if (password.length < 8) {
+      errorEl.textContent = 'Password must be at least 8 characters.'
+      errorEl.style.display = 'block'
+      return
+    }
+
     btn.disabled = true
     btn.textContent = 'Creating account...'
-    errorEl.style.display = 'none'
+
     try {
       await signUp(email, password)
       successEl.textContent = '✅ Account created! Check your email to confirm your account.'
@@ -187,6 +414,7 @@
     const btn = document.getElementById('btn-forgot')
     btn.disabled = true
     btn.textContent = 'Sending...'
+    errorEl.style.display = 'none'
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/dashboard.html`
@@ -203,6 +431,16 @@
       btn.textContent = 'Send Reset Link'
     }
   }
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const activeForm = document.querySelector('.form.active')?.id
+      if (activeForm === 'form-signin') handleSignIn()
+      else if (activeForm === 'form-signup') handleSignUp()
+      else if (activeForm === 'form-forgot') handleForgotPassword()
+    }
+  })
 </script>
 </body>
 </html>
