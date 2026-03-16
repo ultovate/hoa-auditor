@@ -9,10 +9,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-14 21:11 UTC
-- **Commit:** `eb5fa3a` — fix: set build target to esnext for top-level await
+- **Timestamp:** 2026-03-16 18:12 UTC
+- **Commit:** `3310040` — feat: add terms acceptance, privacy policy, trust badges to auth
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
