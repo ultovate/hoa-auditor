@@ -333,8 +333,24 @@
     <div class="upload-card">
       <h2 id="upload-title" style="font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--navy);margin-bottom:1.5rem;">New Property</h2>
 
-      <label class="field-label">Property Name or Address</label>
-      <input type="text" class="field-input" id="property-name" placeholder="e.g. 4512 Lakeview Dr Unit 7B" />
+      <label class="field-label">Property Address</label>
+      <input type="text" class="field-input" id="property-name" placeholder="e.g. 4512 Lakeview Dr Unit 7B, Seattle WA 98101" />
+
+      <label class="field-label">State</label>
+      <select class="field-input" id="property-state" style="cursor:pointer">
+        <option value="">Select state...</option>
+        <option value="WA">Washington (WA)</option>
+        <option value="OR">Oregon (OR)</option>
+        <option value="CA">California (CA)</option>
+        <option value="TX">Texas (TX)</option>
+        <option value="FL">Florida (FL)</option>
+        <option value="NY">New York (NY)</option>
+        <option value="IL">Illinois (IL)</option>
+        <option value="AZ">Arizona (AZ)</option>
+        <option value="CO">Colorado (CO)</option>
+        <option value="NV">Nevada (NV)</option>
+        <option value="Other">Other</option>
+      </select>
 
       <label class="field-label">HOA Documents</label>
       <div class="drop-zone" id="drop-zone"
@@ -814,12 +830,17 @@
     const btn = document.getElementById('upload-btn')
     const progressBar = document.getElementById('progress-bar')
     const progressFill = document.getElementById('progress-fill')
+    const propertyState = document.getElementById('property-state').value
 
     errorEl.style.display = 'none'
     successEl.style.display = 'none'
 
     if (!propertyName) {
       errorEl.textContent = 'Please enter a property name or address.'
+      errorEl.style.display = 'block'
+      return
+    if (!propertyState) {
+      errorEl.textContent = 'Please select the property state.'
       errorEl.style.display = 'block'
       return
     }
@@ -886,7 +907,7 @@
 
       // Create or update audit record
       if (!currentAuditId) {
-        await createAuditRecord(currentUser.id, auditId, propertyName, newFiles.length)
+        await createAuditRecord(currentUser.id, auditId, propertyName, newFiles.length, propertyState)
       } else {
         const { data: existing } = await supabase.from('audits').select('file_count').eq('audit_id', auditId).single()
         await supabase.from('audits').update({

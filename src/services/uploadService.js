@@ -40,7 +40,7 @@ export async function listFiles(userId, auditId) {
   return data
 }
 // Create an audit record in the database
-export async function createAuditRecord(userId, auditId, propertyName, fileCount) {
+export async function createAuditRecord(userId, auditId, propertyName, fileCount, state = null) {
   const { data, error } = await supabase
     .from('audits')
     .insert({
@@ -48,11 +48,11 @@ export async function createAuditRecord(userId, auditId, propertyName, fileCount
       audit_id: auditId,
       property_name: propertyName,
       file_count: fileCount,
+      state: state,
       status: 'uploaded'
     })
     .select()
     .single()
-
   if (error) throw error
   return data
 }
