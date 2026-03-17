@@ -19,14 +19,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 17:38 UTC
-- **Commit:** `ef0b90b` — fix: compute risk counts from actual findings instead of Gemini self-report
+- **Timestamp:** 2026-03-17 17:45 UTC
+- **Commit:** `ec67ba1` — fix: citations on all finding sections
 
-Replace overall_verdict count fields with computeRiskCounts() which tallies
-from risk_findings, restrictions, transaction_risks, missing_documents, and
-financial_projections so verdict circle always matches rendered sections.
+- Render source citations on top_concerns and transaction_risks
+- Hide citation row when both fields are empty (no more blank " - ")
+- Update submodule pointer
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
