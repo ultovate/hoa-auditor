@@ -21,10 +21,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 19:30 UTC
-- **Commit:** `6a6683f` — fix: redact PII before storing - update submodule pointer
+- **Timestamp:** 2026-03-17 19:58 UTC
+- **Commit:** `b204352` — chore: update hoa-pdf-converter submodule pointer (PII redaction expansion)
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
