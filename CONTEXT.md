@@ -26,14 +26,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 21:22 UTC
-- **Commit:** `c273a1a` — feat: collapsible restriction items — collapsed by default, expand on click
+- **Timestamp:** 2026-03-17 22:25 UTC
+- **Commit:** `4ddf8d2` — feat: render WA compliance check section in dashboard
 
-Restrictions section now shows badge + category name only by default.
-Click any row to expand the full rule text and source citation.
-Uses native <details>/<summary> — no JS required.
+Shows per-item compliance status grouped as Not Found / Unclear / Verified.
+Includes summary counts, NEW 2026 badge for new requirements, action items
+for missing/unclear items, and verified items collapsed by default.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
