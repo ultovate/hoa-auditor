@@ -417,7 +417,7 @@
   // Auth check
   currentUser = await getCurrentUser()
   if (!currentUser) {
-    window.location.href = '/auth.html'
+    window.location.href = import.meta.env.BASE_URL + 'auth.html'
   } else {
     document.getElementById('user-email').textContent = currentUser.email
     loadAudits()
@@ -425,7 +425,7 @@
 
   window.handleSignOut = async function() {
     await signOut()
-    window.location.href = '/auth.html'
+    window.location.href = import.meta.env.BASE_URL + 'auth.html'
   }
 
   // ── AUDITS LIST ───────────────────────────────────────
@@ -460,7 +460,7 @@
   }
 
   // ── VIEW NAVIGATION ───────────────────────────────────
-  window.showUploadView = async function(auditId = null, propertyName = null) {
+  window.showUploadView = function(auditId = null, propertyName = null) {
     stopPolling()
     document.getElementById('view-list').classList.remove('active')
     document.getElementById('view-results').classList.remove('active')
@@ -476,19 +476,10 @@
       document.getElementById('upload-title').textContent = 'Add Files — ' + propertyName
       document.getElementById('property-name').value = propertyName
       document.getElementById('property-name').disabled = true
-      // Pre-fill state from audit record
-      const { supabase } = await import('./src/services/supabase.js')
-      const { data: audit } = await supabase.from('audits').select('state').eq('audit_id', auditId).single()
-      if (audit?.state) {
-        document.getElementById('property-state').value = audit.state
-        document.getElementById('property-state').disabled = true
-      }
     } else {
       document.getElementById('upload-title').textContent = 'New Property'
       document.getElementById('property-name').value = ''
       document.getElementById('property-name').disabled = false
-      document.getElementById('property-state').value = ''
-      document.getElementById('property-state').disabled = false
     }
   }
 
@@ -586,49 +577,293 @@
     return 'GREEN'
   }
 
- function renderAuditAnalysis(a) {
-  const grid = document.getElementById('results-grid')
-  const verdict = a.overall_verdict?.verdict || 'UNKNOWN'
-  const colors = { CRITICAL: '#EF4444', CAUTION: '#F59E0B', SAFE: '#10B981' }
-  
-  grid.innerHTML = `
-    <div class="result-card">
-      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-        <div style="width:72px;height:72px;border-radius:50%;border:3px solid ${colors[verdict] || '#9CA3AF'};display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:${colors[verdict] || '#9CA3AF'}">${verdict}</div>
-        <div>
-          <div style="font-weight:700;font-size:1rem;color:var(--gray-800)">${a.buyer_summary?.headline || ''}</div>
-          <div style="font-size:.85rem;color:var(--gray-400);margin-top:.25rem">${a.metadata?.hoa_name || ''}</div>
-        </div>
-      </div>
-      <p style="color:var(--gray-600);font-size:.88rem;line-height:1.6">${a.buyer_summary?.what_we_found || ''}</p>
-    </div>
+  function renderAuditAnalysis(a) {
+    const grid = document.getElementById('results-grid')
 
-    ${(a.buyer_summary?.top_concerns || []).map(c => `
-    <div class="result-card">
-      <div style="font-weight:700;color:var(--gray-800);margin-bottom:.5rem">⚠️ ${c.concern?.split(':')[0] || 'Concern'}</div>
-      <p style="color:var(--gray-600);font-size:.85rem;line-height:1.6;margin-bottom:.5rem">${c.why_it_matters || ''}</p>
-      <div style="background:#EEF2FF;border-radius:6px;padding:.5rem .75rem;font-size:.82rem;color:var(--blue)">→ ${c.what_to_do || ''}</div>
-    </div>`).join('')}
+    // Support both old schema and new schema
+    const isNewSchema = !!a.overall_verdict
+    
+    // ── NEW SCHEMA ──────────────────────────────────────
+    if (isNewSchema) {
+      const verdict = a.overall_verdict?.verdict || 'CAUTION'
+      const verdictColors = { CRITICAL: '#EF4444', CAUTION: '#F59E0B', SAFE: '#10B981' }
+      const verdictBg = { CRITICAL: '#FEF2F2', CAUTION: '#FEF3C7', SAFE: '#ECFDF5' }
+      const verdictText = { CRITICAL: '#991B1B', CAUTION: '#92400E', SAFE: '#065F46' }
+      const color = verdictColors[verdict] || '#9CA3AF'
+      const bg = verdictBg[verdict] || '#F3F4F6'
+      const tc = verdictText[verdict] || '#6B7280'
 
-    ${(a.buyer_profile_verdicts?.verdicts || []).map(v => `
-    <div class="result-card" style="display:flex;align-items:center;justify-content:space-between">
-      <div style="font-weight:600;color:var(--gray-800);font-size:.9rem">${v.buyer_type_label}</div>
-      <span style="padding:.25rem .75rem;border-radius:999px;font-size:.75rem;font-weight:700;background:${v.verdict === 'DO NOT BUY' ? '#FEF2F2' : v.verdict === 'CAUTION' ? '#FEF3C7' : '#ECFDF5'};color:${v.verdict === 'DO NOT BUY' ? '#B91C1C' : v.verdict === 'CAUTION' ? '#92400E' : '#065F46'}">${v.verdict}</span>
-    </div>`).join('')}
+      const restrictions = a.restrictions?.restrictions_found || []
+      const risks = a.risk_findings?.findings || []
+      const missingCritical = a.missing_documents?.critical_missing || []
+      const missingRecommended = a.missing_documents?.recommended_missing || []
+      const verdicts = a.buyer_profile_verdicts?.verdicts || []
+      const docs = a.document_inventory || []
+      const topConcerns = a.buyer_summary?.top_concerns || []
+      const transactionRisks = a.agent_summary?.transaction_risks || []
 
-    <div class="result-card">
-      <div style="font-weight:700;color:var(--gray-800);margin-bottom:.75rem">📋 Missing Documents</div>
-      ${(a.missing_documents?.critical_missing || []).map(d => `
-        <div style="padding:.5rem 0;border-bottom:1px solid var(--gray-100);font-size:.85rem">
-          <span style="background:#FEF2F2;color:#B91C1C;padding:.15rem .5rem;border-radius:4px;font-size:.7rem;font-weight:700;margin-right:.5rem">CRITICAL</span>
-          ${d.label}
-        </div>`).join('')}
-      ${(a.missing_documents?.recommended_missing || []).map(d => `
-        <div style="padding:.5rem 0;border-bottom:1px solid var(--gray-100);font-size:.85rem">
-          <span style="background:#FEF3C7;color:#92400E;padding:.15rem .5rem;border-radius:4px;font-size:.7rem;font-weight:700;margin-right:.5rem">RECOMMENDED</span>
-          ${d.label}
-        </div>`).join('')}
-    </div>`
+      const hCount = a.overall_verdict?.high_count || 0
+      const mCount = a.overall_verdict?.medium_count || 0
+      const lCount = a.overall_verdict?.low_count || 0
+      const cCount = a.overall_verdict?.critical_count || 0
+
+      let html = ''
+
+      // TOP DISCLAIMER
+      html += `
+        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:1rem 1.25rem;display:flex;gap:.75rem;align-items:flex-start">
+          <span style="font-size:1rem;flex-shrink:0">&#9888;</span>
+          <p style="color:#64748B;font-size:.78rem;line-height:1.6">
+            <strong style="color:#475569">AI-Generated Analysis - Not Legal Advice.</strong>
+            This report is produced by artificial intelligence for informational purposes only.
+            It does not constitute legal, financial, or professional advice. Always verify findings
+            with a licensed attorney or real estate professional before making decisions.
+            Personal identifiers have been automatically redacted from this report.
+          </p>
+        </div>`
+
+      // OVERALL VERDICT
+      html += `
+        <div class="traffic-light">
+          <div style="width:80px;height:80px;border-radius:50%;border:3px solid ${color};background:${bg};display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">
+            <span style="font-size:1.2rem;font-weight:700;color:${tc}">${verdict === 'SAFE' ? '&#10003;' : verdict === 'CRITICAL' ? '&#10005;' : '!'}</span>
+            <span style="font-size:.6rem;font-weight:700;color:${tc};letter-spacing:.05em">${verdict}</span>
+          </div>
+          <div class="traffic-light-body">
+            <h3>${a.buyer_summary?.headline || 'Analysis Complete'}</h3>
+            <p class="summary-text">${a.overall_verdict?.verdict_reason || ''}</p>
+            <div class="risk-counts">
+              ${cCount ? `<div class="risk-count"><div class="dot high"></div>${cCount} Critical</div>` : ''}
+              ${hCount ? `<div class="risk-count"><div class="dot high"></div>${hCount} High</div>` : ''}
+              ${mCount ? `<div class="risk-count"><div class="dot medium"></div>${mCount} Medium</div>` : ''}
+              ${lCount ? `<div class="risk-count"><div class="dot low"></div>${lCount} Low</div>` : ''}
+            </div>
+          </div>
+        </div>`
+
+      // OVERVIEW
+      html += `
+        <div class="result-card">
+          <div class="result-card-header"><h3>&#128203; Property Overview</h3></div>
+          <p class="summary-text">${a.buyer_summary?.what_we_found || ''}</p>
+          ${a.metadata?.hoa_name ? `<div style="margin-top:.75rem;font-size:.82rem;color:var(--gray-400)">HOA: ${a.metadata.hoa_name}</div>` : ''}
+          ${a.metadata?.management_company ? `<div style="font-size:.82rem;color:var(--gray-400)">Management: ${a.metadata.management_company}</div>` : ''}
+          ${a.missing_documents?.analysis_completeness ? `<div style="margin-top:.5rem;font-size:.78rem;font-weight:600;color:${a.missing_documents.analysis_completeness === 'FULL' ? '#065F46' : a.missing_documents.analysis_completeness === 'PARTIAL' ? '#92400E' : '#B91C1C'}">Analysis completeness: ${a.missing_documents.analysis_completeness}</div>` : ''}
+        </div>`
+
+      // DOCUMENTS ANALYZED
+      if (docs.length > 0) {
+        html += `
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3>&#128193; Documents Analyzed</h3>
+              <span class="count">${docs.length}</span>
+            </div>
+            <div class="doc-tags">
+              ${docs.map(d => `<span class="doc-tag" title="${d.filename}">${d.document_label}</span>`).join('')}
+            </div>
+          </div>`
+      }
+
+      // TOP CONCERNS (buyer summary)
+      if (topConcerns.length > 0) {
+        html += `
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3>&#9888; Top Concerns for Buyer</h3>
+              <span class="count">${topConcerns.length}</span>
+            </div>
+            ${topConcerns.map(c => `
+              <div class="restriction-item">
+                <div class="restriction-title">${c.concern?.split(':')[0] || 'Concern'}</div>
+                <div class="restriction-detail">${c.why_it_matters || ''}</div>
+                <div style="background:#EEF2FF;border-radius:6px;padding:.4rem .75rem;font-size:.8rem;color:var(--blue);margin-top:.35rem">&#8594; ${c.what_to_do || ''}</div>
+              </div>`).join('')}
+          </div>`
+      }
+
+      // AGENT TRANSACTION RISKS
+      if (transactionRisks.length > 0) {
+        html += `
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3>&#127968; Agent: Transaction Risks</h3>
+              <span class="count">${transactionRisks.length}</span>
+            </div>
+            ${transactionRisks.map(r => `
+              <div class="restriction-item">
+                <div class="restriction-title">
+                  <span class="severity-badge ${r.urgency === 'CRITICAL' ? 'HIGH' : r.urgency || 'MEDIUM'}">${r.urgency}</span>
+                  ${r.risk}
+                </div>
+                ${r.lender_impact ? '<div style="font-size:.78rem;color:#B91C1C;margin-top:.25rem">&#9888; May affect lender approval</div>' : ''}
+                ${r.negotiation_lever && r.negotiation_lever !== 'No' ? `<div style="font-size:.78rem;color:#065F46;margin-top:.25rem">&#10003; Negotiation opportunity</div>` : ''}
+              </div>`).join('')}
+            ${a.agent_summary?.lender_flags?.length ? `
+              <div style="background:#FEF2F2;border-radius:8px;padding:.75rem;margin-top:.75rem">
+                <div style="font-size:.78rem;font-weight:700;color:#B91C1C;margin-bottom:.35rem">Lender Flags:</div>
+                ${a.agent_summary.lender_flags.map(f => `<div style="font-size:.8rem;color:#B91C1C">&#8226; ${f}</div>`).join('')}
+              </div>` : ''}
+          </div>`
+      }
+
+      // RESTRICTIONS
+      if (restrictions.length > 0) {
+        const impactOrder = { HIGH: 0, MEDIUM: 1, LOW: 2 }
+        const sorted = [...restrictions].sort((x, y) => (impactOrder[x.buyer_impact] ?? 3) - (impactOrder[y.buyer_impact] ?? 3))
+        html += `
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3>&#128683; Restrictions</h3>
+              <span class="count">${restrictions.length}</span>
+            </div>
+            <p style="color:var(--gray-400);font-size:.72rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
+              AI-generated findings. Verify with source documents before relying on this information.
+            </p>
+            ${sorted.map(r => `
+              <div class="restriction-item">
+                <div class="restriction-title">
+                  <span class="severity-badge ${r.buyer_impact || 'LOW'}">${r.buyer_impact || 'LOW'}</span>
+                  ${r.category_label}
+                </div>
+                <div class="restriction-detail">${r.rule || ''}</div>
+                <div class="restriction-source">&#128196; ${r.source_section || ''} - ${r.source_document || ''}</div>
+              </div>`).join('')}
+          </div>`
+      }
+
+      // RISK FINDINGS
+      if (risks.length > 0) {
+        html += `
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3>&#9888; Risk Findings</h3>
+              <span class="count">${risks.length}</span>
+            </div>
+            <p style="color:var(--gray-400);font-size:.72rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
+              AI-generated findings. Verify with source documents before relying on this information.
+            </p>
+            ${risks.map(r => `
+              <div class="restriction-item">
+                <div class="restriction-title">
+                  <span class="severity-badge ${r.urgency === 'CRITICAL' || r.urgency === 'HIGH' ? 'HIGH' : r.urgency === 'MEDIUM' ? 'MEDIUM' : 'LOW'}">${r.urgency}</span>
+                  ${r.label}
+                </div>
+                <div class="restriction-detail">${r.finding || ''}</div>
+                ${r.buyer_impact ? `<div style="font-size:.82rem;color:var(--blue);margin-top:.25rem">Impact: ${r.buyer_impact}</div>` : ''}
+                <div class="restriction-source">&#128196; ${r.source_section || ''} - ${r.source_document || ''}</div>
+              </div>`).join('')}
+          </div>`
+      }
+
+      // BUYER PROFILE VERDICTS
+      if (verdicts.length > 0) {
+        const verdictOrder = { 'DO NOT BUY': 0, 'CAUTION': 1, 'OK': 2 }
+        const sortedV = [...verdicts].sort((x, y) => (verdictOrder[x.verdict] ?? 3) - (verdictOrder[y.verdict] ?? 3))
+        html += `
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3>&#128100; Buyer Profile Verdicts</h3>
+              <span class="count">${verdicts.length}</span>
+            </div>
+            <p style="color:var(--gray-400);font-size:.72rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
+              Based on restrictions found in the documents above.
+            </p>
+            ${sortedV.map(v => `
+              <div class="restriction-item">
+                <div class="restriction-title" style="justify-content:space-between">
+                  <span style="font-weight:600;color:var(--gray-800)">${v.buyer_type_label}</span>
+                  <span style="padding:.2rem .65rem;border-radius:999px;font-size:.72rem;font-weight:700;background:${v.verdict === 'DO NOT BUY' ? '#FEF2F2' : v.verdict === 'CAUTION' ? '#FEF3C7' : '#ECFDF5'};color:${v.verdict === 'DO NOT BUY' ? '#B91C1C' : v.verdict === 'CAUTION' ? '#92400E' : '#065F46'}">${v.verdict}</span>
+                </div>
+                <div class="restriction-detail">${v.verdict_reason || ''}</div>
+                ${v.dealbreakers?.length ? `
+                  <div style="margin-top:.5rem">
+                    ${v.dealbreakers.map(d => `<div style="font-size:.78rem;color:#B91C1C;padding:.2rem 0">&#8226; ${d}</div>`).join('')}
+                  </div>` : ''}
+              </div>`).join('')}
+          </div>`
+      }
+
+      // MISSING DOCUMENTS
+      if (missingCritical.length > 0 || missingRecommended.length > 0) {
+        html += `
+          <div class="result-card">
+            <div class="result-card-header"><h3>&#128203; Missing Documents</h3></div>
+            ${missingCritical.map(d => `
+              <div class="restriction-item">
+                <div class="restriction-title">
+                  <span class="severity-badge HIGH">CRITICAL</span>
+                  ${d.label}
+                </div>
+                <div class="restriction-detail">${d.why_critical || ''}</div>
+                <div class="restriction-source">How to obtain: ${d.how_to_obtain || ''}</div>
+              </div>`).join('')}
+            ${missingRecommended.map(d => `
+              <div class="restriction-item">
+                <div class="restriction-title">
+                  <span class="severity-badge MEDIUM">RECOMMENDED</span>
+                  ${d.label}
+                </div>
+                <div class="restriction-detail">${d.why_recommended || ''}</div>
+              </div>`).join('')}
+          </div>`
+      }
+
+      // AGENT NEXT STEPS
+      if (a.agent_summary?.recommended_next_steps?.length) {
+        html += `
+          <div class="result-card">
+            <div class="result-card-header"><h3>&#9989; Recommended Next Steps</h3></div>
+            ${a.agent_summary.recommended_next_steps.map((s, i) => `
+              <div style="display:flex;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--gray-100)">
+                <span style="width:20px;height:20px;border-radius:50%;background:var(--blue);color:white;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i + 1}</span>
+                <span style="font-size:.85rem;color:var(--gray-600);line-height:1.5">${s}</span>
+              </div>`).join('')}
+          </div>`
+      }
+
+      // BOTTOM DISCLAIMER
+      const reportDate = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})
+      html += `
+        <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:1rem 1.25rem;margin-top:.5rem">
+          <p style="color:#94A3B8;font-size:.75rem;line-height:1.6;text-align:center">
+            This analysis was generated by HOA Auditor, an AI-powered tool by Ultovate.
+            Report generated ${reportDate}.
+            HOA Auditor makes no warranty as to the completeness or accuracy of this analysis.
+            Documents are automatically deleted after 30 days.
+          </p>
+        </div>`
+
+      grid.innerHTML = html
+      return
+    }
+
+    // ── OLD SCHEMA FALLBACK ──────────────────────────────
+    const restrictions = a.restrictions || []
+    const criticalRisks = a.critical_risks || []
+    const financial = a.financial || {}
+    const reviewItems = a.professional_review_items || []
+    const meetingThemes = a.meeting_themes || []
+    const docs = a.documents_analyzed || []
+
+    let html = ''
+    html += `
+      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:1rem 1.25rem;display:flex;gap:.75rem;align-items:flex-start">
+        <span style="font-size:1rem;flex-shrink:0">&#9888;</span>
+        <p style="color:#64748B;font-size:.78rem;line-height:1.6">
+          <strong style="color:#475569">AI-Generated Analysis - Not Legal Advice.</strong>
+          This report is for informational purposes only. Always verify with a licensed professional.
+          Personal identifiers have been automatically redacted.
+        </p>
+      </div>`
+    html += `<div class="result-card"><p class="summary-text">${a.property_summary || ''}</p></div>`
+    if (docs.length > 0) {
+      html += `<div class="result-card"><div class="result-card-header"><h3>Documents Analyzed</h3><span class="count">${docs.length}</span></div><div class="doc-tags">${docs.map(d => `<span class="doc-tag">${d}</span>`).join('')}</div></div>`
+    }
+    if (restrictions.length > 0) {
+      html += `<div class="result-card"><div class="result-card-header"><h3>Restrictions</h3><span class="count">${restrictions.length}</span></div>${restrictions.map(r => `<div class="restriction-item"><div class="restriction-title"><span class="severity-badge ${r.severity}">${r.severity}</span>${r.title}</div><div class="restriction-detail">${r.detail}</div><div class="restriction-source">&#128196; ${r.source}</div></div>`).join('')}</div>`
+    }
+    grid.innerHTML = html
   }
 
   // ── POLLING ───────────────────────────────────────────
@@ -715,14 +950,10 @@
 
   // ── UPLOAD HANDLER ────────────────────────────────────
   window.handleUpload = async function() {
-    const btn = document.getElementById('upload-btn')
-    if (btn.disabled) return  // prevent double submission
-    btn.disabled = true
-    btn.textContent = 'Uploading...'
     const propertyName = document.getElementById('property-name').value.trim()
     const errorEl = document.getElementById('error-banner')
     const successEl = document.getElementById('success-banner')
-    
+    const btn = document.getElementById('upload-btn')
     const progressBar = document.getElementById('progress-bar')
     const progressFill = document.getElementById('progress-fill')
     const propertyState = document.getElementById('property-state').value
@@ -746,6 +977,8 @@
       return
     }
 
+    btn.disabled = true
+    btn.textContent = 'Uploading...'
     progressBar.style.display = 'block'
     progressFill.style.width = '10%'
 
