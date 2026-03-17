@@ -242,6 +242,21 @@
     .restriction-detail { color: var(--gray-600); font-size: .85rem; line-height: 1.5; margin-bottom: .3rem; }
     .restriction-source { color: var(--gray-400); font-size: .75rem; }
 
+    /* Collapsible restrictions */
+    details.restriction-item { cursor: default; }
+    details.restriction-item summary {
+      display: flex; align-items: center; gap: .5rem;
+      font-weight: 600; color: var(--gray-800); font-size: .92rem;
+      list-style: none; cursor: pointer; user-select: none;
+    }
+    details.restriction-item summary::-webkit-details-marker { display: none; }
+    details.restriction-item summary::after {
+      content: '›'; margin-left: auto; font-size: 1.1rem; color: var(--gray-400);
+      transform: rotate(90deg); transition: transform .2s;
+    }
+    details.restriction-item[open] summary::after { transform: rotate(270deg); }
+    details.restriction-item .restriction-body { padding-top: .5rem; }
+
     .severity-badge {
       padding: .15rem .55rem; border-radius: 4px; font-size: .68rem;
       font-weight: 700; letter-spacing: .04em; flex-shrink: 0;
@@ -766,14 +781,16 @@
               AI-generated findings. Verify with source documents before relying on this information.
             </p>
             ${sorted.map(r => `
-              <div class="restriction-item">
-                <div class="restriction-title">
+              <details class="restriction-item">
+                <summary>
                   <span class="severity-badge ${r.buyer_impact || 'LOW'}">${r.buyer_impact || 'LOW'}</span>
                   ${r.category_label}
+                </summary>
+                <div class="restriction-body">
+                  <div class="restriction-detail">${r.rule || ''}</div>
+                  ${r.source_section || r.source_document ? `<div class="restriction-source">&#128196; ${[r.source_section, r.source_document].filter(Boolean).join(' — ')}</div>` : ''}
                 </div>
-                <div class="restriction-detail">${r.rule || ''}</div>
-                ${r.source_section || r.source_document ? `<div class="restriction-source">&#128196; ${[r.source_section, r.source_document].filter(Boolean).join(' — ')}</div>` : ''}
-              </div>`).join('')}
+              </details>`).join('')}
           </div>`
       }
 
