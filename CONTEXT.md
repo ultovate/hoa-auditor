@@ -20,14 +20,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 17:45 UTC
-- **Commit:** `ec67ba1` — fix: citations on all finding sections
-
-- Render source citations on top_concerns and transaction_risks
-- Hide citation row when both fields are empty (no more blank " - ")
-- Update submodule pointer
+- **Timestamp:** 2026-03-17 19:30 UTC
+- **Commit:** `6a6683f` — fix: redact PII before storing - update submodule pointer
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
