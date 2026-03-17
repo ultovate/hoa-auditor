@@ -23,13 +23,14 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 20:02 UTC
-- **Commit:** `944d923` — fix: delete job records and analysis cache when removing files or audits
+- **Timestamp:** 2026-03-17 20:57 UTC
+- **Commit:** `d439cc1` — fix: resolve merge conflict in uploadService + update submodule pointer
 
-deleteAudit and deleteFile now clean up jobs table and analysis_cache
-entries so no orphaned records remain in Supabase after deletion.
+- uploadService: full cleanup on delete (jobs + analysis_cache)
+- hoa-pdf-converter: raise combined text limit 120k → 800k chars
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
