@@ -857,34 +857,38 @@
         ]
         const hasAny = fpSections.some(s => fp[s.key]?.length > 0) || fp.reserve_fund_shortfall
         if (hasAny) {
-          const fpDeferred = (fp.deferred_maintenance || []).length
-          const fpProposed = (fp.special_assessment_discussions || []).filter(i => ['PRELIMINARY','RUMORED'].includes(i.status)).length
-                           + (fp.fee_increase_discussions || []).filter(i => ['DISCUSSED','PROPOSED'].includes(i.status)).length
-          const fpApproved = (fp.special_assessment_discussions || []).filter(i => ['VOTED','APPROVED'].includes(i.status)).length
-                           + (fp.fee_increase_discussions || []).filter(i => i.status === 'APPROVED').length
-          const fpOngoing  = (fp.litigation_cost_tracking || []).filter(i => ['ONGOING','PENDING'].includes(i.resolution_status)).length
+          const fpMaintenance = (fp.deferred_maintenance || []).length
+          const fpAssessments = (fp.special_assessment_discussions || []).length
+          const fpLitigation  = (fp.litigation_cost_tracking || []).length
+          const fpFeeChanges  = (fp.fee_increase_discussions || []).length
+          const fpExposure    = fp.projections_summary?.total_identified_exposure
 
           html += `
             <div class="result-card">
               <div class="result-card-header"><h3>&#128269; Hidden Cost Findings</h3></div>
-              <div style="display:flex;gap:1rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
+              <div style="display:flex;gap:1rem;margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--gray-100)">
                 <div style="text-align:center;flex:1">
-                  <div style="font-size:1.25rem;font-weight:700;color:#92400E">${fpDeferred}</div>
-                  <div style="font-size:.7rem;color:var(--gray-400)">Deferred</div>
+                  <div style="font-size:1.25rem;font-weight:700;color:#92400E">${fpMaintenance}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">🔧 Maintenance</div>
                 </div>
                 <div style="text-align:center;flex:1">
-                  <div style="font-size:1.25rem;font-weight:700;color:#B45309">${fpProposed}</div>
-                  <div style="font-size:.7rem;color:var(--gray-400)">Proposed</div>
+                  <div style="font-size:1.25rem;font-weight:700;color:#B91C1C">${fpAssessments}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">💰 Assessments</div>
                 </div>
                 <div style="text-align:center;flex:1">
-                  <div style="font-size:1.25rem;font-weight:700;color:#B91C1C">${fpApproved}</div>
-                  <div style="font-size:.7rem;color:var(--gray-400)">Approved</div>
+                  <div style="font-size:1.25rem;font-weight:700;color:#7C3AED">${fpLitigation}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">⚖️ Litigation</div>
                 </div>
                 <div style="text-align:center;flex:1">
-                  <div style="font-size:1.25rem;font-weight:700;color:#7C3AED">${fpOngoing}</div>
-                  <div style="font-size:.7rem;color:var(--gray-400)">Ongoing Cases</div>
+                  <div style="font-size:1.25rem;font-weight:700;color:#B45309">${fpFeeChanges}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">📈 Fee Changes</div>
                 </div>
               </div>
+              ${fpExposure ? `
+                <div style="display:flex;justify-content:space-between;align-items:center;background:#FEF2F2;border-radius:8px;padding:.6rem 1rem;margin-bottom:.75rem">
+                  <span style="font-size:.8rem;font-weight:600;color:#B91C1C">Total Identified Exposure</span>
+                  <span style="font-size:1.1rem;font-weight:700;color:#B91C1C">$${Number(fpExposure).toLocaleString()}</span>
+                </div>` : ''}
               ${fp.projections_summary?.buyer_headline ? `
                 <div style="background:#FEF3C7;border-radius:8px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.88rem;color:#92400E;font-weight:600">
                   ${fp.projections_summary.buyer_headline}
