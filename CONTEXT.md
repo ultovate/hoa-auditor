@@ -32,14 +32,16 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 23:05 UTC
-- **Commit:** `e17b2b0` — feat: add summary counts to Hidden Cost Findings section
+- **Timestamp:** 2026-03-17 23:16 UTC
+- **Commit:** `a13e15c` — feat: redesign hidden cost summary — category counts + total exposure
 
-Shows Deferred / Proposed / Approved / Ongoing Cases counts at the top
-of the financial projections card, matching the pattern of the compliance
-check section. Counts are computed directly from the items arrays.
+Replaces status-based counts (Deferred/Proposed/Approved/Ongoing) with
+category counts (Maintenance/Assessments/Litigation/Fee Changes) that
+directly answer "what's hiding here?", plus a Total Identified Exposure
+row that answers "what could this cost me?".
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
