@@ -710,6 +710,7 @@
                 <div class="restriction-title">${c.concern?.split(':')[0] || 'Concern'}</div>
                 <div class="restriction-detail">${c.why_it_matters || ''}</div>
                 <div style="background:#EEF2FF;border-radius:6px;padding:.4rem .75rem;font-size:.8rem;color:var(--blue);margin-top:.35rem">&#8594; ${c.what_to_do || ''}</div>
+                ${c.source_section || c.source_document ? `<div class="restriction-source">&#128196; ${[c.source_section, c.source_document].filter(Boolean).join(' — ')}</div>` : ''}
               </div>`).join('')}
           </div>`
       }
@@ -730,6 +731,7 @@
                 </div>
                 ${r.lender_impact ? '<div style="font-size:.78rem;color:#B91C1C;margin-top:.25rem">&#9888; May affect lender approval</div>' : ''}
                 ${r.negotiation_lever && r.negotiation_lever !== 'No' ? `<div style="font-size:.78rem;color:#065F46;margin-top:.25rem">&#10003; Negotiation opportunity</div>` : ''}
+                ${r.source_section || r.source_document ? `<div class="restriction-source">&#128196; ${[r.source_section, r.source_document].filter(Boolean).join(' — ')}</div>` : ''}
               </div>`).join('')}
             ${a.agent_summary?.lender_flags?.length ? `
               <div style="background:#FEF2F2;border-radius:8px;padding:.75rem;margin-top:.75rem">
@@ -759,7 +761,7 @@
                   ${r.category_label}
                 </div>
                 <div class="restriction-detail">${r.rule || ''}</div>
-                <div class="restriction-source">&#128196; ${r.source_section || ''} - ${r.source_document || ''}</div>
+                ${r.source_section || r.source_document ? `<div class="restriction-source">&#128196; ${[r.source_section, r.source_document].filter(Boolean).join(' — ')}</div>` : ''}
               </div>`).join('')}
           </div>`
       }
@@ -783,7 +785,7 @@
                 </div>
                 <div class="restriction-detail">${r.finding || ''}</div>
                 ${r.buyer_impact ? `<div style="font-size:.82rem;color:var(--blue);margin-top:.25rem">Impact: ${r.buyer_impact}</div>` : ''}
-                <div class="restriction-source">&#128196; ${r.source_section || ''} - ${r.source_document || ''}</div>
+                ${r.source_section || r.source_document ? `<div class="restriction-source">&#128196; ${[r.source_section, r.source_document].filter(Boolean).join(' — ')}</div>` : ''}
               </div>`).join('')}
           </div>`
       }
