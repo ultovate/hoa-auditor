@@ -857,12 +857,34 @@
         ]
         const hasAny = fpSections.some(s => fp[s.key]?.length > 0) || fp.reserve_fund_shortfall
         if (hasAny) {
+          const fpDeferred = (fp.deferred_maintenance || []).length
+          const fpProposed = (fp.special_assessment_discussions || []).filter(i => ['PRELIMINARY','RUMORED'].includes(i.status)).length
+                           + (fp.fee_increase_discussions || []).filter(i => ['DISCUSSED','PROPOSED'].includes(i.status)).length
+          const fpApproved = (fp.special_assessment_discussions || []).filter(i => ['VOTED','APPROVED'].includes(i.status)).length
+                           + (fp.fee_increase_discussions || []).filter(i => i.status === 'APPROVED').length
+          const fpOngoing  = (fp.litigation_cost_tracking || []).filter(i => ['ONGOING','PENDING'].includes(i.resolution_status)).length
+
           html += `
             <div class="result-card">
               <div class="result-card-header"><h3>&#128269; Hidden Cost Findings</h3></div>
-              <p style="color:var(--gray-400);font-size:.72rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
-                Costs and risks identified in meeting minutes and financial documents — not visible in the resale certificate.
-              </p>
+              <div style="display:flex;gap:1rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
+                <div style="text-align:center;flex:1">
+                  <div style="font-size:1.25rem;font-weight:700;color:#92400E">${fpDeferred}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">Deferred</div>
+                </div>
+                <div style="text-align:center;flex:1">
+                  <div style="font-size:1.25rem;font-weight:700;color:#B45309">${fpProposed}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">Proposed</div>
+                </div>
+                <div style="text-align:center;flex:1">
+                  <div style="font-size:1.25rem;font-weight:700;color:#B91C1C">${fpApproved}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">Approved</div>
+                </div>
+                <div style="text-align:center;flex:1">
+                  <div style="font-size:1.25rem;font-weight:700;color:#7C3AED">${fpOngoing}</div>
+                  <div style="font-size:.7rem;color:var(--gray-400)">Ongoing Cases</div>
+                </div>
+              </div>
               ${fp.projections_summary?.buyer_headline ? `
                 <div style="background:#FEF3C7;border-radius:8px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.88rem;color:#92400E;font-weight:600">
                   ${fp.projections_summary.buyer_headline}
