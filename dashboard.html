@@ -577,6 +577,40 @@
     return 'GREEN'
   }
 
+  function computeRiskCounts(a) {
+    let critical = 0, high = 0, medium = 0, low = 0
+
+    const bump = (level) => {
+      if (level === 'CRITICAL') critical++
+      else if (level === 'HIGH') high++
+      else if (level === 'MEDIUM') medium++
+      else if (level === 'LOW') low++
+    }
+
+    // Risk findings
+    for (const r of a.risk_findings?.findings || []) bump(r.urgency)
+
+    // Restrictions (buyer_impact)
+    for (const r of a.restrictions?.restrictions_found || []) bump(r.buyer_impact)
+
+    // Agent transaction risks
+    for (const r of a.agent_summary?.transaction_risks || []) bump(r.urgency)
+
+    // Critical missing documents → HIGH, recommended → LOW
+    for (const _ of a.missing_documents?.critical_missing || []) high++
+    for (const _ of a.missing_documents?.recommended_missing || []) low++
+
+    // Financial projections — deferred maintenance and special assessment discussions
+    for (const r of a.financial_projections?.deferred_maintenance || []) bump(r.urgency)
+    for (const r of a.financial_projections?.special_assessment_discussions || []) {
+      if (r.status === 'APPROVED' || r.status === 'VOTED') high++
+      else medium++
+    }
+    for (const r of a.financial_projections?.litigation_cost_tracking || []) bump('HIGH')
+
+    return { critical, high, medium, low }
+  }
+
   function renderAuditAnalysis(a) {
     const grid = document.getElementById('results-grid')
 
@@ -603,10 +637,7 @@
       const transactionRisks = a.agent_summary?.transaction_risks || []
       const fp = a.financial_projections || null
 
-      const hCount = a.overall_verdict?.high_count || 0
-      const mCount = a.overall_verdict?.medium_count || 0
-      const lCount = a.overall_verdict?.low_count || 0
-      const cCount = a.overall_verdict?.critical_count || 0
+      const { critical: cCount, high: hCount, medium: mCount, low: lCount } = computeRiskCounts(a)
 
       let html = ''
 
