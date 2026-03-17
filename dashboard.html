@@ -940,6 +940,76 @@
           </div>`
       }
 
+      // STATE COMPLIANCE CHECK
+      const cc = a.compliance_check
+      if (cc?.items?.length) {
+        const notFound = cc.items.filter(i => i.status === 'NOT_FOUND')
+        const unclear = cc.items.filter(i => i.status === 'UNCLEAR')
+        const found = cc.items.filter(i => i.status === 'FOUND' || i.status === 'N/A')
+        const overallColor = cc.overall_status === 'COMPLIANT' ? '#065F46' : cc.overall_status === 'PARTIAL' ? '#92400E' : '#B91C1C'
+        const overallBg = cc.overall_status === 'COMPLIANT' ? '#ECFDF5' : cc.overall_status === 'PARTIAL' ? '#FEF3C7' : '#FEF2F2'
+
+        const renderItem = (item, showAction = true) => `
+          <details class="restriction-item">
+            <summary>
+              <span class="severity-badge ${item.severity === 'HIGH' ? 'HIGH' : 'MEDIUM'}">${item.severity}</span>
+              ${item.title}
+              ${item.new_2026 ? `<span style="font-size:.65rem;font-weight:700;background:#EEF2FF;color:var(--blue);padding:.1rem .4rem;border-radius:4px;margin-left:.25rem">NEW 2026</span>` : ''}
+            </summary>
+            <div class="restriction-body">
+              <div class="restriction-detail">${item.notes || ''}</div>
+              ${item.source ? `<div class="restriction-source">&#128196; ${item.source}</div>` : ''}
+              ${showAction && item.action_required ? `<div style="background:#FEF3C7;border-radius:6px;padding:.4rem .75rem;font-size:.8rem;color:#92400E;margin-top:.35rem">&#8594; ${item.action_required}</div>` : ''}
+              <div class="restriction-source" style="margin-top:.25rem">RCW ${item.rcw}</div>
+            </div>
+          </details>`
+
+        html += `
+          <div class="result-card">
+            <div class="result-card-header">
+              <h3>&#9989; ${cc.state} Compliance Check</h3>
+              <span style="padding:.2rem .65rem;border-radius:999px;font-size:.72rem;font-weight:700;background:${overallBg};color:${overallColor}">${cc.overall_status}</span>
+            </div>
+            <div style="display:flex;gap:1rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
+              <div style="text-align:center;flex:1">
+                <div style="font-size:1.25rem;font-weight:700;color:#065F46">${cc.summary?.found_count ?? found.length}</div>
+                <div style="font-size:.7rem;color:var(--gray-400)">Verified</div>
+              </div>
+              <div style="text-align:center;flex:1">
+                <div style="font-size:1.25rem;font-weight:700;color:#B91C1C">${cc.summary?.not_found_count ?? notFound.length}</div>
+                <div style="font-size:.7rem;color:var(--gray-400)">Not Found</div>
+              </div>
+              <div style="text-align:center;flex:1">
+                <div style="font-size:1.25rem;font-weight:700;color:#92400E">${cc.summary?.unclear_count ?? unclear.length}</div>
+                <div style="font-size:.7rem;color:var(--gray-400)">Unclear</div>
+              </div>
+              <div style="text-align:center;flex:1">
+                <div style="font-size:1.25rem;font-weight:700;color:var(--gray-800)">${cc.summary?.total_items ?? cc.items.length}</div>
+                <div style="font-size:.7rem;color:var(--gray-400)">Total Items</div>
+              </div>
+            </div>
+            ${cc.summary?.new_2026_missing > 0 ? `
+              <div style="background:#EEF2FF;border-radius:6px;padding:.5rem .75rem;font-size:.8rem;color:var(--blue);margin-bottom:.75rem">
+                &#9432; ${cc.summary.new_2026_missing} new 2026 requirement${cc.summary.new_2026_missing > 1 ? 's' : ''} not verified — effective January 1, 2026
+              </div>` : ''}
+            ${notFound.length > 0 ? `
+              <div style="font-size:.75rem;font-weight:700;color:#B91C1C;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem">Not Found</div>
+              ${notFound.map(i => renderItem(i, true)).join('')}` : ''}
+            ${unclear.length > 0 ? `
+              <div style="font-size:.75rem;font-weight:700;color:#92400E;text-transform:uppercase;letter-spacing:.06em;margin:.75rem 0 .35rem">Unclear</div>
+              ${unclear.map(i => renderItem(i, true)).join('')}` : ''}
+            ${found.length > 0 ? `
+              <details style="margin-top:.75rem">
+                <summary style="font-size:.75rem;font-weight:700;color:#065F46;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;list-style:none;display:flex;align-items:center;gap:.4rem">
+                  <span>&#9989; Verified (${found.length})</span>
+                  <span style="font-size:.9rem;color:var(--gray-400);margin-left:auto">›</span>
+                </summary>
+                ${found.map(i => renderItem(i, false)).join('')}
+              </details>` : ''}
+            <div style="margin-top:.75rem;font-size:.72rem;color:var(--gray-400)">Based on ${cc.law}</div>
+          </div>`
+      }
+
       // BOTTOM DISCLAIMER
       const reportDate = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})
       html += `
