@@ -90,12 +90,26 @@ export async function checkFileExists(userId, auditId, fileName) {
 // Delete a specific file from an audit
 export async function deleteFile(userId, auditId, fileName) {
   const filePath = `${userId}/${auditId}/original/${fileName}`
-  
+
   const { error } = await supabase.storage
     .from('hoa_documents')
     .remove([filePath])
 
   if (error) throw error
+
+  // Clean up the job record and its OCR cache entry
+  const { data: job } = await supabase
+    .from('jobs')
+    .select('file_hash')
+    .eq('audit_id', auditId)
+    .eq('file_name', fileName)
+    .single()
+
+  await supabase.from('jobs').delete().eq('audit_id', auditId).eq('file_name', fileName)
+
+  if (job?.file_hash) {
+    await supabase.from('analysis_cache').delete().eq('file_hash', job.file_hash)
+  }
 }
 
 // Get list of uploaded files for an audit
@@ -110,13 +124,13 @@ export async function getAuditFiles(userId, auditId) {
 // Delete an entire audit and all its files
 export async function deleteAudit(userId, auditId) {
   const folders = ['original', 'converted', 'analysis']
-  
+
   for (const folder of folders) {
     try {
       const { data: files } = await supabase.storage
         .from('hoa_documents')
         .list(`${userId}/${auditId}/${folder}`)
-      
+
       if (files && files.length > 0) {
         const paths = files.map(f => `${userId}/${auditId}/${folder}/${f.name}`)
         await supabase.storage.from('hoa_documents').remove(paths)
@@ -125,6 +139,23 @@ export async function deleteAudit(userId, auditId) {
       // folder doesn't exist, skip
     }
   }
+
+  // Delete job records (and collect file hashes for cache cleanup)
+  const { data: jobs } = await supabase
+    .from('jobs')
+    .select('file_hash')
+    .eq('audit_id', auditId)
+
+  await supabase.from('jobs').delete().eq('audit_id', auditId)
+
+  // Delete per-file OCR cache entries for this audit's files
+  const hashes = (jobs || []).map(j => j.file_hash).filter(Boolean)
+  if (hashes.length) {
+    await supabase.from('analysis_cache').delete().in('file_hash', hashes)
+  }
+
+  // Delete audit-level analysis cache
+  await supabase.from('analysis_cache').delete().eq('audit_id', auditId)
 
   const { error } = await supabase
     .from('audits')
