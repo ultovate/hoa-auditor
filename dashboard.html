@@ -946,6 +946,7 @@
         const notFound = cc.items.filter(i => i.status === 'NOT_FOUND')
         const unclear = cc.items.filter(i => i.status === 'UNCLEAR')
         const found = cc.items.filter(i => i.status === 'FOUND' || i.status === 'N/A')
+        const new2026Missing = cc.items.filter(i => i.new_2026 && (i.status === 'NOT_FOUND' || i.status === 'UNCLEAR')).length
         const overallColor = cc.overall_status === 'COMPLIANT' ? '#065F46' : cc.overall_status === 'PARTIAL' ? '#92400E' : '#B91C1C'
         const overallBg = cc.overall_status === 'COMPLIANT' ? '#ECFDF5' : cc.overall_status === 'PARTIAL' ? '#FEF3C7' : '#FEF2F2'
 
@@ -972,25 +973,25 @@
             </div>
             <div style="display:flex;gap:1rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
               <div style="text-align:center;flex:1">
-                <div style="font-size:1.25rem;font-weight:700;color:#065F46">${cc.summary?.found_count ?? found.length}</div>
+                <div style="font-size:1.25rem;font-weight:700;color:#065F46">${found.length}</div>
                 <div style="font-size:.7rem;color:var(--gray-400)">Verified</div>
               </div>
               <div style="text-align:center;flex:1">
-                <div style="font-size:1.25rem;font-weight:700;color:#B91C1C">${cc.summary?.not_found_count ?? notFound.length}</div>
+                <div style="font-size:1.25rem;font-weight:700;color:#B91C1C">${notFound.length}</div>
                 <div style="font-size:.7rem;color:var(--gray-400)">Not Found</div>
               </div>
               <div style="text-align:center;flex:1">
-                <div style="font-size:1.25rem;font-weight:700;color:#92400E">${cc.summary?.unclear_count ?? unclear.length}</div>
+                <div style="font-size:1.25rem;font-weight:700;color:#92400E">${unclear.length}</div>
                 <div style="font-size:.7rem;color:var(--gray-400)">Unclear</div>
               </div>
               <div style="text-align:center;flex:1">
-                <div style="font-size:1.25rem;font-weight:700;color:var(--gray-800)">${cc.summary?.total_items ?? cc.items.length}</div>
+                <div style="font-size:1.25rem;font-weight:700;color:var(--gray-800)">${cc.items.length}</div>
                 <div style="font-size:.7rem;color:var(--gray-400)">Total Items</div>
               </div>
             </div>
-            ${cc.summary?.new_2026_missing > 0 ? `
+            ${new2026Missing > 0 ? `
               <div style="background:#EEF2FF;border-radius:6px;padding:.5rem .75rem;font-size:.8rem;color:var(--blue);margin-bottom:.75rem">
-                &#9432; ${cc.summary.new_2026_missing} new 2026 requirement${cc.summary.new_2026_missing > 1 ? 's' : ''} not verified — effective January 1, 2026
+                &#9432; ${new2026Missing} new 2026 requirement${new2026Missing > 1 ? 's' : ''} not verified — effective January 1, 2026
               </div>` : ''}
             ${notFound.length > 0 ? `
               <div style="font-size:.75rem;font-weight:700;color:#B91C1C;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem">Not Found</div>
