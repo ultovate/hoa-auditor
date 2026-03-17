@@ -17,14 +17,14 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 16:22 UTC
-- **Commit:** `671ae9c` — feat: friendlier buyer profile verdict labels
+- **Timestamp:** 2026-03-17 16:47 UTC
+- **Commit:** `7f768b5` — feat: hidden cost findings card + update submodule
 
-- "DO NOT BUY" → "⚠️ Restrictions Apply"
-- "CAUTION" → "Review Recommended"
-- "OK" → "No Major Restrictions"
+- Dashboard renders new financial_projections section from worker
+- Update hoa-pdf-converter submodule to include hidden cost detection
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
