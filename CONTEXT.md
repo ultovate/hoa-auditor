@@ -28,10 +28,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 22:42 UTC
-- **Commit:** `15e24e0` — chore: update hoa-pdf-converter submodule pointer (race condition fix)
+- **Timestamp:** 2026-03-17 22:47 UTC
+- **Commit:** `ef8e4b4` — fix: compute compliance counts from items array, not Gemini summary
+
+Gemini's self-reported summary counts were inconsistent with the actual
+items returned (N/A items were uncounted, found_count mismatched).
+All four counts now derive directly from the items array.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
