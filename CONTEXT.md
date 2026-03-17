@@ -22,10 +22,14 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 19:58 UTC
-- **Commit:** `b204352` — chore: update hoa-pdf-converter submodule pointer (PII redaction expansion)
+- **Timestamp:** 2026-03-17 20:02 UTC
+- **Commit:** `944d923` — fix: delete job records and analysis cache when removing files or audits
+
+deleteAudit and deleteFile now clean up jobs table and analysis_cache
+entries so no orphaned records remain in Supabase after deletion.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
