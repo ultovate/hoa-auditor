@@ -601,6 +601,7 @@
       const docs = a.document_inventory || []
       const topConcerns = a.buyer_summary?.top_concerns || []
       const transactionRisks = a.agent_summary?.transaction_risks || []
+      const fp = a.financial_projections || null
 
       const hCount = a.overall_verdict?.high_count || 0
       const mCount = a.overall_verdict?.medium_count || 0
@@ -782,6 +783,62 @@
                   </div>` : ''}
               </div>`).join('')}
           </div>`
+      }
+
+      // FINANCIAL PROJECTIONS (hidden costs from meeting minutes)
+      if (fp) {
+        const fpSections = [
+          { key: 'deferred_maintenance', label: 'Deferred Maintenance', icon: '🔧', fields: { title: 'item', cost: 'estimated_cost', sub: 'timeline' } },
+          { key: 'special_assessment_discussions', label: 'Special Assessment Discussions', icon: '💰', fields: { title: 'description', cost: 'estimated_amount', sub: 'status' } },
+          { key: 'capital_improvements_wishlist', label: 'Capital Improvement Wish List', icon: '🏗️', fields: { title: 'item', cost: 'estimated_cost', sub: 'status' } },
+          { key: 'litigation_cost_tracking', label: 'Litigation Cost Tracking', icon: '⚖️', fields: { title: 'description', cost: 'estimated_total_exposure', sub: 'resolution_status' } },
+          { key: 'fee_increase_discussions', label: 'Fee Increase Discussions', icon: '📈', fields: { title: 'fee_type', cost: 'proposed_amount', sub: 'status' } },
+        ]
+        const hasAny = fpSections.some(s => fp[s.key]?.length > 0) || fp.reserve_fund_shortfall
+        if (hasAny) {
+          html += `
+            <div class="result-card">
+              <div class="result-card-header"><h3>&#128269; Hidden Cost Findings</h3></div>
+              <p style="color:var(--gray-400);font-size:.72rem;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--gray-100)">
+                Costs and risks identified in meeting minutes and financial documents — not visible in the resale certificate.
+              </p>
+              ${fp.projections_summary?.buyer_headline ? `
+                <div style="background:#FEF3C7;border-radius:8px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:.88rem;color:#92400E;font-weight:600">
+                  ${fp.projections_summary.buyer_headline}
+                </div>` : ''}
+              ${fpSections.map(s => {
+                const items = fp[s.key] || []
+                if (!items.length) return ''
+                return `
+                  <div style="margin-bottom:.75rem">
+                    <div style="font-size:.75rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">${s.icon} ${s.label}</div>
+                    ${items.map(item => `
+                      <div class="restriction-item">
+                        <div class="restriction-title" style="justify-content:space-between">
+                          <span style="font-weight:600;color:var(--gray-800)">${item[s.fields.title] || ''}</span>
+                          ${item[s.fields.cost] ? `<span style="font-size:.8rem;font-weight:700;color:#B91C1C">${typeof item[s.fields.cost] === 'number' ? '$' + item[s.fields.cost].toLocaleString() : item[s.fields.cost]}</span>` : ''}
+                        </div>
+                        ${item[s.fields.sub] ? `<div style="font-size:.78rem;color:var(--gray-600);margin-top:.15rem">${item[s.fields.sub]}</div>` : ''}
+                        ${item.source_meeting ? `<div class="restriction-source">&#128197; ${item.source_meeting}</div>` : ''}
+                      </div>`).join('')}
+                  </div>`
+              }).join('')}
+              ${fp.reserve_fund_shortfall ? `
+                <div style="margin-bottom:.75rem">
+                  <div style="font-size:.75rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">📊 Reserve Fund Status</div>
+                  <div class="restriction-item">
+                    ${fp.reserve_fund_shortfall.current_percent_funded != null ? `<div style="font-size:.88rem;color:var(--gray-800)">Currently <strong>${fp.reserve_fund_shortfall.current_percent_funded}%</strong> funded</div>` : ''}
+                    ${fp.reserve_fund_shortfall.shortfall_amount ? `<div style="font-size:.82rem;color:#B91C1C;margin-top:.2rem">Shortfall: $${Number(fp.reserve_fund_shortfall.shortfall_amount).toLocaleString()}</div>` : ''}
+                    ${fp.reserve_fund_shortfall.board_action_discussed ? `<div style="font-size:.82rem;color:var(--gray-600);margin-top:.2rem">${fp.reserve_fund_shortfall.board_action_discussed}</div>` : ''}
+                  </div>
+                </div>` : ''}
+              ${fp.projections_summary?.total_identified_exposure ? `
+                <div style="background:#FEF2F2;border-radius:8px;padding:.75rem 1rem;margin-top:.5rem;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:.82rem;font-weight:600;color:#B91C1C">Total identified exposure</span>
+                  <span style="font-size:1rem;font-weight:700;color:#B91C1C">$${Number(fp.projections_summary.total_identified_exposure).toLocaleString()}</span>
+                </div>` : ''}
+            </div>`
+        }
       }
 
       // MISSING DOCUMENTS
