@@ -25,10 +25,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 21:07 UTC
-- **Commit:** `9b4a894` — chore: update hoa-pdf-converter submodule pointer (audit-ready polling)
+- **Timestamp:** 2026-03-17 21:22 UTC
+- **Commit:** `c273a1a` — feat: collapsible restriction items — collapsed by default, expand on click
+
+Restrictions section now shows badge + category name only by default.
+Click any row to expand the full rule text and source citation.
+Uses native <details>/<summary> — no JS required.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
