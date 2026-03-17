@@ -8,7 +8,7 @@ function generateAuditId() {
 // Upload a single PDF file to Supabase Storage
 export async function uploadFile(file, userId, auditId) {
   const filePath = `${userId}/${auditId}/original/${file.name}`
-  
+
   const { data, error } = await supabase.storage
     .from('hoa_documents')
     .upload(filePath, file, { upsert: true })
@@ -39,6 +39,7 @@ export async function listFiles(userId, auditId) {
   if (error) throw error
   return data
 }
+
 // Create an audit record in the database
 export async function createAuditRecord(userId, auditId, propertyName, fileCount, state = null) {
   const { data, error } = await supabase
@@ -66,6 +67,7 @@ export async function updateAuditStatus(auditId, status) {
 
   if (error) throw error
 }
+
 // Get all audits for a user
 export async function getUserAudits(userId) {
   const { data, error } = await supabase
@@ -87,6 +89,7 @@ export async function checkFileExists(userId, auditId, fileName) {
   if (error) throw error
   return data?.some(f => f.name === fileName) ?? false
 }
+
 // Delete a specific file from an audit
 export async function deleteFile(userId, auditId, fileName) {
   const filePath = `${userId}/${auditId}/original/${fileName}`
@@ -121,6 +124,7 @@ export async function getAuditFiles(userId, auditId) {
   if (error) throw error
   return data || []
 }
+
 // Delete an entire audit and all its files
 export async function deleteAudit(userId, auditId) {
   const folders = ['original', 'converted', 'analysis']
@@ -165,6 +169,7 @@ export async function deleteAudit(userId, auditId) {
 
   if (error) throw error
 }
+
 // Create job records in the jobs table (triggers Railway worker)
 export async function createJobRecords(userId, auditId, uploadedFiles) {
   const jobs = uploadedFiles.map(file => ({
@@ -182,4 +187,3 @@ export async function createJobRecords(userId, auditId, uploadedFiles) {
   if (error) throw error
   return data
 }
-

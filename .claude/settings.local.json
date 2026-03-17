@@ -6,7 +6,9 @@
       "Bash(curl -s -X POST -H \"X-API-Key: hoa_conv_secret_2026\" -F \"file=@c:/Users/laycl/OneDrive/Documents/VS_Projects/hoa-auditor/Island_Commons.pdf\" https://web-production-486ad7.up.railway.app/convert)",
       "Bash(curl -v -X POST -H \"X-API-Key: hoa_conv_secret_2026\" -F \"file=@c:/Users/laycl/OneDrive/Documents/VS_Projects/hoa-auditor/Island_Commons.pdf\" https://web-production-486ad7.up.railway.app/convert)",
       "Bash(curl -s -X POST -H \"X-API-Key: hoa_conv_secret_2026\" -F \"file=@c:/Users/laycl/OneDrive/Documents/VS_Projects/hoa-auditor/Island_Commons.pdf\" https://web-production-486ad7.up.railway.app/convert -o /tmp/convert_result.json -w \"\\\\nHTTP_STATUS:%{http_code}\\\\nTIME_TOTAL:%{time_total}s\\\\n\")",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "Bash(node -e \"const j = require\\(''./sample_analysis.json''\\); console.log\\(JSON.stringify\\(Object.keys\\(j\\), null, 2\\)\\)\")",
+      "Bash(node -e \":*)"
     ]
   }
 }

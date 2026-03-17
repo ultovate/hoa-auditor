@@ -460,7 +460,7 @@
   }
 
   // ── VIEW NAVIGATION ───────────────────────────────────
-  window.showUploadView = function(auditId = null, propertyName = null) {
+  window.showUploadView = async function(auditId = null, propertyName = null) {
     stopPolling()
     document.getElementById('view-list').classList.remove('active')
     document.getElementById('view-results').classList.remove('active')
@@ -472,14 +472,38 @@
     document.getElementById('error-banner').style.display = 'none'
     document.getElementById('progress-bar').style.display = 'none'
 
+    const stateEl = document.getElementById('property-state')
+
     if (auditId && propertyName) {
       document.getElementById('upload-title').textContent = 'Add Files — ' + propertyName
       document.getElementById('property-name').value = propertyName
       document.getElementById('property-name').disabled = true
+
+      // Fetch audit to pre-fill state and load existing files
+      const { supabase } = await import('./src/services/supabase.js')
+      const { data: audit } = await supabase.from('audits').select('state').eq('audit_id', auditId).single()
+      if (audit?.state) {
+        stateEl.value = audit.state
+        stateEl.disabled = true
+      }
+
+      const files = await getAuditFiles(currentUser.id, auditId)
+      if (files.length > 0) {
+        document.getElementById('file-list').innerHTML = files.map(f => `
+          <li class="file-item" id="file-${f.name}">
+            <span>📄</span>
+            <span class="file-name">${f.name}</span>
+            <span class="file-size">${formatSize(f.metadata?.size || 0)}</span>
+            <span class="file-status done">✓ Already uploaded</span>
+          </li>
+        `).join('')
+      }
     } else {
       document.getElementById('upload-title').textContent = 'New Property'
       document.getElementById('property-name').value = ''
       document.getElementById('property-name').disabled = false
+      stateEl.value = ''
+      stateEl.disabled = false
     }
   }
 
@@ -493,24 +517,11 @@
 
   window.openAudit = async function(auditId, propertyName) {
     const { supabase } = await import('./src/services/supabase.js')
-    const { data: audit } = await supabase.from('audits').select('*').eq('audit_id', auditId).single()
+    const { data: audit } = await supabase.from('audits').select('status').eq('audit_id', auditId).single()
     if (audit?.status === 'complete') {
       showResultsView(auditId, propertyName)
     } else {
-      showUploadView(auditId, propertyName)
-      const files = await getAuditFiles(currentUser.id, auditId)
-      const ul = document.getElementById('file-list')
-      if (files.length > 0) {
-        ul.innerHTML = files.map(f => `
-          <li class="file-item" id="file-${f.name}">
-            <span>📄</span>
-            <span class="file-name">${f.name}</span>
-            <span class="file-size">${formatSize(f.metadata?.size || 0)}</span>
-            <span class="file-status done">✓ Uploaded</span>
-            <span class="remove" onclick="handleDeleteFile('${auditId}', '${f.name}')">✕</span>
-          </li>
-        `).join('')
-      }
+      await showUploadView(auditId, propertyName)
     }
   }
 
@@ -1056,7 +1067,7 @@
       errorEl.style.display = 'block'
       return
     }
-    if (!propertyState) {
+    if (!propertyState && !currentAuditId) {
       errorEl.textContent = 'Please select the property state.'
       errorEl.style.display = 'block'
       return
