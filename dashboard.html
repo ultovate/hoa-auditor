@@ -586,167 +586,49 @@
     return 'GREEN'
   }
 
-  function renderAuditAnalysis(a) {
-    const grid = document.getElementById('results-grid')
-    const restrictions = a.restrictions || []
-    const criticalRisks = a.critical_risks || []
-    const financial = a.financial || {}
-    const reviewItems = a.professional_review_items || []
-    const meetingThemes = a.meeting_themes || []
-    const docs = a.documents_analyzed || []
-    const riskLevel = getRiskLevel(restrictions, criticalRisks)
-    const riskLabel = { RED: 'High Risk', AMBER: 'Review Needed', GREEN: 'Low Risk' }
-    const highCount = [...restrictions, ...criticalRisks].filter(r => r.severity === 'HIGH').length
-    const medCount = [...restrictions, ...criticalRisks].filter(r => r.severity === 'MEDIUM').length
-    const lowCount = [...restrictions, ...criticalRisks].filter(r => r.severity === 'LOW').length
-
-    let html = ''
-      // TOP DISCLAIMER
-    html += `
-      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:1rem 1.25rem;margin-bottom:.5rem;display:flex;gap:.75rem;align-items:flex-start">
-        <span style="font-size:1rem;flex-shrink:0">&#9888;</span>
-        <p style="color:#64748B;font-size:.78rem;line-height:1.6">
-          <strong style="color:#475569">AI-Generated Analysis - Not Legal Advice.</strong>
-          This report is produced by artificial intelligence for informational purposes only.
-          It does not constitute legal, financial, or professional advice. Always verify findings
-          with a licensed attorney or real estate professional before making decisions.
-          Personal identifiers have been automatically redacted from this report.
-        </p>
-      </div>`
-
-    // Traffic light summary
-    html += `
-      <div class="traffic-light">
-        <div class="risk-score ${riskLevel}">
-          <span>${riskLevel === 'GREEN' ? '✓' : riskLevel === 'AMBER' ? '!' : '✕'}</span>
-          <span class="score-label">${riskLabel[riskLevel]}</span>
+ function renderAuditAnalysis(a) {
+  const grid = document.getElementById('results-grid')
+  const verdict = a.overall_verdict?.verdict || 'UNKNOWN'
+  const colors = { CRITICAL: '#EF4444', CAUTION: '#F59E0B', SAFE: '#10B981' }
+  
+  grid.innerHTML = `
+    <div class="result-card">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+        <div style="width:72px;height:72px;border-radius:50%;border:3px solid ${colors[verdict] || '#9CA3AF'};display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:${colors[verdict] || '#9CA3AF'}">${verdict}</div>
+        <div>
+          <div style="font-weight:700;font-size:1rem;color:var(--gray-800)">${a.buyer_summary?.headline || ''}</div>
+          <div style="font-size:.85rem;color:var(--gray-400);margin-top:.25rem">${a.metadata?.hoa_name || ''}</div>
         </div>
-        <div class="traffic-light-body">
-          <h3>${a.property_summary ? 'Property Overview' : 'Analysis Complete'}</h3>
-          <p class="summary-text">${a.property_summary || 'Analysis complete. Review findings below.'}</p>
-          <div class="risk-counts">
-            ${highCount ? `<div class="risk-count"><div class="dot high"></div>${highCount} High</div>` : ''}
-            ${medCount ? `<div class="risk-count"><div class="dot medium"></div>${medCount} Medium</div>` : ''}
-            ${lowCount ? `<div class="risk-count"><div class="dot low"></div>${lowCount} Low</div>` : ''}
-          </div>
-        </div>
-      </div>`
+      </div>
+      <p style="color:var(--gray-600);font-size:.88rem;line-height:1.6">${a.buyer_summary?.what_we_found || ''}</p>
+    </div>
 
-    // Documents analyzed
-    if (docs.length > 0) {
-      html += `
-        <div class="result-card">
-          <div class="result-card-header">
-            <h3>📁 Documents Analyzed</h3>
-            <span class="count">${docs.length}</span>
-          </div>
-          <div class="doc-tags">
-            ${docs.map(d => `<span class="doc-tag">${d}</span>`).join('')}
-          </div>
-        </div>`
-    }
+    ${(a.buyer_summary?.top_concerns || []).map(c => `
+    <div class="result-card">
+      <div style="font-weight:700;color:var(--gray-800);margin-bottom:.5rem">⚠️ ${c.concern?.split(':')[0] || 'Concern'}</div>
+      <p style="color:var(--gray-600);font-size:.85rem;line-height:1.6;margin-bottom:.5rem">${c.why_it_matters || ''}</p>
+      <div style="background:#EEF2FF;border-radius:6px;padding:.5rem .75rem;font-size:.82rem;color:var(--blue)">→ ${c.what_to_do || ''}</div>
+    </div>`).join('')}
 
-    // Critical risks
-    if (criticalRisks.length > 0) {
-      html += `
-        <div class="result-card">
-          <div class="result-card-header">
-            <h3>⚠️ Critical Risks</h3>
-            <span class="count">${criticalRisks.length}</span>
-          </div>
-          ${criticalRisks.map(r => `
-            <div class="restriction-item">
-              <div class="restriction-title">
-                <span class="severity-badge ${r.severity}">${r.severity}</span>
-                ${r.title}
-              </div>
-              <div class="restriction-detail">${r.detail}</div>
-              <div class="restriction-source">📄 ${r.source}</div>
-            </div>`).join('')}
-        </div>`
-    }
+    ${(a.buyer_profile_verdicts?.verdicts || []).map(v => `
+    <div class="result-card" style="display:flex;align-items:center;justify-content:space-between">
+      <div style="font-weight:600;color:var(--gray-800);font-size:.9rem">${v.buyer_type_label}</div>
+      <span style="padding:.25rem .75rem;border-radius:999px;font-size:.75rem;font-weight:700;background:${v.verdict === 'DO NOT BUY' ? '#FEF2F2' : v.verdict === 'CAUTION' ? '#FEF3C7' : '#ECFDF5'};color:${v.verdict === 'DO NOT BUY' ? '#B91C1C' : v.verdict === 'CAUTION' ? '#92400E' : '#065F46'}">${v.verdict}</span>
+    </div>`).join('')}
 
-    // Restrictions
-    if (restrictions.length > 0) {
-      const high = restrictions.filter(r => r.severity === 'HIGH')
-      const med = restrictions.filter(r => r.severity === 'MEDIUM')
-      const low = restrictions.filter(r => r.severity === 'LOW')
-      const sorted = [...high, ...med, ...low]
-      html += `
-        <div class="result-card">
-          <div class="result-card-header">
-            <h3>🚫 Restrictions</h3>
-            <span class="count">${restrictions.length}</span>
-          </div>
-          ${sorted.map(r => `
-            <div class="restriction-item">
-              <div class="restriction-title">
-                <span class="severity-badge ${r.severity}">${r.severity}</span>
-                ${r.title}
-              </div>
-              <div class="restriction-detail">${r.detail}</div>
-              <div class="restriction-source">📄 ${r.source}</div>
-            </div>`).join('')}
-        </div>`
-    }
-
-    // Financial
-    if (financial.monthly_assessment || financial.reserve_fund_percent || financial.special_assessments) {
-      html += `
-        <div class="result-card">
-          <div class="result-card-header"><h3>💰 Financial Health</h3></div>
-          <div class="financial-grid">
-            ${financial.monthly_assessment ? `<div class="financial-item"><div class="label">Monthly Assessment</div><div class="value">${financial.monthly_assessment}</div></div>` : ''}
-            ${financial.reserve_fund_percent != null ? `<div class="financial-item"><div class="label">Reserve Fund</div><div class="value">${financial.reserve_fund_percent}% funded</div></div>` : ''}
-            ${financial.special_assessments ? `<div class="financial-item"><div class="label">Special Assessments</div><div class="value">${financial.special_assessments}</div></div>` : ''}
-            ${financial.delinquency_rate ? `<div class="financial-item"><div class="label">Delinquency Rate</div><div class="value">${financial.delinquency_rate}</div></div>` : ''}
-          </div>
-          ${financial.budget_notes ? `<div class="financial-notes">${financial.budget_notes}</div>` : ''}
-        </div>`
-    }
-
-    // Professional review
-    if (reviewItems.length > 0) {
-      html += `
-        <div class="result-card">
-          <div class="result-card-header">
-            <h3>👤 Professional Review Recommended</h3>
-            <span class="count">${reviewItems.length}</span>
-          </div>
-          ${reviewItems.map(r => `
-            <div class="review-item">
-              <div class="title">${r.title}</div>
-              <div class="reason">${r.reason}</div>
-            </div>`).join('')}
-        </div>`
-    }
-
-    // Meeting themes
-    if (meetingThemes.length > 0) {
-      html += `
-        <div class="result-card">
-          <div class="result-card-header">
-            <h3>📋 Meeting Themes</h3>
-            <span class="count">${meetingThemes.length}</span>
-          </div>
-          <ul class="theme-list">
-            ${meetingThemes.map(t => `<li>${t}</li>`).join('')}
-          </ul>
-        </div>`
-    }
-    // BOTTOM DISCLAIMER
-    html += `
-      <div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:1rem 1.25rem;margin-top:.5rem">
-        <p style="color:#94A3B8;font-size:.75rem;line-height:1.6;text-align:center">
-          This analysis was generated by HOA Auditor, an AI-powered tool by Ultovate. 
-          Report generated ${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}. 
-          HOA Auditor makes no warranty as to the completeness or accuracy of this analysis. 
-          Documents are automatically deleted after 30 days. 
-          <a href="#" style="color:#94A3B8;text-decoration:underline" onclick="showModal && showModal('terms')">Terms of Service</a> · 
-          <a href="#" style="color:#94A3B8;text-decoration:underline" onclick="showModal && showModal('privacy')">Privacy Policy</a>
-        </p>
-      </div>`
-    grid.innerHTML = html
+    <div class="result-card">
+      <div style="font-weight:700;color:var(--gray-800);margin-bottom:.75rem">📋 Missing Documents</div>
+      ${(a.missing_documents?.critical_missing || []).map(d => `
+        <div style="padding:.5rem 0;border-bottom:1px solid var(--gray-100);font-size:.85rem">
+          <span style="background:#FEF2F2;color:#B91C1C;padding:.15rem .5rem;border-radius:4px;font-size:.7rem;font-weight:700;margin-right:.5rem">CRITICAL</span>
+          ${d.label}
+        </div>`).join('')}
+      ${(a.missing_documents?.recommended_missing || []).map(d => `
+        <div style="padding:.5rem 0;border-bottom:1px solid var(--gray-100);font-size:.85rem">
+          <span style="background:#FEF3C7;color:#92400E;padding:.15rem .5rem;border-radius:4px;font-size:.7rem;font-weight:700;margin-right:.5rem">RECOMMENDED</span>
+          ${d.label}
+        </div>`).join('')}
+    </div>`
   }
 
   // ── POLLING ───────────────────────────────────────────
