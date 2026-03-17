@@ -16,15 +16,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 16:01 UTC
-- **Commit:** `af1379d` — fix: auth redirects, sort comparators, upload handler brace
+- **Timestamp:** 2026-03-17 16:22 UTC
+- **Commit:** `671ae9c` — feat: friendlier buyer profile verdict labels
 
-- Fix absolute /auth.html and /dashboard.html redirects to use import.meta.env.BASE_URL
-- Fix HIGH restrictions not sorting first (0 || 1 bug -> use ?? 3)
-- Fix DO NOT BUY verdicts sort comparator same issue
-- Fix missing closing brace in handleUpload propertyName check
+- "DO NOT BUY" → "⚠️ Restrictions Apply"
+- "CAUTION" → "Review Recommended"
+- "OK" → "No Major Restrictions"
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
