@@ -24,13 +24,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 20:57 UTC
-- **Commit:** `d439cc1` — fix: resolve merge conflict in uploadService + update submodule pointer
-
-- uploadService: full cleanup on delete (jobs + analysis_cache)
-- hoa-pdf-converter: raise combined text limit 120k → 800k chars
+- **Timestamp:** 2026-03-17 21:07 UTC
+- **Commit:** `9b4a894` — chore: update hoa-pdf-converter submodule pointer (audit-ready polling)
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
