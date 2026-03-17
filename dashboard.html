@@ -773,7 +773,7 @@
               <div class="restriction-item">
                 <div class="restriction-title" style="justify-content:space-between">
                   <span style="font-weight:600;color:var(--gray-800)">${v.buyer_type_label}</span>
-                  <span style="padding:.2rem .65rem;border-radius:999px;font-size:.72rem;font-weight:700;background:${v.verdict === 'DO NOT BUY' ? '#FEF2F2' : v.verdict === 'CAUTION' ? '#FEF3C7' : '#ECFDF5'};color:${v.verdict === 'DO NOT BUY' ? '#B91C1C' : v.verdict === 'CAUTION' ? '#92400E' : '#065F46'}">${v.verdict}</span>
+                  <span style="padding:.2rem .65rem;border-radius:999px;font-size:.72rem;font-weight:700;background:${v.verdict === 'DO NOT BUY' ? '#FEF2F2' : v.verdict === 'CAUTION' ? '#FEF3C7' : '#ECFDF5'};color:${v.verdict === 'DO NOT BUY' ? '#B91C1C' : v.verdict === 'CAUTION' ? '#92400E' : '#065F46'}">${v.verdict === 'DO NOT BUY' ? '⚠️ Restrictions Apply' : v.verdict === 'CAUTION' ? 'Review Recommended' : 'No Major Restrictions'}</span>
                 </div>
                 <div class="restriction-detail">${v.verdict_reason || ''}</div>
                 ${v.dealbreakers?.length ? `
