@@ -41,16 +41,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 22:57 UTC
-- **Commit:** `bfd02e5` — feat: rename labels, reorder tabs, and move buyer profile verdicts
+- **Timestamp:** 2026-03-19 23:01 UTC
+- **Commit:** `15e9e7f` — feat: soften buyer profile verdict language to avoid legal advice framing
 
-- Rename 'Seller Negotiation Points' to 'Transaction Considerations' (agent Overview tab)
-- Convert Lender Flags from paragraph to bullet list
-- Rename 'Hidden Costs' tab to 'Financial Outlook'
-- Reorder tabs: Overview, Risks, Financial Outlook, Timeline, Restrictions, Documents, Compliance
-- Move Buyer Profile Verdicts above restriction categories in Restrictions tab
+- 'DO NOT BUY' → '⚠️ Restrictions Apply'
+- 'CAUTION' → 'Review Recommended'
+- 'OK' → 'No Major Restrictions'
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
