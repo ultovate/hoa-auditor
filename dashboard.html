@@ -398,17 +398,7 @@
     </div>
   </div>
 
-  <!-- VIEW 3: EXECUTIVE SUMMARY -->
-  <div id="view-summary" class="view">
-    <div class="summary-nav">
-      <button class="back-btn" onclick="showListView()">← Back to Properties</button>
-      <button class="btn-primary" onclick="goToFullReport()">View Full Report →</button>
-    </div>
-    <div class="summary-property-label" id="summary-property-label"></div>
-    <div id="summary-content"></div>
-  </div>
-
-  <!-- VIEW 4: RESULTS -->
+  <!-- VIEW 3: RESULTS -->
   <div id="view-results" class="view">
     <button class="back-btn" onclick="showListView()">← Back to Properties Review</button>
     <div class="results-header">
@@ -430,7 +420,6 @@
   import { getCurrentUser, signOut } from './src/services/authService.js'
   import { uploadFiles, createAuditRecord, getUserAudits, checkFileExists, deleteFile, getAuditFiles, deleteAudit, createJobRecords } from './src/services/uploadService.js'
   import JSZip from 'jszip'
-  import { renderExecutiveSummary } from './src/views/summaryView.js'
 
   // Stubs so inline onclick handlers work before module fully loads
   window.showUploadView = (...args) => {}
@@ -440,7 +429,6 @@
   let currentRole = 'buyer'
   let selectedFiles = []
   let currentAuditId = null
-  let currentPropertyName = null
   let pollingInterval = null
 
   // Auth check
@@ -539,10 +527,8 @@
 
   window.showListView = function() {
     stopPolling()
-    document.querySelector('.main').classList.remove('main-wide')
     document.getElementById('view-upload').classList.remove('active')
     document.getElementById('view-results').classList.remove('active')
-    document.getElementById('view-summary').classList.remove('active')
     document.getElementById('view-list').classList.add('active')
     loadAudits()
   }
@@ -551,49 +537,14 @@
     const { supabase } = await import('./src/services/supabase.js')
     const { data: audit } = await supabase.from('audits').select('status').eq('audit_id', auditId).single()
     if (audit?.status === 'complete') {
-      showSummaryView(auditId, propertyName)
+      window.location.href = import.meta.env.BASE_URL + 'summary.html?auditId=' + auditId
     } else {
       await showUploadView(auditId, propertyName)
     }
   }
 
-  window.goToFullReport = function() {
-    showResultsView(currentAuditId, currentPropertyName)
-  }
 
-  // ── EXECUTIVE SUMMARY VIEW ────────────────────────────
-  async function showSummaryView(auditId, propertyName) {
-    stopPolling()
-    currentAuditId = auditId
-    currentPropertyName = propertyName
-    document.querySelector('.main').classList.add('main-wide')
-    document.getElementById('view-list').classList.remove('active')
-    document.getElementById('view-upload').classList.remove('active')
-    document.getElementById('view-results').classList.remove('active')
-    document.getElementById('view-summary').classList.add('active')
-    document.getElementById('summary-property-label').textContent = ''
-    document.getElementById('summary-content').innerHTML =
-      '<p style="color:var(--gray-400);padding:2rem 0">Loading summary...</p>'
-
-    const { supabase } = await import('./src/services/supabase.js')
-    const { data: audit } = await supabase.from('audits').select('*').eq('audit_id', auditId).single()
-
-    if (!audit?.analysis) {
-      document.getElementById('summary-content').innerHTML =
-        '<p style="color:var(--gray-400)">No analysis available.</p>'
-      return
-    }
-
-    const a = audit.analysis
-    const hoaName = a.metadata?.hoa_name || ''
-    const addr = a.metadata?.property_address || propertyName
-    document.getElementById('summary-property-label').textContent =
-      [hoaName, addr].filter(Boolean).join(' · ')
-
-    renderExecutiveSummary(a, currentRole)
-  }
-
-
+  
   // ── RESULTS VIEW ──────────────────────────────────────
   async function showResultsView(auditId, propertyName) {
     stopPolling()

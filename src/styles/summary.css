@@ -1,7 +1,7 @@
 /* ── EXECUTIVE SUMMARY — summary.css ─────────────────────────────────────── */
 
-/* Width override — toggled by JS when summary view is active */
-.main.main-wide { max-width: 1100px; }
+/* Summary page container */
+.summary-page { max-width: 1100px; margin: 2.5rem auto; padding: 0 1.5rem; }
 
 /* Nav */
 .summary-nav {
@@ -231,7 +231,7 @@
 
 /* ── RESPONSIVE ───────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
-  .main.main-wide { padding: 0 1.25rem; }
+  .summary-page { padding: 0 1.25rem; }
 }
 @media (max-width: 768px) {
   .sum-cols     { grid-template-columns: 1fr; }
