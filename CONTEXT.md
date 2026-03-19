@@ -43,16 +43,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 23:13 UTC
-- **Commit:** `9e05159` — fix: compute restriction summary counts from actual data, not AI self-report
-
-AI's restriction_summary counts were out of sync with the individual items.
-Now derives total, high, medium, and amended counts directly from
-restrictions_found[] array fetched from Supabase.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+- **Timestamp:** 2026-03-19 23:23 UTC
+- **Commit:** `073a2dc` — Merge branch 'dev' of https://github.com/ultovate/hoa-auditor into dev
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
