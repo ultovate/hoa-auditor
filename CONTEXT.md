@@ -35,19 +35,16 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 21:10 UTC
-- **Commit:** `a9ed9b5` — feat: add Executive Summary view with role-based content
+- **Timestamp:** 2026-03-19 21:40 UTC
+- **Commit:** `100cfce` — refactor: extract + redesign Executive Summary into own files
 
-- New view-summary sits between audit list and full report
-- Verdict hero banner with awareness language (Restrictions Apply / Review Recommended / No Major Restrictions)
-- KPI row: documents, risk areas, monthly dues (lender gets exposure + reserve + litigation)
-- Financial exposure strip: special assessments, deferred maintenance, litigation, reserve fund bar
-- Two-column body: role-gated alerts (buyer concerns / agent tx risks + buyer / lender impact items) + document status
-- WA compliance strip at bottom
-- goToFullReport() routes to existing results view for now
-- All content gated by currentRole (buyer / agent / lender)
+- src/styles/summary.css — all summary styles, max-width 1100px with breakpoints at 768/600/400px
+- src/views/summaryView.js — renderExecutiveSummary(a, role) extracted from dashboard.html
+- dashboard.html — now imports summaryView.js, toggles .main-wide class on enter/leave, no inline summary CSS or render logic
+- Redesign: serif verdict label, 6px left accent bar, 4px KPI card top borders, alert cards with left-border severity, grouped document status (Current / Needs Verification / Missing), dark navy compliance strip
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
