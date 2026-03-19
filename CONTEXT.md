@@ -38,10 +38,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 22:05 UTC
-- **Commit:** `1af3105` — fix: add summary.html to Vite build inputs so Vercel deploys it
+- **Timestamp:** 2026-03-19 22:12 UTC
+- **Commit:** `f95d97a` — fix: make property name prominent as page title on summary page
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
