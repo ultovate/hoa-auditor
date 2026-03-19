@@ -194,17 +194,20 @@ function renderRestrictions(a, role) {
     return '<p class="ov-body" style="text-align:center;padding:2rem;color:#9CA3AF">No restrictions data available.</p>'
   }
 
+  // Compute counts from actual data (not AI self-reported summary)
+  const highCount    = found.filter(i => i.buyer_impact === 'HIGH').length
+  const mediumCount  = found.filter(i => i.buyer_impact === 'MEDIUM').length
+  const amendedCount = found.filter(i => i.was_amended).length
+
   let html = ''
 
-  // Summary bar
-  if (summary.total_restrictions_found) {
-    html += `<div class="rest-summary-bar">
-      <div class="rest-stat"><strong>${summary.total_restrictions_found}</strong> restrictions found</div>
-      ${summary.high_impact_count   ? `<div class="rest-stat rs-red"><strong>${summary.high_impact_count}</strong> high impact</div>`    : ''}
-      ${summary.medium_impact_count ? `<div class="rest-stat rs-amber"><strong>${summary.medium_impact_count}</strong> medium impact</div>` : ''}
-      ${summary.amended_rules_count ? `<div class="rest-stat rs-blue"><strong>${summary.amended_rules_count}</strong> amended</div>` : ''}
-    </div>`
-  }
+  // Summary bar — always shown since found.length > 0
+  html += `<div class="rest-summary-bar">
+    <div class="rest-stat"><strong>${found.length}</strong> restrictions found</div>
+    ${highCount    ? `<div class="rest-stat rs-red"><strong>${highCount}</strong> high impact</div>`    : ''}
+    ${mediumCount  ? `<div class="rest-stat rs-amber"><strong>${mediumCount}</strong> medium impact</div>` : ''}
+    ${amendedCount ? `<div class="rest-stat rs-blue"><strong>${amendedCount}</strong> amended</div>` : ''}
+  </div>`
 
   // Buyer profile verdicts (shown early, after aggregation numbers)
   if (profileVerdicts.length) {
