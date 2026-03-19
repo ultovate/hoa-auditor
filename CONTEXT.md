@@ -36,15 +36,16 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 21:40 UTC
-- **Commit:** `100cfce` — refactor: extract + redesign Executive Summary into own files
+- **Timestamp:** 2026-03-19 22:01 UTC
+- **Commit:** `d56b67c` — feat: move Executive Summary to standalone summary.html
 
-- src/styles/summary.css — all summary styles, max-width 1100px with breakpoints at 768/600/400px
-- src/views/summaryView.js — renderExecutiveSummary(a, role) extracted from dashboard.html
-- dashboard.html — now imports summaryView.js, toggles .main-wide class on enter/leave, no inline summary CSS or render logic
-- Redesign: serif verdict label, 6px left accent bar, 4px KPI card top borders, alert cards with left-border severity, grouped document status (Current / Needs Verification / Missing), dark navy compliance strip
+- summary.html: new page, reads auditId from URL param, auth check on load, renders via summaryView.js
+- dashboard.html: openAudit() now navigates to summary.html?auditId=xxx for complete audits; all summary view state, HTML, and JS removed
+- summary.css: container updated to .summary-page (no longer depends on .main.main-wide in dashboard)
+- Back navigation uses history.back(); View Full Report links to report.html?auditId=xxx (to be built)
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
