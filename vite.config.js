@@ -10,6 +10,7 @@ export default defineConfig({
         auth: resolve(__dirname, 'auth.html'),
         dashboard: resolve(__dirname, 'dashboard.html'),
         summary: resolve(__dirname, 'summary.html'),
+        report:  resolve(__dirname, 'report.html'),
       }
     }
   }
