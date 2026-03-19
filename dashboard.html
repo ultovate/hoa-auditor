@@ -312,6 +312,172 @@
     .audit-card-right { width: 100%; justify-content: flex-end; }
   }
     .status-badge.needs_review { background: #FEF3C7; color: #92400E; }
+
+    /* ── EXECUTIVE SUMMARY ───────────────────────────── */
+    .summary-nav {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem;
+    }
+    .summary-property-label { font-size: .83rem; color: var(--gray-400); margin-bottom: 1.25rem; }
+
+    /* Verdict Hero */
+    .verdict-hero {
+      border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .verdict-hero.CRITICAL { background: #FEF2F2; border: 1px solid #FECACA; }
+    .verdict-hero.CAUTION  { background: #FEF3C7; border: 1px solid #FDE68A; }
+    .verdict-hero.SAFE     { background: #ECFDF5; border: 1px solid #A7F3D0; }
+    .verdict-hero-top { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: .75rem; }
+    .verdict-icon {
+      width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700;
+    }
+    .verdict-hero.CRITICAL .verdict-icon { background: #FEE2E2; color: #B91C1C; border: 2px solid #EF4444; }
+    .verdict-hero.CAUTION  .verdict-icon { background: #FEF3C7; color: #92400E; border: 2px solid #F59E0B; }
+    .verdict-hero.SAFE     .verdict-icon { background: #D1FAE5; color: #065F46; border: 2px solid #10B981; }
+    .verdict-label { font-size: 1rem; font-weight: 700; margin-bottom: .25rem; }
+    .verdict-hero.CRITICAL .verdict-label { color: #B91C1C; }
+    .verdict-hero.CAUTION  .verdict-label { color: #92400E; }
+    .verdict-hero.SAFE     .verdict-label { color: #065F46; }
+    .verdict-reason { font-size: .86rem; line-height: 1.6; }
+    .verdict-hero.CRITICAL .verdict-reason { color: #7F1D1D; }
+    .verdict-hero.CAUTION  .verdict-reason { color: #78350F; }
+    .verdict-hero.SAFE     .verdict-reason { color: #064E3B; }
+    .verdict-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+    .verdict-chip {
+      padding: .18rem .6rem; border-radius: 999px; font-size: .73rem; font-weight: 700;
+    }
+    .chip-red   { background: #FEE2E2; color: #B91C1C; }
+    .chip-amber { background: #FEF3C7; color: #92400E; }
+    .chip-gray  { background: #F3F4F6; color: #6B7280; }
+    .chip-green { background: #D1FAE5; color: #065F46; }
+
+    /* KPI Row */
+    .kpi-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .75rem; margin-bottom: 1rem; }
+    .kpi-card {
+      background: var(--white); border-radius: 10px; border: 1px solid var(--gray-200);
+      padding: .875rem 1rem;
+    }
+    .kpi-label { font-size: .68rem; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; }
+    .kpi-value { font-size: 1.2rem; font-weight: 700; color: var(--gray-800); margin-bottom: .2rem; }
+    .kpi-sub { font-size: .73rem; color: var(--gray-400); }
+    .kpi-sub.warn { color: #B45309; font-weight: 600; }
+    .kpi-sub.ok   { color: #065F46; font-weight: 600; }
+    .kpi-sub.bad  { color: #B91C1C; font-weight: 600; }
+
+    /* Financial Strip */
+    .financial-strip {
+      background: var(--white); border-radius: 12px; border: 1px solid var(--gray-200);
+      padding: 1.25rem 1.5rem; margin-bottom: 1rem;
+    }
+    .financial-strip-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .875rem; padding-bottom: .75rem; border-bottom: 1px solid var(--gray-100);
+    }
+    .financial-strip-header h3 { font-size: .78rem; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; }
+    .financial-sub-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .75rem; margin-bottom: .875rem; }
+    .financial-sub-card { border-radius: 8px; padding: .75rem; border: 1px solid var(--gray-200); }
+    .financial-sub-label { font-size: .68rem; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem; }
+    .financial-sub-value { font-size: 1rem; font-weight: 700; margin-bottom: .15rem; }
+    .financial-sub-detail { font-size: .73rem; color: var(--gray-400); line-height: 1.4; }
+    .reserve-bar-row { margin-bottom: .5rem; }
+    .reserve-bar-label { display: flex; justify-content: space-between; font-size: .78rem; margin-bottom: .3rem; }
+    .reserve-bar-label span:first-child { color: var(--gray-600); font-weight: 600; }
+    .reserve-track { height: 7px; background: var(--gray-200); border-radius: 999px; overflow: hidden; }
+    .reserve-fill { height: 100%; border-radius: 999px; }
+    .reserve-fill.low  { background: #EF4444; }
+    .reserve-fill.mid  { background: #F59E0B; }
+    .reserve-fill.high { background: #10B981; }
+    .financial-total {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #FEF2F2; border-radius: 8px; padding: .55rem 1rem; margin-top: .75rem;
+    }
+    .financial-total span:first-child { font-size: .8rem; font-weight: 600; color: #B91C1C; }
+    .financial-total span:last-child  { font-size: 1rem; font-weight: 700; color: #B91C1C; }
+
+    /* Status Labels */
+    .sl {
+      display: inline-flex; align-items: center; padding: .13rem .5rem; border-radius: 4px;
+      font-size: .67rem; font-weight: 700; letter-spacing: .03em; flex-shrink: 0; white-space: nowrap;
+    }
+    .sl-red    { background: #FEE2E2; color: #B91C1C; }
+    .sl-amber  { background: #FEF3C7; color: #92400E; }
+    .sl-green  { background: #D1FAE5; color: #065F46; }
+    .sl-gray   { background: #F3F4F6; color: #6B7280; }
+
+    /* Summary Columns */
+    .summary-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+    .summary-col-card {
+      background: var(--white); border-radius: 12px; border: 1px solid var(--gray-200);
+      padding: 1.25rem 1.5rem;
+    }
+    .summary-col-card h3 {
+      font-size: .78rem; font-weight: 700; color: var(--gray-400); text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: .75rem; padding-bottom: .6rem; border-bottom: 1px solid var(--gray-100);
+    }
+
+    /* Alert Items */
+    .alert-item { padding: .8rem 0; border-bottom: 1px solid var(--gray-100); }
+    .alert-item:last-child  { border-bottom: none; padding-bottom: 0; }
+    .alert-item:first-child { padding-top: 0; }
+    .alert-item-title { font-size: .87rem; font-weight: 600; color: var(--gray-800); margin: .25rem 0 .2rem; }
+    .alert-item-desc  { font-size: .81rem; color: var(--gray-600); line-height: 1.5; }
+    .alert-action-pill {
+      display: inline-block; margin-top: .3rem; background: #EEF2FF; border-radius: 6px;
+      padding: .3rem .65rem; font-size: .76rem; color: var(--blue); line-height: 1.4;
+    }
+    .alert-section-label {
+      font-size: .68rem; font-weight: 700; color: var(--gray-400); text-transform: uppercase;
+      letter-spacing: .06em; padding: .65rem 0 .35rem; border-top: 1px solid var(--gray-100); margin-top: .4rem;
+    }
+    .alert-section-label:first-child { padding-top: 0; border-top: none; margin-top: 0; }
+    .alert-more {
+      padding-top: .65rem; font-size: .82rem; color: var(--blue);
+      cursor: pointer; font-weight: 600; display: block;
+    }
+    .alert-more:hover { text-decoration: underline; }
+
+    /* Doc Status */
+    .doc-status-item {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .55rem 0; border-bottom: 1px solid var(--gray-100); font-size: .84rem;
+    }
+    .doc-status-item:last-child  { border-bottom: none; padding-bottom: 0; }
+    .doc-status-item:first-child { padding-top: 0; }
+    .doc-status-name { flex: 1; color: var(--gray-800); }
+    .doc-status-meta { color: var(--gray-400); font-size: .73rem; white-space: nowrap; }
+
+    /* Compliance Strip */
+    .compliance-strip {
+      background: var(--white); border-radius: 10px; border: 1px solid var(--gray-200);
+      padding: .875rem 1.25rem; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem;
+    }
+    .compliance-strip-label { font-size: .75rem; font-weight: 700; color: var(--gray-600); text-transform: uppercase; letter-spacing: .05em; }
+    .compliance-stats { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .compliance-stat { font-size: .82rem; color: var(--gray-600); }
+    .compliance-stat strong { font-weight: 700; }
+    .compliance-stat.cs-found   strong { color: #065F46; }
+    .compliance-stat.cs-missing strong { color: #B91C1C; }
+    .compliance-stat.cs-unclear strong { color: #92400E; }
+    .link-btn {
+      background: none; border: none; color: var(--blue); font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 600; cursor: pointer; padding: 0;
+    }
+    .link-btn:hover { text-decoration: underline; }
+
+    /* Summary disclaimer */
+    .summary-disclaimer {
+      background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px;
+      padding: .75rem 1.1rem; display: flex; gap: .6rem; align-items: flex-start; margin-bottom: 1rem;
+    }
+    .summary-disclaimer p { color: #64748B; font-size: .74rem; line-height: 1.6; }
+
+    @media (max-width: 600px) {
+      .kpi-row { grid-template-columns: 1fr 1fr; }
+      .financial-sub-grid { grid-template-columns: 1fr; }
+      .summary-columns { grid-template-columns: 1fr; }
+      .summary-nav { flex-direction: column; align-items: flex-start; gap: .75rem; }
+    }
   </style>
 </head>
 <body>
@@ -397,7 +563,17 @@
     </div>
   </div>
 
-  <!-- VIEW 3: RESULTS -->
+  <!-- VIEW 3: EXECUTIVE SUMMARY -->
+  <div id="view-summary" class="view">
+    <div class="summary-nav">
+      <button class="back-btn" onclick="showListView()">← Back to Properties</button>
+      <button class="btn-primary" onclick="goToFullReport()">View Full Report →</button>
+    </div>
+    <div class="summary-property-label" id="summary-property-label"></div>
+    <div id="summary-content"></div>
+  </div>
+
+  <!-- VIEW 4: RESULTS -->
   <div id="view-results" class="view">
     <button class="back-btn" onclick="showListView()">← Back to Properties Review</button>
     <div class="results-header">
@@ -428,6 +604,7 @@
   let currentRole = 'buyer'
   let selectedFiles = []
   let currentAuditId = null
+  let currentPropertyName = null
   let pollingInterval = null
 
   // Auth check
@@ -528,6 +705,7 @@
     stopPolling()
     document.getElementById('view-upload').classList.remove('active')
     document.getElementById('view-results').classList.remove('active')
+    document.getElementById('view-summary').classList.remove('active')
     document.getElementById('view-list').classList.add('active')
     loadAudits()
   }
@@ -536,10 +714,328 @@
     const { supabase } = await import('./src/services/supabase.js')
     const { data: audit } = await supabase.from('audits').select('status').eq('audit_id', auditId).single()
     if (audit?.status === 'complete') {
-      showResultsView(auditId, propertyName)
+      showSummaryView(auditId, propertyName)
     } else {
       await showUploadView(auditId, propertyName)
     }
+  }
+
+  window.goToFullReport = function() {
+    showResultsView(currentAuditId, currentPropertyName)
+  }
+
+  // ── EXECUTIVE SUMMARY VIEW ────────────────────────────
+  async function showSummaryView(auditId, propertyName) {
+    stopPolling()
+    currentAuditId = auditId
+    currentPropertyName = propertyName
+    document.getElementById('view-list').classList.remove('active')
+    document.getElementById('view-upload').classList.remove('active')
+    document.getElementById('view-results').classList.remove('active')
+    document.getElementById('view-summary').classList.add('active')
+    document.getElementById('summary-property-label').textContent = ''
+    document.getElementById('summary-content').innerHTML =
+      '<p style="color:var(--gray-400);padding:2rem 0">Loading summary...</p>'
+
+    const { supabase } = await import('./src/services/supabase.js')
+    const { data: audit } = await supabase.from('audits').select('*').eq('audit_id', auditId).single()
+
+    if (!audit?.analysis) {
+      document.getElementById('summary-content').innerHTML =
+        '<p style="color:var(--gray-400)">No analysis available.</p>'
+      return
+    }
+
+    const a = audit.analysis
+    const hoaName = a.metadata?.hoa_name || ''
+    const addr = a.metadata?.property_address || propertyName
+    document.getElementById('summary-property-label').textContent =
+      [hoaName, addr].filter(Boolean).join(' · ')
+
+    renderExecutiveSummary(a)
+  }
+
+  function sl(colorClass, text) {
+    return `<span class="sl sl-${colorClass}">${text}</span>`
+  }
+
+  function renderExecutiveSummary(a) {
+    const urgencyColor = { CRITICAL: 'red', HIGH: 'red', MEDIUM: 'amber', LOW: 'gray' }
+    const urgencyLabel = { CRITICAL: 'Restrictions Apply', HIGH: 'Restrictions Apply', MEDIUM: 'Review Recommended', LOW: 'For Your Awareness' }
+
+    const verdict = a.overall_verdict?.verdict || 'CAUTION'
+    const verdictLabel = { CRITICAL: 'Restrictions Apply', CAUTION: 'Review Recommended', SAFE: 'No Major Restrictions' }[verdict] || 'Review Recommended'
+    const verdictIcon  = { CRITICAL: '!', CAUTION: '!', SAFE: '✓' }[verdict]
+
+    const fp           = a.financial_projections || {}
+    const docs         = a.document_inventory || []
+    const cc           = a.compliance_check
+    const topConcerns  = a.buyer_summary?.top_concerns || []
+    const txRisks      = a.agent_summary?.transaction_risks || []
+    const monthlyCost  = a.buyer_summary?.monthly_cost_summary
+    const missingCrit  = a.missing_documents?.critical_missing || []
+
+    const cCount = a.overall_verdict?.critical_count || 0
+    const hCount = a.overall_verdict?.high_count || 0
+    const mCount = a.overall_verdict?.medium_count || 0
+    const lCount = a.overall_verdict?.low_count || 0
+    const restrictionsCount = cCount + hCount
+
+    // Financial data
+    const specAssessments    = fp.special_assessment_discussions || []
+    const approvedAssess     = specAssessments.filter(s => s.status === 'APPROVED' || s.status === 'VOTED')
+    const proposedAssess     = specAssessments.filter(s => s.status !== 'APPROVED' && s.status !== 'VOTED')
+    const approvedTotal      = approvedAssess.reduce((n, s) => n + (Number(s.estimated_amount) || 0), 0)
+    const deferredMaint      = fp.deferred_maintenance || []
+    const deferredTotal      = deferredMaint.reduce((n, d) => n + (Number(d.estimated_cost) || 0), 0)
+    const litigation         = fp.litigation_cost_tracking || []
+    const litigationTotal    = litigation.reduce((n, l) => n + (Number(l.estimated_total_exposure) || 0), 0)
+    const reservePct         = fp.reserve_fund_shortfall?.current_percent_funded
+    const totalExposure      = fp.projections_summary?.total_identified_exposure || a.overall_verdict?.total_financial_exposure
+    const hasFinancialData   = specAssessments.length || deferredMaint.length || litigation.length || reservePct != null || totalExposure
+
+    const isLender = currentRole === 'lender'
+    const staleCount = docs.filter(d => d.is_stale).length
+    const totalDocIssues = staleCount + missingCrit.length
+    const feeRising = (fp.fee_increase_discussions?.length || 0) > 0
+    const monthlyFee = monthlyCost?.current_monthly_fee
+
+    let html = ''
+
+    // ── DISCLAIMER ──────────────────────────────────────
+    html += `
+      <div class="summary-disclaimer">
+        <span style="font-size:.9rem;flex-shrink:0">⚠</span>
+        <p><strong style="color:#475569">For awareness only — not legal or financial advice.</strong>
+        This AI-generated report highlights areas that may need attention. Always verify findings
+        with a licensed attorney or real estate professional before making decisions.</p>
+      </div>`
+
+    // ── VERDICT HERO ────────────────────────────────────
+    html += `
+      <div class="verdict-hero ${verdict}">
+        <div class="verdict-hero-top">
+          <div class="verdict-icon">${verdictIcon}</div>
+          <div style="flex:1">
+            <div class="verdict-label">${verdictLabel}</div>
+            <div class="verdict-reason">${a.overall_verdict?.verdict_reason || ''}</div>
+          </div>
+        </div>
+        <div class="verdict-chips">
+          ${restrictionsCount ? `<span class="verdict-chip chip-red">${restrictionsCount} Restrictions Apply</span>` : ''}
+          ${mCount ? `<span class="verdict-chip chip-amber">${mCount} Review Recommended</span>` : ''}
+          ${lCount ? `<span class="verdict-chip chip-gray">${lCount} For Your Awareness</span>` : ''}
+        </div>
+      </div>`
+
+    // ── KPI ROW ─────────────────────────────────────────
+    html += `<div class="kpi-row">`
+
+    if (!isLender) {
+      html += `
+        <div class="kpi-card">
+          <div class="kpi-label">Documents</div>
+          <div class="kpi-value">${docs.length}</div>
+          <div class="kpi-sub ${totalDocIssues > 0 ? 'warn' : 'ok'}">${totalDocIssues > 0 ? `⚠ ${totalDocIssues} need review` : '✓ All current'}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Risk Areas</div>
+          <div class="kpi-value" style="color:${verdict === 'CRITICAL' ? '#B91C1C' : verdict === 'CAUTION' ? '#92400E' : '#065F46'}">${restrictionsCount}</div>
+          <div class="kpi-sub ${restrictionsCount > 0 ? 'warn' : 'ok'}">${mCount} to review · ${lCount} awareness</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Monthly Dues</div>
+          <div class="kpi-value">${monthlyFee ? '$' + Number(monthlyFee).toLocaleString() + '/mo' : '—'}</div>
+          <div class="kpi-sub ${feeRising ? 'warn' : 'ok'}">${feeRising ? '⚠ Increase discussed' : monthlyFee ? '✓ Stable' : 'Not available'}</div>
+        </div>`
+    } else {
+      html += `
+        <div class="kpi-card">
+          <div class="kpi-label">Total Exposure</div>
+          <div class="kpi-value" style="color:${totalExposure ? '#B91C1C' : 'var(--gray-800)'}">${totalExposure ? '$' + Number(totalExposure).toLocaleString() : '—'}</div>
+          <div class="kpi-sub ${totalExposure ? 'bad' : 'ok'}">${totalExposure ? 'Identified financial risk' : 'No exposure identified'}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Reserve Fund</div>
+          <div class="kpi-value" style="color:${reservePct == null ? 'var(--gray-800)' : reservePct < 50 ? '#B91C1C' : reservePct < 70 ? '#92400E' : '#065F46'}">${reservePct != null ? reservePct + '%' : '—'}</div>
+          <div class="kpi-sub ${reservePct == null ? '' : reservePct < 50 ? 'bad' : reservePct < 70 ? 'warn' : 'ok'}">${reservePct == null ? 'No data' : reservePct < 50 ? 'Underfunded' : reservePct < 70 ? 'Below threshold' : '✓ Adequate'}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Litigation</div>
+          <div class="kpi-value" style="color:${litigation.length > 0 ? '#B91C1C' : '#065F46'}">${litigation.length}</div>
+          <div class="kpi-sub ${litigation.length > 0 ? 'bad' : 'ok'}">${litigation.length > 0 ? 'Open cases' : '✓ None identified'}</div>
+        </div>`
+    }
+    html += `</div>`
+
+    // ── FINANCIAL STRIP ─────────────────────────────────
+    if (hasFinancialData) {
+      const reserveColor = reservePct == null ? 'gray' : reservePct < 50 ? 'low' : reservePct < 70 ? 'mid' : 'high'
+      const reserveLabelColor = reservePct == null ? 'var(--gray-400)' : reservePct < 50 ? '#B91C1C' : reservePct < 70 ? '#92400E' : '#065F46'
+
+      html += `
+        <div class="financial-strip">
+          <div class="financial-strip-header">
+            <h3>💰 Financial Exposure</h3>
+            ${totalExposure ? `<span style="font-size:.82rem;color:#B91C1C;font-weight:700">Total identified: $${Number(totalExposure).toLocaleString()}</span>` : ''}
+          </div>
+          <div class="financial-sub-grid">
+            <div class="financial-sub-card" style="border-color:${approvedAssess.length ? '#FECACA' : proposedAssess.length ? '#FDE68A' : 'var(--gray-200)'}">
+              <div class="financial-sub-label">Special Assessments</div>
+              <div class="financial-sub-value" style="color:${approvedAssess.length ? '#B91C1C' : proposedAssess.length ? '#92400E' : '#065F46'}">
+                ${approvedAssess.length ? approvedAssess.length + ' approved' : proposedAssess.length ? proposedAssess.length + ' proposed' : 'None found'}
+              </div>
+              <div class="financial-sub-detail">
+                ${approvedTotal ? '$' + Number(approvedTotal).toLocaleString() + ' confirmed' : proposedAssess.length ? 'Under discussion' : 'No assessments identified'}
+              </div>
+            </div>
+            <div class="financial-sub-card" style="border-color:${deferredMaint.length > 2 ? '#FECACA' : deferredMaint.length ? '#FDE68A' : 'var(--gray-200)'}">
+              <div class="financial-sub-label">Deferred Maintenance</div>
+              <div class="financial-sub-value" style="color:${deferredMaint.length > 2 ? '#B91C1C' : deferredMaint.length ? '#92400E' : '#065F46'}">
+                ${deferredMaint.length ? deferredMaint.length + ' unresolved' : 'None found'}
+              </div>
+              <div class="financial-sub-detail">${deferredTotal ? '$' + Number(deferredTotal).toLocaleString() + ' est.' : deferredMaint.length ? 'Costs unspecified' : 'No deferred items'}</div>
+            </div>
+            <div class="financial-sub-card" style="border-color:${litigation.length ? '#FECACA' : 'var(--gray-200)'}">
+              <div class="financial-sub-label">Litigation</div>
+              <div class="financial-sub-value" style="color:${litigation.length ? '#B91C1C' : '#065F46'}">
+                ${litigation.length ? litigation.length + ' active' : 'None found'}
+              </div>
+              <div class="financial-sub-detail">${litigationTotal ? '$' + Number(litigationTotal).toLocaleString() + ' exposure' : litigation.length ? 'Exposure unquantified' : 'No litigation identified'}</div>
+            </div>
+          </div>
+          ${reservePct != null ? `
+            <div class="reserve-bar-row">
+              <div class="reserve-bar-label">
+                <span>Reserve Fund</span>
+                <span style="color:${reserveLabelColor};font-weight:700">${reservePct}% funded${reservePct < 50 ? ' · Underfunded' : reservePct < 70 ? ' · Below threshold' : ' · Adequate'}</span>
+              </div>
+              <div class="reserve-track">
+                <div class="reserve-fill ${reserveColor}" style="width:${Math.min(reservePct, 100)}%"></div>
+              </div>
+            </div>` : ''}
+        </div>`
+    }
+
+    // ── TWO-COLUMN BODY ──────────────────────────────────
+    let alertsHtml = ''
+    const alertsTitle = currentRole === 'lender' ? 'Lender Impact Items' : 'Areas Needing Attention'
+
+    if (currentRole === 'buyer') {
+      const concerns = topConcerns.slice(0, 5)
+      const vColor = verdict === 'CRITICAL' ? 'red' : verdict === 'CAUTION' ? 'amber' : 'green'
+      const vLabel = verdictLabel
+      if (!concerns.length) {
+        alertsHtml = '<p style="color:var(--gray-400);font-size:.85rem">No concerns identified.</p>'
+      } else {
+        alertsHtml = concerns.map((c, i) => {
+          const color = i < 2 ? vColor : 'amber'
+          const label = i < 2 ? vLabel : 'Review Recommended'
+          const title = c.concern?.split(':')[0] || c.concern || 'Concern'
+          return `
+            <div class="alert-item">
+              ${sl(color, label)}
+              <div class="alert-item-title">${title}</div>
+              <div class="alert-item-desc">${c.why_it_matters || ''}</div>
+              ${c.what_to_do ? `<div class="alert-action-pill">→ ${c.what_to_do}</div>` : ''}
+            </div>`
+        }).join('')
+        if (topConcerns.length > 5) {
+          alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${topConcerns.length - 5} more in Full Report →</span>`
+        }
+      }
+
+    } else if (currentRole === 'agent') {
+      const risks    = txRisks.slice(0, 3)
+      const concerns = topConcerns.slice(0, 2)
+      if (risks.length) {
+        alertsHtml += `<div class="alert-section-label">Transaction Risks</div>`
+        alertsHtml += risks.map(r => `
+          <div class="alert-item">
+            <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
+              ${sl(urgencyColor[r.urgency] || 'amber', urgencyLabel[r.urgency] || 'Review Recommended')}
+              ${r.lender_impact ? `<span style="font-size:.7rem;color:#B91C1C;font-weight:600">⚠ Lender risk</span>` : ''}
+            </div>
+            <div class="alert-item-title">${r.risk}</div>
+            ${r.negotiation_lever && r.negotiation_lever !== 'No' ? `<div style="font-size:.75rem;color:#065F46;margin-top:.2rem">✓ Negotiation opportunity</div>` : ''}
+          </div>`).join('')
+      }
+      if (concerns.length) {
+        alertsHtml += `<div class="alert-section-label">Buyer Concerns</div>`
+        alertsHtml += concerns.map(c => `
+          <div class="alert-item">
+            ${sl('amber', 'Review Recommended')}
+            <div class="alert-item-title">${c.concern?.split(':')[0] || c.concern || 'Concern'}</div>
+            <div class="alert-item-desc">${c.why_it_matters || ''}</div>
+          </div>`).join('')
+      }
+      const total = txRisks.length + topConcerns.length
+      const shown = risks.length + concerns.length
+      if (total > shown) {
+        alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${total - shown} more in Full Report →</span>`
+      }
+
+    } else if (currentRole === 'lender') {
+      const lenderRisks = txRisks.filter(r => r.lender_impact).slice(0, 5)
+      if (!lenderRisks.length) {
+        alertsHtml = '<p style="color:var(--gray-400);font-size:.85rem">No lender-impact items identified.</p>'
+      } else {
+        alertsHtml = lenderRisks.map(r => `
+          <div class="alert-item">
+            ${sl(urgencyColor[r.urgency] || 'amber', urgencyLabel[r.urgency] || 'Review Recommended')}
+            <div class="alert-item-title">${r.risk}</div>
+            ${r.source_section ? `<div style="font-size:.74rem;color:var(--gray-400);margin-top:.2rem">📄 ${r.source_section}</div>` : ''}
+          </div>`).join('')
+        const totalLender = txRisks.filter(r => r.lender_impact).length
+        if (totalLender > 5) {
+          alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${totalLender - 5} more in Full Report →</span>`
+        }
+      }
+    }
+
+    // Doc status column
+    const allDocs = [
+      ...docs.map(d => ({ label: d.document_label, pages: d.page_count, stale: d.is_stale, missing: false })),
+      ...missingCrit.map(d => ({ label: d.label, pages: null, stale: false, missing: true }))
+    ]
+    const docsHtml = allDocs.map(d => `
+      <div class="doc-status-item">
+        <span style="flex-shrink:0;width:16px;text-align:center">${d.missing ? '❌' : d.stale ? '⚠️' : '✅'}</span>
+        <span class="doc-status-name">${d.label}</span>
+        <span class="doc-status-meta">${d.missing ? sl('red', 'Missing') : d.stale ? sl('amber', 'Needs Verification') : d.pages ? d.pages + ' pg' : ''}</span>
+      </div>`).join('')
+
+    html += `
+      <div class="summary-columns">
+        <div class="summary-col-card">
+          <h3>${alertsTitle}</h3>
+          ${alertsHtml}
+        </div>
+        <div class="summary-col-card">
+          <h3>Document Status</h3>
+          ${docsHtml || '<p style="color:var(--gray-400);font-size:.85rem">No documents on record.</p>'}
+        </div>
+      </div>`
+
+    // ── COMPLIANCE STRIP (WA only) ───────────────────────
+    if (cc?.items?.length) {
+      const found    = cc.items.filter(i => i.status === 'FOUND' || i.status === 'N/A').length
+      const notFound = cc.items.filter(i => i.status === 'NOT_FOUND').length
+      const unclear  = cc.items.filter(i => i.status === 'UNCLEAR').length
+
+      html += `
+        <div class="compliance-strip">
+          <span class="compliance-strip-label">WA Compliance</span>
+          <div class="compliance-stats">
+            <span class="compliance-stat cs-found"><strong>${found}</strong> of ${cc.items.length} found</span>
+            ${notFound ? `<span class="compliance-stat cs-missing"><strong>${notFound}</strong> missing</span>` : ''}
+            ${unclear  ? `<span class="compliance-stat cs-unclear"><strong>${unclear}</strong> unclear</span>` : ''}
+          </div>
+          <button class="link-btn" onclick="goToFullReport()">View details →</button>
+        </div>`
+    }
+
+    document.getElementById('summary-content').innerHTML = html
   }
 
   // ── RESULTS VIEW ──────────────────────────────────────
