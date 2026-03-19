@@ -50,12 +50,17 @@ function renderOverview(a, role) {
       html += `</ol></div>`
     }
     if (as.seller_negotiation_points?.length) {
-      html += `<div class="sec-card"><div class="sec-title">🤝 Seller Negotiation Points</div><ul class="ov-list">`
+      html += `<div class="sec-card"><div class="sec-title">🤝 Transaction Considerations</div><ul class="ov-list">`
       as.seller_negotiation_points.forEach(s => { html += `<li>${s}</li>` })
       html += `</ul></div>`
     }
     if (as.lender_flags) {
-      html += `<div class="sec-card ov-red-card"><div class="sec-title">🏦 Lender Flags</div><p class="ov-body">${as.lender_flags}</p></div>`
+      const flags = Array.isArray(as.lender_flags)
+        ? as.lender_flags
+        : as.lender_flags.split(/\n|;\s*/).map(s => s.trim()).filter(Boolean)
+      html += `<div class="sec-card ov-red-card"><div class="sec-title">🏦 Lender Flags</div><ul class="ov-list">`
+      flags.forEach(f => { html += `<li>${f}</li>` })
+      html += `</ul></div>`
     }
 
   } else if (role === 'lender') {
@@ -201,6 +206,22 @@ function renderRestrictions(a, role) {
     </div>`
   }
 
+  // Buyer profile verdicts (shown early, after aggregation numbers)
+  if (profileVerdicts.length) {
+    html += `<div class="sec-card"><div class="sec-title">👤 Buyer Profile Verdicts</div>
+      <div class="profile-grid">`
+    profileVerdicts.forEach(v => {
+      const vc = v.verdict === 'DO NOT BUY' ? 'red' : v.verdict === 'CAUTION' ? 'amber' : 'green'
+      html += `
+        <div class="profile-card pc-${vc}">
+          <div class="profile-type">${v.buyer_type_label}</div>
+          <div class="profile-verdict">${sl(vc, v.verdict)}</div>
+          ${v.verdict_reason ? `<div class="profile-reason">${v.verdict_reason}</div>` : ''}
+        </div>`
+    })
+    html += `</div></div>`
+  }
+
   // Group by category, sort by highest impact first
   const byCategory = {}
   found.forEach(res => {
@@ -233,22 +254,6 @@ function renderRestrictions(a, role) {
     })
     html += `</div>`
   })
-
-  // Buyer profile verdicts
-  if (profileVerdicts.length) {
-    html += `<div class="sec-card"><div class="sec-title">👤 Buyer Profile Verdicts</div>
-      <div class="profile-grid">`
-    profileVerdicts.forEach(v => {
-      const vc = v.verdict === 'DO NOT BUY' ? 'red' : v.verdict === 'CAUTION' ? 'amber' : 'green'
-      html += `
-        <div class="profile-card pc-${vc}">
-          <div class="profile-type">${v.buyer_type_label}</div>
-          <div class="profile-verdict">${sl(vc, v.verdict)}</div>
-          ${v.verdict_reason ? `<div class="profile-reason">${v.verdict_reason}</div>` : ''}
-        </div>`
-    })
-    html += `</div></div>`
-  }
 
   // Notable absences
   if (absences.length) {
@@ -644,13 +649,13 @@ export function renderFullReport(a, role) {
   ))
 
   const tabs = [
-    { id: 'overview',     label: 'Overview',     show: true },
-    { id: 'risks',        label: 'Risks',        show: riskCount > 0,              count: riskCount,                      urgent: riskUrgent },
-    { id: 'restrictions', label: 'Restrictions', show: restrictionsFound.length > 0, count: restrictionsFound.length },
-    { id: 'documents',    label: 'Documents',    show: true,                        count: (a.document_inventory || []).length },
-    { id: 'hidden-costs', label: 'Hidden Costs', show: hasFinancial },
-    { id: 'compliance',   label: 'Compliance',   show: !!(a.compliance_check?.items?.length) },
-    { id: 'timeline',     label: 'Timeline',     show: hasTimeline }
+    { id: 'overview',     label: 'Overview',          show: true },
+    { id: 'risks',        label: 'Risks',             show: riskCount > 0,              count: riskCount, urgent: riskUrgent },
+    { id: 'hidden-costs', label: 'Financial Outlook', show: hasFinancial },
+    { id: 'timeline',     label: 'Timeline',          show: hasTimeline },
+    { id: 'restrictions', label: 'Restrictions',      show: restrictionsFound.length > 0, count: restrictionsFound.length },
+    { id: 'documents',    label: 'Documents',         show: true,                        count: (a.document_inventory || []).length },
+    { id: 'compliance',   label: 'Compliance',        show: !!(a.compliance_check?.items?.length) }
   ].filter(t => t.show)
 
   // Tab bar
