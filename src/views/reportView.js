@@ -199,24 +199,26 @@ function renderRestrictions(a, role) {
   const mediumCount  = found.filter(i => i.buyer_impact === 'MEDIUM').length
   const amendedCount = found.filter(i => i.was_amended).length
 
+  const VERDICT_LABEL = {
+    'DO NOT BUY': '⚠️ Restrictions Apply',
+    'CAUTION':    'Review Recommended',
+  }
+
   let html = ''
 
-  // Summary bar — always shown since found.length > 0
-  html += `<div class="rest-summary-bar">
-    <div class="rest-stat"><strong>${found.length}</strong> restrictions found</div>
-    ${highCount    ? `<div class="rest-stat rs-red"><strong>${highCount}</strong> high impact</div>`    : ''}
-    ${mediumCount  ? `<div class="rest-stat rs-amber"><strong>${mediumCount}</strong> medium impact</div>` : ''}
-    ${amendedCount ? `<div class="rest-stat rs-blue"><strong>${amendedCount}</strong> amended</div>` : ''}
-  </div>`
-
-  // Buyer profile verdicts (shown early, after aggregation numbers)
+  // Buyer profile verdicts — with verdict-type aggregation counts
   if (profileVerdicts.length) {
+    const restrictApplyCount  = profileVerdicts.filter(v => v.verdict === 'DO NOT BUY').length
+    const reviewRecommCount   = profileVerdicts.filter(v => v.verdict === 'CAUTION').length
+    const noMajorCount        = profileVerdicts.filter(v => v.verdict !== 'DO NOT BUY' && v.verdict !== 'CAUTION').length
+
     html += `<div class="sec-card"><div class="sec-title">👤 Buyer Profile Verdicts</div>
+      <div class="rest-summary-bar" style="margin-bottom:1rem">
+        ${restrictApplyCount ? `<div class="rest-stat rs-red"><strong>${restrictApplyCount}</strong> Restrictions Apply</div>`   : ''}
+        ${reviewRecommCount  ? `<div class="rest-stat rs-amber"><strong>${reviewRecommCount}</strong> Review Recommended</div>` : ''}
+        ${noMajorCount       ? `<div class="rest-stat rs-green"><strong>${noMajorCount}</strong> No Major Restrictions</div>`   : ''}
+      </div>
       <div class="profile-grid">`
-    const VERDICT_LABEL = {
-      'DO NOT BUY': '⚠️ Restrictions Apply',
-      'CAUTION':    'Review Recommended',
-    }
     profileVerdicts.forEach(v => {
       const vc    = v.verdict === 'DO NOT BUY' ? 'red' : v.verdict === 'CAUTION' ? 'amber' : 'green'
       const label = VERDICT_LABEL[v.verdict] || 'No Major Restrictions'
@@ -229,6 +231,14 @@ function renderRestrictions(a, role) {
     })
     html += `</div></div>`
   }
+
+  // Restriction counts summary bar — below Buyer Profile Verdicts
+  html += `<div class="rest-summary-bar">
+    <div class="rest-stat"><strong>${found.length}</strong> restrictions found</div>
+    ${highCount    ? `<div class="rest-stat rs-red"><strong>${highCount}</strong> high impact</div>`       : ''}
+    ${mediumCount  ? `<div class="rest-stat rs-amber"><strong>${mediumCount}</strong> medium impact</div>` : ''}
+    ${amendedCount ? `<div class="rest-stat rs-blue"><strong>${amendedCount}</strong> amended</div>`       : ''}
+  </div>`
 
   // Group by category, sort by highest impact first
   const byCategory = {}

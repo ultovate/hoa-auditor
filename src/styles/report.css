@@ -163,6 +163,7 @@
 .rs-red   strong { color: #B91C1C; }
 .rs-amber strong { color: #92400E; }
 .rs-blue  strong { color: #3730A3; }
+.rs-green strong { color: #065F46; }
 
 .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
 .profile-card {
