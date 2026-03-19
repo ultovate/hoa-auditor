@@ -39,10 +39,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 22:12 UTC
-- **Commit:** `f95d97a` — fix: make property name prominent as page title on summary page
+- **Timestamp:** 2026-03-19 22:26 UTC
+- **Commit:** `3012cd5` — feat: build standalone full report page with 7 tabbed sections
+
+Tabs: Overview, Risks, Restrictions, Documents, Hidden Costs,
+Compliance (WA only), Timeline — all role-gated and data-conditional.
+Extracted to reportView.js + report.css following summary pattern.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
