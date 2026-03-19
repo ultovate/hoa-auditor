@@ -210,12 +210,17 @@ function renderRestrictions(a, role) {
   if (profileVerdicts.length) {
     html += `<div class="sec-card"><div class="sec-title">👤 Buyer Profile Verdicts</div>
       <div class="profile-grid">`
+    const VERDICT_LABEL = {
+      'DO NOT BUY': '⚠️ Restrictions Apply',
+      'CAUTION':    'Review Recommended',
+    }
     profileVerdicts.forEach(v => {
-      const vc = v.verdict === 'DO NOT BUY' ? 'red' : v.verdict === 'CAUTION' ? 'amber' : 'green'
+      const vc    = v.verdict === 'DO NOT BUY' ? 'red' : v.verdict === 'CAUTION' ? 'amber' : 'green'
+      const label = VERDICT_LABEL[v.verdict] || 'No Major Restrictions'
       html += `
         <div class="profile-card pc-${vc}">
           <div class="profile-type">${v.buyer_type_label}</div>
-          <div class="profile-verdict">${sl(vc, v.verdict)}</div>
+          <div class="profile-verdict">${sl(vc, label)}</div>
           ${v.verdict_reason ? `<div class="profile-reason">${v.verdict_reason}</div>` : ''}
         </div>`
     })
