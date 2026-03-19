@@ -668,20 +668,18 @@ export function renderFullReport(a, role) {
 
   const tabs = [
     { id: 'overview',     label: 'Overview',          show: true },
-    { id: 'risks',        label: 'Risks',             show: riskCount > 0,              count: riskCount, urgent: riskUrgent },
+    { id: 'risks',        label: 'Risks',             show: riskCount > 0 },
     { id: 'hidden-costs', label: 'Financial Outlook', show: hasFinancial },
     { id: 'timeline',     label: 'Timeline',          show: hasTimeline },
-    { id: 'restrictions', label: 'Restrictions',      show: restrictionsFound.length > 0, count: restrictionsFound.length },
-    { id: 'documents',    label: 'Documents',         show: true,                        count: (a.document_inventory || []).length },
+    { id: 'restrictions', label: 'Restrictions',      show: restrictionsFound.length > 0 },
+    { id: 'documents',    label: 'Documents',         show: true },
     { id: 'compliance',   label: 'Compliance',        show: !!(a.compliance_check?.items?.length) }
   ].filter(t => t.show)
 
   // Tab bar
   let tabBarHtml = '<div class="tab-bar">'
   tabs.forEach((tab, i) => {
-    const countChip = tab.count ? `<span class="tab-count">${tab.count > 99 ? '99+' : tab.count}</span>` : ''
-    const urgentCls = tab.urgent ? ' has-urgent' : ''
-    tabBarHtml += `<button class="tab-btn${i === 0 ? ' active' : ''}${urgentCls}" data-tab="${tab.id}">${tab.label}${countChip}</button>`
+    tabBarHtml += `<button class="tab-btn${i === 0 ? ' active' : ''}" data-tab="${tab.id}">${tab.label}</button>`
   })
   tabBarHtml += '</div>'
 
