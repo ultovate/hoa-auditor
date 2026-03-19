@@ -37,15 +37,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 22:01 UTC
-- **Commit:** `d56b67c` — feat: move Executive Summary to standalone summary.html
-
-- summary.html: new page, reads auditId from URL param, auth check on load, renders via summaryView.js
-- dashboard.html: openAudit() now navigates to summary.html?auditId=xxx for complete audits; all summary view state, HTML, and JS removed
-- summary.css: container updated to .summary-page (no longer depends on .main.main-wide in dashboard)
-- Back navigation uses history.back(); View Full Report links to report.html?auditId=xxx (to be built)
+- **Timestamp:** 2026-03-19 22:05 UTC
+- **Commit:** `1af3105` — fix: add summary.html to Vite build inputs so Vercel deploys it
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
