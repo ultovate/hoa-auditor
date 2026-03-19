@@ -33,15 +33,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-17 23:16 UTC
-- **Commit:** `a13e15c` — feat: redesign hidden cost summary — category counts + total exposure
+- **Timestamp:** 2026-03-19 18:52 UTC
+- **Commit:** `e29e608` — feat: add role-based registration (buyer / agent / lender)
 
-Replaces status-based counts (Deferred/Proposed/Approved/Ongoing) with
-category counts (Maintenance/Assessments/Litigation/Fee Changes) that
-directly answer "what's hiding here?", plus a Total Identified Exposure
-row that answers "what could this cost me?".
+- auth.html: role picker cards on sign-up form, validates selection before submit
+- authService.js: signUp() now accepts role, stores in user_metadata
+- dashboard.html: reads currentRole from user_metadata on login, defaults to 'buyer' for existing users
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
