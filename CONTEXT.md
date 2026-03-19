@@ -40,14 +40,17 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 22:26 UTC
-- **Commit:** `3012cd5` — feat: build standalone full report page with 7 tabbed sections
+- **Timestamp:** 2026-03-19 22:57 UTC
+- **Commit:** `bfd02e5` — feat: rename labels, reorder tabs, and move buyer profile verdicts
 
-Tabs: Overview, Risks, Restrictions, Documents, Hidden Costs,
-Compliance (WA only), Timeline — all role-gated and data-conditional.
-Extracted to reportView.js + report.css following summary pattern.
+- Rename 'Seller Negotiation Points' to 'Transaction Considerations' (agent Overview tab)
+- Convert Lender Flags from paragraph to bullet list
+- Rename 'Hidden Costs' tab to 'Financial Outlook'
+- Reorder tabs: Overview, Risks, Financial Outlook, Timeline, Restrictions, Documents, Compliance
+- Move Buyer Profile Verdicts above restriction categories in Restrictions tab
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
