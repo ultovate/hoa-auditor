@@ -84,6 +84,22 @@
     }
     .forgot-link:hover { text-decoration: underline; }
 
+    /* Role picker */
+    .role-picker { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; }
+    .role-option {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .75rem 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; cursor: pointer; transition: all .2s;
+    }
+    .role-option:hover { border-color: rgba(46,91,255,0.4); background: rgba(46,91,255,0.06); }
+    .role-option.selected { border-color: var(--blue-light); background: rgba(46,91,255,0.12); }
+    .role-option input[type="radio"] { display: none; }
+    .role-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .role-text .role-label { color: var(--white); font-size: .88rem; font-weight: 600; }
+    .role-text .role-desc { color: var(--gray-400); font-size: .75rem; margin-top: .1rem; }
+
     /* Terms checkbox */
     .terms-row {
       display: flex; align-items: flex-start; gap: .6rem;
@@ -181,6 +197,34 @@
       <input type="email" id="signup-email" placeholder="you@example.com" />
       <label for="signup-password">Password</label>
       <input type="password" id="signup-password" placeholder="Min. 8 characters" />
+
+      <label>I am a...</label>
+      <div class="role-picker">
+        <label class="role-option" id="role-buyer" onclick="selectRole('buyer')">
+          <input type="radio" name="role" value="buyer" />
+          <span class="role-icon">🏠</span>
+          <div class="role-text">
+            <div class="role-label">Buyer</div>
+            <div class="role-desc">I'm purchasing a property and reviewing HOA documents</div>
+          </div>
+        </label>
+        <label class="role-option" id="role-agent" onclick="selectRole('agent')">
+          <input type="radio" name="role" value="agent" />
+          <span class="role-icon">🤝</span>
+          <div class="role-text">
+            <div class="role-label">Real Estate Agent</div>
+            <div class="role-desc">I review HOA documents on behalf of my clients</div>
+          </div>
+        </label>
+        <label class="role-option" id="role-lender" onclick="selectRole('lender')">
+          <input type="radio" name="role" value="lender" />
+          <span class="role-icon">🏦</span>
+          <div class="role-text">
+            <div class="role-label">Lender</div>
+            <div class="role-desc">I assess HOA warrantability and financial risk for mortgage decisions</div>
+          </div>
+        </label>
+      </div>
 
       <!-- Terms acceptance -->
       <div class="terms-row">
@@ -366,10 +410,17 @@
     }
   }
 
+  window.selectRole = function(role) {
+    document.querySelectorAll('.role-option').forEach(el => el.classList.remove('selected'))
+    document.getElementById('role-' + role).classList.add('selected')
+    document.querySelector(`input[name="role"][value="${role}"]`).checked = true
+  }
+
   window.handleSignUp = async function() {
     const email = document.getElementById('signup-email').value
     const password = document.getElementById('signup-password').value
     const termsChecked = document.getElementById('terms-checkbox').checked
+    const role = document.querySelector('input[name="role"]:checked')?.value
     const errorEl = document.getElementById('signup-error')
     const successEl = document.getElementById('signup-success')
     const btn = document.getElementById('btn-signup')
@@ -377,7 +428,12 @@
     errorEl.style.display = 'none'
     successEl.style.display = 'none'
 
-    // Validate terms acceptance
+    if (!role) {
+      errorEl.textContent = 'Please select your role to continue.'
+      errorEl.style.display = 'block'
+      return
+    }
+
     if (!termsChecked) {
       errorEl.textContent = 'Please read and accept the Terms of Service and Privacy Policy to continue.'
       errorEl.style.display = 'block'
@@ -394,7 +450,7 @@
     btn.textContent = 'Creating account...'
 
     try {
-      await signUp(email, password)
+      await signUp(email, password, role)
       successEl.textContent = '✅ Account created! Check your email to confirm your account.'
       successEl.style.display = 'block'
       btn.disabled = false

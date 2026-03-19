@@ -1,7 +1,11 @@
 import { supabase } from './supabase.js'
 
-export async function signUp(email, password) {
-  const { data, error } = await supabase.auth.signUp({ email, password })
+export async function signUp(email, password, role) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { role } }
+  })
   if (error) throw error
   return data
 }

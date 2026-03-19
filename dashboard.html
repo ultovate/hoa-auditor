@@ -425,6 +425,7 @@
   window.showListView = () => {}
 
   let currentUser = null
+  let currentRole = 'buyer'
   let selectedFiles = []
   let currentAuditId = null
   let pollingInterval = null
@@ -434,6 +435,7 @@
   if (!currentUser) {
     window.location.href = import.meta.env.BASE_URL + 'auth.html'
   } else {
+    currentRole = currentUser.user_metadata?.role || 'buyer'
     document.getElementById('user-email').textContent = currentUser.email
     loadAudits()
   }
