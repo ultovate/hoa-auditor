@@ -53,10 +53,14 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-23 21:13 UTC
-- **Commit:** `1c61bed` — feat: add completeness legend to Analysis Completeness card
+- **Timestamp:** 2026-03-23 22:14 UTC
+- **Commit:** `352de44` — fix: remove status=processing write after upload — worker never polls for this status
+
+createAuditRecord already sets status=uploaded which is what the worker looks for.
+The extra processing write was overwriting it and causing audits to never trigger analysis.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
