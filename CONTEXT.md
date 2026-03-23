@@ -45,10 +45,13 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-19 23:39 UTC
-- **Commit:** `7b3f827` — Merge branch 'dev' of https://github.com/ultovate/hoa-auditor into dev
+- **Timestamp:** 2026-03-23 18:55 UTC
+- **Commit:** `c34e7ac` — chore: update hoa-pdf-converter submodule to report_schema v2.0
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
   - 
 <!-- END AUTOSYNC -->
