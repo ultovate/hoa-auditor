@@ -652,7 +652,10 @@ function renderTimeline(a, role) {
     const dateStr = ev.date
       ? new Date(ev.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
       : 'Date unknown'
-    const overdue = ev.days_until_event != null && ev.days_until_event < 0
+    // Only mark overdue for forward-looking events (financial deadlines, critical dates)
+    // Governance and document events from meeting minutes are historical records, not overdue
+    const isForwardLooking = ev._group === 'Critical' || ev._group === 'Financial'
+    const overdue = isForwardLooking && ev.days_until_event != null && ev.days_until_event < 0
 
     html += `
       <div class="det-row dr-${color}">
