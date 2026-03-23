@@ -2,8 +2,8 @@ import '../styles/summary.css'
 
 const URGENCY_COLOR = { CRITICAL: 'red', HIGH: 'red', MEDIUM: 'amber', LOW: 'gray' }
 const URGENCY_LABEL = {
-  CRITICAL: 'Restrictions Apply',
-  HIGH:     'Restrictions Apply',
+  CRITICAL: 'Action Required',
+  HIGH:     'Needs Attention',
   MEDIUM:   'Review Recommended',
   LOW:      'For Your Awareness'
 }
@@ -12,43 +12,50 @@ function sl(colorClass, text) {
   return `<span class="sl sl-${colorClass}">${text}</span>`
 }
 
+function fmt$(n) {
+  if (n == null || n === '') return null
+  return '$' + Number(n).toLocaleString()
+}
+
+const toArr = v => Array.isArray(v) ? v : (v?.items || [])
+
 export function renderExecutiveSummary(a, role) {
   const verdict      = a.overall_verdict?.verdict || 'CAUTION'
-  const verdictLabel = { CRITICAL: 'Restrictions Apply', CAUTION: 'Review Recommended', SAFE: 'No Major Restrictions' }[verdict] || 'Review Recommended'
+  const verdictLabel = { CRITICAL: 'Action Required', CAUTION: 'Review Recommended', SAFE: 'No Major Restrictions' }[verdict] || 'Review Recommended'
   const verdictIcon  = { CRITICAL: '!', CAUTION: '!', SAFE: '✓' }[verdict]
 
-  const fp          = a.financial_projections || {}
-  const docs        = a.document_inventory || []
-  const cc          = a.compliance_check
-  const topConcerns = a.buyer_summary?.top_concerns || []
-  const txRisks     = a.agent_summary?.transaction_risks || []
-  const monthlyCost = a.buyer_summary?.monthly_cost_summary
+  const risks      = a.risks?.findings        || []
+  const absences   = a.risks?.notable_absences || []
+  const fo         = a.financial_outlook       || {}
+  const docs       = a.document_inventory      || []
+  const cc         = a.compliance_check
   const missingCrit = a.missing_documents?.critical_missing || []
+  const actionItems = Array.isArray(a.action_items) ? a.action_items : (a.action_items?.items || [])
 
-  const cCount = a.overall_verdict?.critical_count || 0
-  const hCount = a.overall_verdict?.high_count || 0
-  const mCount = a.overall_verdict?.medium_count || 0
-  const lCount = a.overall_verdict?.low_count || 0
-  const restrictionsCount = cCount + hCount
+  // Risk counts — computed from actual data
+  const cCount = risks.filter(r => r.urgency === 'CRITICAL').length
+  const hCount = risks.filter(r => r.urgency === 'HIGH').length
+  const mCount = risks.filter(r => r.urgency === 'MEDIUM').length
+  const lCount = risks.filter(r => r.urgency === 'LOW').length
+  const actionCount = cCount + hCount
 
-  // Financial
-  const specAssessments = fp.special_assessment_discussions || []
-  const approvedAssess  = specAssessments.filter(s => ['APPROVED', 'VOTED'].includes(s.status))
-  const proposedAssess  = specAssessments.filter(s => !['APPROVED', 'VOTED'].includes(s.status))
-  const approvedTotal   = approvedAssess.reduce((n, s) => n + (Number(s.estimated_amount) || 0), 0)
-  const deferredMaint   = fp.deferred_maintenance || []
+  // Financial data — from financial_outlook
+  const specAssessments = toArr(fo.special_assessments)
+  const approvedAssess  = specAssessments.filter(s => ['APPROVED','VOTED','LEVIED'].includes(s.status))
+  const proposedAssess  = specAssessments.filter(s => !['APPROVED','VOTED','LEVIED'].includes(s.status))
+  const approvedTotal   = approvedAssess.reduce((n, s) => n + (Number(s.estimated_amount_per_unit) || 0), 0)
+  const deferredMaint   = toArr(fo.deferred_maintenance)
   const deferredTotal   = deferredMaint.reduce((n, d) => n + (Number(d.estimated_cost) || 0), 0)
-  const litigation      = fp.litigation_cost_tracking || []
+  const litigation      = toArr(fo.litigation_costs)
   const litigationTotal = litigation.reduce((n, l) => n + (Number(l.estimated_total_exposure) || 0), 0)
-  const reservePct      = fp.reserve_fund_shortfall?.current_percent_funded
-  const totalExposure   = fp.projections_summary?.total_identified_exposure || a.overall_verdict?.total_financial_exposure
-  const hasFinancialData = specAssessments.length || deferredMaint.length || litigation.length || reservePct != null || totalExposure
+  const reservePct      = fo.reserve_fund?.current_percent_funded
+  const monthlyFee      = fo.monthly_fees?.current_monthly_fee
+  const upcomingFee     = fo.monthly_fees?.upcoming_fee
+  const hasFinancialData = specAssessments.length || deferredMaint.length || litigation.length || reservePct != null
 
   const isLender       = role === 'lender'
   const staleCount     = docs.filter(d => d.is_stale).length
   const totalDocIssues = staleCount + missingCrit.length
-  const feeRising      = (fp.fee_increase_discussions?.length || 0) > 0
-  const monthlyFee     = monthlyCost?.current_monthly_fee
 
   let html = ''
 
@@ -72,9 +79,9 @@ export function renderExecutiveSummary(a, role) {
         </div>
       </div>
       <div class="vh-chips">
-        ${restrictionsCount ? `<span class="vc vc-red">${restrictionsCount} Restrictions Apply</span>` : ''}
-        ${mCount ? `<span class="vc vc-amber">${mCount} Review Recommended</span>` : ''}
-        ${lCount ? `<span class="vc vc-gray">${lCount} For Your Awareness</span>` : ''}
+        ${actionCount ? `<span class="vc vc-red">${actionCount} Action Required</span>` : ''}
+        ${mCount      ? `<span class="vc vc-amber">${mCount} Review Recommended</span>` : ''}
+        ${lCount      ? `<span class="vc vc-gray">${lCount} For Your Awareness</span>` : ''}
       </div>
     </div>`
 
@@ -82,10 +89,10 @@ export function renderExecutiveSummary(a, role) {
   html += `<div class="kpi-row">`
   if (!isLender) {
     const docsClass  = totalDocIssues > 0 ? 'kpi-warn' : 'kpi-ok'
-    const riskClass  = restrictionsCount > 0 ? (verdict === 'CRITICAL' ? 'kpi-bad' : 'kpi-warn') : 'kpi-ok'
-    const duesClass  = feeRising ? 'kpi-warn' : monthlyFee ? 'kpi-ok' : 'kpi-neutral'
+    const riskClass  = actionCount > 0 ? (verdict === 'CRITICAL' ? 'kpi-bad' : 'kpi-warn') : 'kpi-ok'
+    const duesClass  = upcomingFee ? 'kpi-warn' : monthlyFee ? 'kpi-ok' : 'kpi-neutral'
     const riskValCls = verdict === 'CRITICAL' ? 'kv-bad' : verdict === 'CAUTION' ? 'kv-warn' : 'kv-ok'
-    const riskStsCls = restrictionsCount > 0 ? (verdict === 'CRITICAL' ? 'ks-bad' : 'ks-warn') : 'ks-ok'
+    const riskStsCls = actionCount > 0 ? (verdict === 'CRITICAL' ? 'ks-bad' : 'ks-warn') : 'ks-ok'
 
     html += `
       <div class="kpi-card ${docsClass}">
@@ -96,32 +103,32 @@ export function renderExecutiveSummary(a, role) {
         </div>
       </div>
       <div class="kpi-card ${riskClass}">
-        <div class="kpi-label">Risk Areas</div>
-        <div class="kpi-value ${riskValCls}">${restrictionsCount}</div>
+        <div class="kpi-label">Risk Findings</div>
+        <div class="kpi-value ${riskValCls}">${actionCount}</div>
         <div class="kpi-status ${riskStsCls}">
-          ${restrictionsCount > 0 ? `${mCount} to review · ${lCount} awareness` : '✓ No restrictions found'}
+          ${actionCount > 0 ? `${mCount} to review · ${lCount} awareness` : '✓ No critical risks'}
         </div>
       </div>
       <div class="kpi-card ${duesClass}">
         <div class="kpi-label">Monthly Dues</div>
         <div class="kpi-value">${monthlyFee ? '$' + Number(monthlyFee).toLocaleString() : '—'}</div>
-        <div class="kpi-status ${feeRising ? 'ks-warn' : monthlyFee ? 'ks-ok' : 'ks-muted'}">
-          ${feeRising ? '⚠ Increase discussed' : monthlyFee ? '✓ Stable' : 'Not available'}
+        <div class="kpi-status ${upcomingFee ? 'ks-warn' : monthlyFee ? 'ks-ok' : 'ks-muted'}">
+          ${upcomingFee ? `⚠ Increase → $${Number(upcomingFee).toLocaleString()}` : monthlyFee ? '✓ Stable' : 'Not available'}
         </div>
       </div>`
   } else {
-    const expClass = totalExposure ? 'kpi-bad' : 'kpi-ok'
-    const resClass = reservePct == null ? 'kpi-neutral' : reservePct < 50 ? 'kpi-bad' : reservePct < 70 ? 'kpi-warn' : 'kpi-ok'
-    const litClass = litigation.length ? 'kpi-bad' : 'kpi-ok'
-    const resValCls = reservePct == null ? '' : reservePct < 50 ? 'kv-bad' : reservePct < 70 ? 'kv-warn' : 'kv-ok'
-    const resStsCls = reservePct == null ? 'ks-muted' : reservePct < 50 ? 'ks-bad' : reservePct < 70 ? 'ks-warn' : 'ks-ok'
-    const resSts    = reservePct == null ? 'No data' : reservePct < 50 ? 'Underfunded' : reservePct < 70 ? 'Below threshold' : '✓ Adequate'
+    const lenderRisks = risks.filter(r => r.lender_flag)
+    const resClass    = reservePct == null ? 'kpi-neutral' : reservePct < 50 ? 'kpi-bad' : reservePct < 70 ? 'kpi-warn' : 'kpi-ok'
+    const litClass    = litigation.length ? 'kpi-bad' : 'kpi-ok'
+    const resValCls   = reservePct == null ? '' : reservePct < 50 ? 'kv-bad' : reservePct < 70 ? 'kv-warn' : 'kv-ok'
+    const resStsCls   = reservePct == null ? 'ks-muted' : reservePct < 50 ? 'ks-bad' : reservePct < 70 ? 'ks-warn' : 'ks-ok'
+    const resSts      = reservePct == null ? 'No data' : reservePct < 50 ? 'Underfunded' : reservePct < 70 ? 'Below threshold' : '✓ Adequate'
 
     html += `
-      <div class="kpi-card ${expClass}">
-        <div class="kpi-label">Total Exposure</div>
-        <div class="kpi-value ${totalExposure ? 'kv-bad' : ''}">${totalExposure ? '$' + Number(totalExposure).toLocaleString() : '—'}</div>
-        <div class="kpi-status ${totalExposure ? 'ks-bad' : 'ks-ok'}">${totalExposure ? 'Identified financial risk' : '✓ No exposure identified'}</div>
+      <div class="kpi-card ${lenderRisks.length ? 'kpi-bad' : 'kpi-ok'}">
+        <div class="kpi-label">Lender Flags</div>
+        <div class="kpi-value ${lenderRisks.length ? 'kv-bad' : 'kv-ok'}">${lenderRisks.length}</div>
+        <div class="kpi-status ${lenderRisks.length ? 'ks-bad' : 'ks-ok'}">${lenderRisks.length ? 'Items affecting loan approval' : '✓ No flags identified'}</div>
       </div>
       <div class="kpi-card ${resClass}">
         <div class="kpi-label">Reserve Fund</div>
@@ -136,7 +143,7 @@ export function renderExecutiveSummary(a, role) {
   }
   html += `</div>`
 
-  // ── FINANCIAL STRIP — always rendered ───────────────────────────────────
+  // ── FINANCIAL STRIP ──────────────────────────────────────────────────────
   {
     const reserveColor     = reservePct == null ? '' : reservePct < 50 ? 'rf-low' : reservePct < 70 ? 'rf-mid' : 'rf-high'
     const reserveTextColor = reservePct == null ? '#9CA3AF' : reservePct < 50 ? '#B91C1C' : reservePct < 70 ? '#92400E' : '#065F46'
@@ -151,7 +158,6 @@ export function renderExecutiveSummary(a, role) {
       <div class="fin-strip">
         <div class="fin-strip-head">
           <h3>💰 Financial Exposure</h3>
-          ${totalExposure ? `<span class="fin-strip-total">Total identified: $${Number(totalExposure).toLocaleString()}</span>` : ''}
         </div>`
 
     if (hasFinancialData) {
@@ -162,17 +168,17 @@ export function renderExecutiveSummary(a, role) {
             <div class="fin-sub-value ${assessValClass}">
               ${approvedAssess.length ? approvedAssess.length + ' approved' : proposedAssess.length ? proposedAssess.length + ' proposed' : 'None found'}
             </div>
-            <div class="fin-sub-detail">${approvedTotal ? '$' + Number(approvedTotal).toLocaleString() + ' confirmed' : proposedAssess.length ? 'Under discussion' : 'No assessments identified'}</div>
+            <div class="fin-sub-detail">${approvedTotal ? fmt$(approvedTotal) + '/unit confirmed' : proposedAssess.length ? 'Under discussion' : 'No assessments identified'}</div>
           </div>
           <div class="fin-sub ${maintClass}">
             <div class="fin-sub-label">Deferred Maintenance</div>
-            <div class="fin-sub-value ${maintValClass}">${deferredMaint.length ? deferredMaint.length + ' unresolved' : 'None found'}</div>
-            <div class="fin-sub-detail">${deferredTotal ? '$' + Number(deferredTotal).toLocaleString() + ' est.' : deferredMaint.length ? 'Costs unspecified' : 'No deferred items'}</div>
+            <div class="fin-sub-value ${maintValClass}">${deferredMaint.length ? deferredMaint.length + ' items' : 'None found'}</div>
+            <div class="fin-sub-detail">${deferredTotal ? fmt$(deferredTotal) + ' est.' : deferredMaint.length ? 'Costs unspecified' : 'No deferred items'}</div>
           </div>
           <div class="fin-sub ${litigClass}">
             <div class="fin-sub-label">Litigation</div>
             <div class="fin-sub-value ${litigValClass}">${litigation.length ? litigation.length + ' active' : 'None found'}</div>
-            <div class="fin-sub-detail">${litigationTotal ? '$' + Number(litigationTotal).toLocaleString() + ' exposure' : litigation.length ? 'Exposure unquantified' : 'No litigation identified'}</div>
+            <div class="fin-sub-detail">${litigationTotal ? fmt$(litigationTotal) + ' exposure' : litigation.length ? 'Exposure unquantified' : 'No litigation identified'}</div>
           </div>
         </div>
         ${reservePct != null ? `
@@ -197,81 +203,77 @@ export function renderExecutiveSummary(a, role) {
   const alertsTitle = role === 'lender' ? '🏦 Lender Impact Items' : '⚡ Areas Needing Attention'
 
   if (role === 'buyer') {
-    const concerns = topConcerns.slice(0, 5)
-    const vColor   = verdict === 'CRITICAL' ? 'red' : verdict === 'CAUTION' ? 'amber' : 'green'
-    if (!concerns.length) {
+    const topRisks = risks.filter(r => r.urgency === 'CRITICAL' || r.urgency === 'HIGH').slice(0, 5)
+    if (!topRisks.length && absences.length) {
+      alertsHtml = `<p style="color:#065F46;font-size:.85rem;padding:.5rem 0">✅ No critical concerns identified.</p>`
+    } else if (!topRisks.length) {
       alertsHtml = '<p style="color:#9CA3AF;font-size:.85rem;text-align:center;padding:1rem 0">No concerns identified.</p>'
     } else {
-      alertsHtml = concerns.map((c, i) => {
-        const color = i < 2 ? vColor : 'amber'
-        const label = i < 2 ? verdictLabel : 'Review Recommended'
-        const title = c.concern?.split(':')[0] || c.concern || 'Concern'
+      alertsHtml = topRisks.map(r => {
+        const color = URGENCY_COLOR[r.urgency] || 'amber'
         return `
           <div class="ac ac-${color}">
-            <div class="ac-badges">${sl(color, label)}</div>
-            <div class="ac-title">${title}</div>
-            ${c.why_it_matters ? `<div class="ac-desc">${c.why_it_matters}</div>` : ''}
-            ${c.what_to_do ? `<span class="ac-action">→ ${c.what_to_do}</span>` : ''}
+            <div class="ac-badges">${sl(color, URGENCY_LABEL[r.urgency])}</div>
+            <div class="ac-title">${r.label}</div>
+            ${r.buyer_note ? `<div class="ac-desc">${r.buyer_note}</div>` : r.finding ? `<div class="ac-desc">${r.finding}</div>` : ''}
           </div>`
       }).join('')
-      if (topConcerns.length > 5) {
-        alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${topConcerns.length - 5} more in Full Report →</span>`
+      const total = risks.filter(r => r.urgency === 'CRITICAL' || r.urgency === 'HIGH').length
+      if (total > 5) {
+        alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${total - 5} more in Full Report →</span>`
       }
     }
 
   } else if (role === 'agent') {
-    const risks    = txRisks.slice(0, 3)
-    const concerns = topConcerns.slice(0, 2)
-    if (risks.length) {
-      alertsHtml += `<div class="ac-section-label">Transaction Risks</div>`
-      alertsHtml += risks.map(r => `
+    const topRisks = risks.slice(0, 3)
+    const actionItems3 = actionItems.filter(i => i.roles?.includes('agent') || i.roles?.includes('all')).slice(0, 2)
+    if (topRisks.length) {
+      alertsHtml += `<div class="ac-section-label">Risk Findings</div>`
+      alertsHtml += topRisks.map(r => `
         <div class="ac ac-${URGENCY_COLOR[r.urgency] || 'amber'}">
           <div class="ac-badges">
             ${sl(URGENCY_COLOR[r.urgency] || 'amber', URGENCY_LABEL[r.urgency] || 'Review Recommended')}
-            ${r.lender_impact ? `<span class="sl sl-red" style="font-size:.65rem">⚠ Lender risk</span>` : ''}
+            ${r.lender_flag ? `<span class="sl sl-red" style="font-size:.65rem">⚠ Lender risk</span>` : ''}
+            ${r.negotiation_lever === 'Yes' ? `<span class="sl sl-blue" style="font-size:.65rem">✓ Negotiable</span>` : ''}
           </div>
-          <div class="ac-title">${r.risk}</div>
-          ${r.negotiation_lever && r.negotiation_lever !== 'No' ? `<div style="font-size:.76rem;color:#065F46;font-weight:600;margin-top:.2rem">✓ Negotiation opportunity</div>` : ''}
+          <div class="ac-title">${r.label}</div>
+          ${r.agent_note ? `<div class="ac-desc">${r.agent_note}</div>` : ''}
         </div>`).join('')
     }
-    if (concerns.length) {
-      alertsHtml += `<div class="ac-section-label">Buyer Concerns</div>`
-      alertsHtml += concerns.map(c => `
+    if (actionItems3.length) {
+      alertsHtml += `<div class="ac-section-label">Next Steps</div>`
+      alertsHtml += actionItems3.map(i => `
         <div class="ac ac-amber">
-          <div class="ac-badges">${sl('amber', 'Review Recommended')}</div>
-          <div class="ac-title">${c.concern?.split(':')[0] || c.concern || 'Concern'}</div>
-          ${c.why_it_matters ? `<div class="ac-desc">${c.why_it_matters}</div>` : ''}
+          <div class="ac-badges">${sl('amber', i.priority === 'IMMEDIATE' ? 'Immediate' : 'Before Closing')}</div>
+          <div class="ac-title">${i.action}</div>
         </div>`).join('')
     }
-    const total = txRisks.length + topConcerns.length
-    const shown = risks.length + concerns.length
-    if (total > shown) {
-      alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${total - shown} more in Full Report →</span>`
+    if (risks.length > 3) {
+      alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${risks.length - 3} more in Full Report →</span>`
     }
 
   } else if (role === 'lender') {
-    const lenderRisks = txRisks.filter(r => r.lender_impact).slice(0, 5)
+    const lenderRisks = risks.filter(r => r.lender_flag).slice(0, 5)
     if (!lenderRisks.length) {
       alertsHtml = '<p style="color:#9CA3AF;font-size:.85rem;text-align:center;padding:1rem 0">No lender-impact items identified.</p>'
     } else {
       alertsHtml = lenderRisks.map(r => `
         <div class="ac ac-${URGENCY_COLOR[r.urgency] || 'amber'}">
           <div class="ac-badges">${sl(URGENCY_COLOR[r.urgency] || 'amber', URGENCY_LABEL[r.urgency] || 'Review Recommended')}</div>
-          <div class="ac-title">${r.risk}</div>
-          ${r.source_section ? `<div style="font-size:.74rem;color:#9CA3AF;margin-top:.2rem">📄 ${r.source_section}</div>` : ''}
+          <div class="ac-title">${r.label}</div>
+          ${r.agent_note || r.buyer_note ? `<div class="ac-desc">${r.agent_note || r.buyer_note}</div>` : ''}
+          ${r.source_document ? `<div style="font-size:.74rem;color:#9CA3AF;margin-top:.2rem">📄 ${r.source_document}${r.source_section ? ' · ' + r.source_section : ''}</div>` : ''}
         </div>`).join('')
-      const totalLender = txRisks.filter(r => r.lender_impact).length
+      const totalLender = risks.filter(r => r.lender_flag).length
       if (totalLender > 5) {
         alertsHtml += `<span class="alert-more" onclick="goToFullReport()">+ ${totalLender - 5} more in Full Report →</span>`
       }
     }
   }
 
-  // Document status — grouped by state
+  // Document status
   const currentDocs = docs.filter(d => !d.is_stale)
-  const staleDocs   = docs.filter(d => d.is_stale)
-
-  const docIcon = (state) => state === 'stale' ? '⚠️' : state === 'missing' ? '❌' : '✅'
+  const staleDocs   = docs.filter(d =>  d.is_stale)
 
   let docsHtml = ''
   if (currentDocs.length) {
