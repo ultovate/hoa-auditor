@@ -620,7 +620,7 @@ function renderTimeline(a, role) {
   ].sort((a, b) => {
     if (!a.date) return 1
     if (!b.date) return -1
-    return new Date(a.date) - new Date(b.date)
+    return new Date(b.date) - new Date(a.date)
   })
 
   if (!allEvents.length) {
