@@ -49,21 +49,15 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-23 20:36 UTC
-- **Commit:** `c5f13d4` — feat: rewire summaryView.js for schema v2.0
+- **Timestamp:** 2026-03-23 21:01 UTC
+- **Commit:** `8864e8c` — fix: only show Overdue label on forward-looking timeline events
 
-- All data paths updated: risks.findings[] replaces buyer_summary/agent_summary/risk_findings
-- financial_outlook replaces financial_projections throughout
-- Risk counts computed from actual risks.findings[] array (no more self-reported critical_count etc.)
-- Lender KPI row shows lender flags count instead of unverifiable total exposure
-- Verdict hero chips updated: 'Action Required' replaces 'Restrictions Apply'
-- URGENCY_LABEL updated to match reportView.js (Action Required / Needs Attention)
-- Financial strip removes AI total — shows verifiable sub-section counts only
-- Buyer alerts read buyer_note from risks.findings[]
-- Agent alerts read agent_note from risks.findings[] + action_items for next steps
-- Lender alerts filter risks.findings[] by lender_flag
+Governance and document events from meeting minutes are historical records
+and should never be labeled Overdue. Only Critical and Financial events
+with past-due dates (special assessments, fees, certificate expirations) get the label.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
