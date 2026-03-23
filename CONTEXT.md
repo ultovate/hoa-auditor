@@ -56,14 +56,16 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-23 22:36 UTC
-- **Commit:** `117d334` — feat: add AI assistant chat bubble concept to report page
+- **Timestamp:** 2026-03-23 22:46 UTC
+- **Commit:** `c96d5e9` — feat: add sample audit page and Supabase setup script
 
-Floating gradient bubble (bottom-right) opens a chat panel with quick
-prompt chips, message input, typing indicator animation, and placeholder
-response. No API integration — concept shell for future AI Q&A feature.
+- sample.html: public report page (no auth) that loads the is_sample=true
+  audit with masked property details and a 'sample demo' banner
+- supabase/sample_audit_setup.sql: adds is_sample column, marks Chiavari
+  audit as sample, and creates anon RLS policy for public read access
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
