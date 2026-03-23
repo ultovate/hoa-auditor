@@ -54,13 +54,17 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-23 22:14 UTC
-- **Commit:** `352de44` — fix: remove status=processing write after upload — worker never polls for this status
+- **Timestamp:** 2026-03-23 22:27 UTC
+- **Commit:** `f110279` — feat: add Draft Message modal to CRITICAL/HIGH risk cards
 
-createAuditRecord already sets status=uploaded which is what the worker looks for.
-The extra processing write was overwriting it and causing audits to never trigger analysis.
+Static template-based drafting — no API calls. Each CRITICAL/HIGH risk
+card in the Risks tab gets a 'Draft Message' button. Modal offers 3
+recipient tabs (HOA Board, My Agent, Lender) with pre-filled editable
+letter templates drawn from the risk's label, finding, buyer_note, and
+source. Copy to clipboard included.
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
