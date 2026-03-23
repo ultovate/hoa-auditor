@@ -1259,7 +1259,6 @@
         const { data: existing } = await supabase.from('audits').select('file_count').eq('audit_id', auditId).single()
         await supabase.from('audits').update({
           file_count: (existing?.file_count || 0) + newFiles.length,
-          status: 'processing',
           updated_at: new Date().toISOString()
         }).eq('audit_id', auditId)
       }
@@ -1268,9 +1267,6 @@
 
       // Create job records — triggers Railway worker
       await createJobRecords(currentUser.id, auditId, result.files)
-
-      // Set audit status to processing
-      await supabase.from('audits').update({ status: 'processing' }).eq('audit_id', auditId)
 
       progressFill.style.width = '100%'
 
