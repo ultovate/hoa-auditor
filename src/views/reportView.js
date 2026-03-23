@@ -1,5 +1,134 @@
 import '../styles/report.css'
 
+// Draft message state
+let _draftPropertyName = ''
+
+// ── DRAFT MESSAGE MODAL ───────────────────────────────────────────────────────
+function buildDraftTemplate(risk, recipient) {
+  const label   = risk.label || 'this issue'
+  const finding = risk.finding || ''
+  const src     = risk.source_document
+    ? `(per ${risk.source_document}${risk.source_section ? ', ' + risk.source_section : ''})`
+    : ''
+  const note    = risk.buyer_note || risk.agent_note || ''
+  const prop    = _draftPropertyName || 'the property'
+
+  if (recipient === 'board') return `Subject: Concern Regarding ${label} — ${prop}
+
+Dear HOA Board of Directors,
+
+I am writing to request clarification on a matter identified during my review of the HOA documents for ${prop}.
+
+Issue: ${label} ${src}
+
+${finding}
+${note ? '\n' + note : ''}
+
+I respectfully request clarification on the current status of this matter and any remediation steps planned. Please respond at your earliest convenience, as this is time-sensitive to my closing timeline.
+
+Sincerely,
+[Your Name]
+[Date]`
+
+  if (recipient === 'agent') return `Hi [Agent Name],
+
+I wanted to flag a concern from the HOA document review for ${prop} before we proceed further.
+
+Issue: ${label} ${src}
+${finding}
+${note ? '\n' + note : ''}
+
+Can we discuss how this affects our options — whether this is negotiable, warrants a contingency, or should factor into our offer?
+
+Thanks,
+[Your Name]`
+
+  if (recipient === 'lender') return `Subject: HOA Risk Disclosure — ${prop}
+
+Dear [Loan Officer Name],
+
+I wanted to bring to your attention a risk identified in the HOA document review for ${prop}.
+
+Issue: ${label} ${src}
+${finding}
+${note ? '\n' + note : ''}
+
+Please advise whether this affects my loan approval, requires additional documentation, or warrants further review by your underwriting team.
+
+Best regards,
+[Your Name]`
+}
+
+function initDraftModal() {
+  if (document.getElementById('draft-modal')) return
+
+  const modal = document.createElement('div')
+  modal.id = 'draft-modal'
+  modal.style.cssText = `display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center`
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;width:min(640px,95vw);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-weight:700;font-size:1rem;color:#111827">Draft Message</div>
+          <div id="draft-modal-risk-label" style="font-size:.8rem;color:#6B7280;margin-top:2px"></div>
+        </div>
+        <button id="draft-modal-close" style="background:none;border:none;cursor:pointer;font-size:1.4rem;color:#9CA3AF;line-height:1">×</button>
+      </div>
+      <div style="padding:1rem 1.5rem;border-bottom:1px solid #E5E7EB;display:flex;gap:.5rem">
+        <button class="draft-tab-btn" data-recipient="board"  style="padding:.4rem .9rem;border-radius:6px;border:1px solid #D1D5DB;background:#F3F4F6;font-size:.8rem;cursor:pointer;font-weight:600">HOA Board</button>
+        <button class="draft-tab-btn" data-recipient="agent"  style="padding:.4rem .9rem;border-radius:6px;border:1px solid #D1D5DB;background:#fff;font-size:.8rem;cursor:pointer">My Agent</button>
+        <button class="draft-tab-btn" data-recipient="lender" style="padding:.4rem .9rem;border-radius:6px;border:1px solid #D1D5DB;background:#fff;font-size:.8rem;cursor:pointer">Lender</button>
+      </div>
+      <textarea id="draft-modal-text" style="flex:1;min-height:300px;padding:1.25rem 1.5rem;border:none;resize:none;font-family:inherit;font-size:.85rem;line-height:1.6;color:#1F2937;outline:none;overflow-y:auto"></textarea>
+      <div style="padding:1rem 1.5rem;border-top:1px solid #E5E7EB;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.75rem;color:#9CA3AF">Edit the draft above before sending.</span>
+        <button id="draft-copy-btn" style="padding:.5rem 1.1rem;background:#1D4ED8;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600">Copy to Clipboard</button>
+      </div>
+    </div>`
+  document.body.appendChild(modal)
+
+  let _activeRisk = null
+
+  function setRecipient(r) {
+    modal.querySelectorAll('.draft-tab-btn').forEach(b => {
+      const active = b.dataset.recipient === r
+      b.style.background = active ? '#1D4ED8' : '#fff'
+      b.style.color = active ? '#fff' : '#374151'
+      b.style.borderColor = active ? '#1D4ED8' : '#D1D5DB'
+    })
+    if (_activeRisk) {
+      document.getElementById('draft-modal-text').value = buildDraftTemplate(_activeRisk, r)
+    }
+  }
+
+  modal.querySelectorAll('.draft-tab-btn').forEach(b => {
+    b.addEventListener('click', () => setRecipient(b.dataset.recipient))
+  })
+
+  document.getElementById('draft-modal-close').addEventListener('click', () => {
+    modal.style.display = 'none'
+  })
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.style.display = 'none'
+  })
+
+  document.getElementById('draft-copy-btn').addEventListener('click', () => {
+    const ta = document.getElementById('draft-modal-text')
+    navigator.clipboard.writeText(ta.value).then(() => {
+      const btn = document.getElementById('draft-copy-btn')
+      btn.textContent = 'Copied!'
+      setTimeout(() => { btn.textContent = 'Copy to Clipboard' }, 2000)
+    })
+  })
+
+  document.addEventListener('open-draft-modal', e => {
+    _activeRisk = e.detail.risk
+    document.getElementById('draft-modal-risk-label').textContent = _activeRisk.label || ''
+    setRecipient('board')
+    modal.style.display = 'flex'
+  })
+}
+
 const URGENCY_COLOR = { CRITICAL: 'red', HIGH: 'red', MEDIUM: 'amber', LOW: 'gray' }
 const URGENCY_LABEL = {
   CRITICAL: 'Action Required',
@@ -184,6 +313,8 @@ function renderRisks(a, role) {
       <div class="sec-title">${icon} ${URGENCY_LABEL[urgency]} (${items.length})</div>`
     items.forEach(r => {
       const note = role === 'buyer' ? r.buyer_note : (r.agent_note || r.buyer_note)
+      const showDraft = (urgency === 'CRITICAL' || urgency === 'HIGH') && role !== 'lender'
+      const riskKey = encodeURIComponent(JSON.stringify(r))
       html += `
         <div class="det-row dr-${color}">
           <div class="det-row-badges">
@@ -195,6 +326,7 @@ function renderRisks(a, role) {
           ${r.finding ? `<div class="det-row-meta">${r.finding}</div>` : ''}
           ${note && note !== r.finding ? `<div class="det-row-meta" style="color:#4B5563;font-style:italic">${note}</div>` : ''}
           ${r.source_document ? `<div class="det-row-src">📄 ${r.source_document}${r.source_section ? ' · ' + r.source_section : ''}</div>` : ''}
+          ${showDraft ? `<div style="margin-top:.6rem"><button class="draft-msg-btn" data-risk="${riskKey}" style="padding:.3rem .8rem;font-size:.75rem;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;border-radius:6px;cursor:pointer;font-weight:600">✉ Draft Message</button></div>` : ''}
         </div>`
     })
     html += `</div>`
@@ -758,7 +890,19 @@ export function renderFullReport(a, role) {
     panelsHtml += `<div class="tab-panel${i === 0 ? ' active' : ''}" data-panel="${tab.id}">${content}</div>`
   })
 
+  _draftPropertyName = a.metadata?.property_address || a.metadata?.hoa_name || ''
+
   document.getElementById('report-content').innerHTML = tabBarHtml + panelsHtml
+
+  initDraftModal()
+
+  // Draft message button clicks
+  document.getElementById('report-content').addEventListener('click', e => {
+    const btn = e.target.closest('.draft-msg-btn')
+    if (!btn) return
+    const risk = JSON.parse(decodeURIComponent(btn.dataset.risk))
+    document.dispatchEvent(new CustomEvent('open-draft-modal', { detail: { risk } }))
+  })
 
   // Tab switching
   document.querySelectorAll('.tab-btn').forEach(btn => {
