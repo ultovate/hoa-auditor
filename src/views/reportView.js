@@ -2,8 +2,8 @@ import '../styles/report.css'
 
 const URGENCY_COLOR = { CRITICAL: 'red', HIGH: 'red', MEDIUM: 'amber', LOW: 'gray' }
 const URGENCY_LABEL = {
-  CRITICAL: 'Restrictions Apply',
-  HIGH:     'Restrictions Apply',
+  CRITICAL: 'Action Required',
+  HIGH:     'Needs Attention',
   MEDIUM:   'Review Recommended',
   LOW:      'For Your Awareness'
 }
@@ -20,68 +20,113 @@ function fmt$(n) {
 
 // ── TAB: OVERVIEW ────────────────────────────────────────────────────────────
 function renderOverview(a, role) {
-  const bs = a.buyer_summary  || {}
-  const as = a.agent_summary  || {}
-  const md = a.missing_documents || {}
+  const risks      = a.risks?.findings       || []
+  const absences   = a.risks?.notable_absences || []
+  const actionItems = Array.isArray(a.action_items)
+    ? a.action_items
+    : (a.action_items?.items || [])
+  const md         = a.missing_documents || {}
+  const ov         = a.overall_verdict   || {}
+  const fo         = a.financial_outlook || {}
   let html = ''
 
   if (role === 'buyer') {
-    if (bs.headline) {
-      html += `<div class="ov-headline">${bs.headline}</div>`
+    // Headline from overall verdict
+    if (ov.verdict_reason) {
+      const vc = ov.verdict === 'CRITICAL' ? 'red' : ov.verdict === 'SAFE' ? 'green' : 'amber'
+      html += `<div class="ov-headline">${sl(vc, ov.verdict || 'CAUTION')} ${ov.verdict_reason}</div>`
     }
-    if (bs.what_we_found) {
-      html += `<div class="sec-card"><div class="sec-title">What We Found</div><p class="ov-body">${bs.what_we_found}</p></div>`
-    }
-    if (bs.green_lights || bs.lifestyle_flags) {
-      html += `<div class="ov-two">`
-      if (bs.green_lights)    html += `<div class="sec-card ov-green-card"><div class="sec-title">✅ What Looks Good</div><p class="ov-body">${bs.green_lights}</p></div>`
-      if (bs.lifestyle_flags) html += `<div class="sec-card ov-amber-card"><div class="sec-title">🏠 Lifestyle Flags</div><p class="ov-body">${bs.lifestyle_flags}</p></div>`
+
+    // Top concerns — CRITICAL + HIGH risks with buyer notes
+    const topRisks = risks.filter(r => r.urgency === 'CRITICAL' || r.urgency === 'HIGH')
+    if (topRisks.length) {
+      html += `<div class="sec-card sec-card-err"><div class="sec-title">⚠ Top Concerns (${topRisks.length})</div>`
+      topRisks.forEach(r => {
+        html += `
+          <div class="det-row dr-red">
+            <div class="det-row-badges">${sl('red', URGENCY_LABEL[r.urgency])}</div>
+            <div class="det-row-title">${r.label}</div>
+            ${r.buyer_note ? `<div class="det-row-meta">${r.buyer_note}</div>` : r.finding ? `<div class="det-row-meta">${r.finding}</div>` : ''}
+            ${r.source_document ? `<div class="det-row-src">📄 ${r.source_document}${r.source_section ? ' · ' + r.source_section : ''}</div>` : ''}
+          </div>`
+      })
       html += `</div>`
     }
 
-  } else if (role === 'agent') {
-    const badge = as.verdict_badge || 'CAUTION'
-    const badgeColor = badge === 'CRITICAL' ? 'red' : badge === 'SAFE' ? 'green' : 'amber'
-    html += `<div class="ov-verdict-row">${sl(badgeColor, badge)}${as.lender_flags ? `<span style="font-size:.83rem;color:#6B7280;margin-left:.75rem">⚠ Lender flags present</span>` : ''}</div>`
-
-    if (as.recommended_next_steps?.length) {
-      html += `<div class="sec-card"><div class="sec-title">✅ Recommended Next Steps</div><ol class="ov-list">`
-      as.recommended_next_steps.forEach(s => { html += `<li>${s}</li>` })
-      html += `</ol></div>`
+    // Monthly fees snapshot
+    const mf = fo.monthly_fees
+    if (mf?.current_monthly_fee) {
+      html += `<div class="sec-card"><div class="sec-title">💰 Monthly Cost Snapshot</div>
+        <div class="det-row-meta">Current monthly fee: <strong>${fmt$(mf.current_monthly_fee)}</strong></div>
+        ${mf.upcoming_fee ? `<div class="det-row-meta" style="color:#B45309">Upcoming fee: <strong>${fmt$(mf.upcoming_fee)}</strong>${mf.upcoming_fee_date ? ` effective ${mf.upcoming_fee_date}` : ''}${mf.upcoming_fee_percent_change ? ` (+${mf.upcoming_fee_percent_change}%)` : ''}</div>` : ''}
+        ${mf.transfer_fees_due_at_closing ? `<div class="det-row-meta">Transfer fees at closing: <strong>${fmt$(mf.transfer_fees_due_at_closing)}</strong></div>` : ''}
+      </div>`
     }
-    if (as.seller_negotiation_points?.length) {
-      html += `<div class="sec-card"><div class="sec-title">🤝 Transaction Considerations</div><ul class="ov-list">`
-      as.seller_negotiation_points.forEach(s => { html += `<li>${s}</li>` })
+
+    // Green lights from notable absences
+    if (absences.length) {
+      html += `<div class="sec-card ov-green-card"><div class="sec-title">✅ What Looks Good</div><ul class="ov-list">`
+      absences.forEach(ab => { html += `<li>${ab.label}${ab.evidence ? ` — <span style="color:#6B7280">${ab.evidence}</span>` : ''}</li>` })
       html += `</ul></div>`
     }
-    if (as.lender_flags) {
-      const flags = Array.isArray(as.lender_flags)
-        ? as.lender_flags
-        : as.lender_flags.split(/\n|;\s*/).map(s => s.trim()).filter(Boolean)
+
+    // Buyer action items
+    const buyerActions = actionItems.filter(i => i.roles?.includes('buyer') || i.roles?.includes('all'))
+    if (buyerActions.length) {
+      html += `<div class="sec-card"><div class="sec-title">✅ Your Action Items</div><ol class="ov-list">`
+      buyerActions.forEach(i => { html += `<li><strong>${i.action}</strong>${i.why ? `<br><span style="font-size:.8rem;color:#6B7280">${i.why}</span>` : ''}</li>` })
+      html += `</ol></div>`
+    }
+
+  } else if (role === 'agent') {
+    const verdict   = ov.verdict || 'CAUTION'
+    const badgeColor = verdict === 'CRITICAL' ? 'red' : verdict === 'SAFE' ? 'green' : 'amber'
+    const lenderRisks = risks.filter(r => r.lender_flag)
+    html += `<div class="ov-verdict-row">${sl(badgeColor, verdict)}${lenderRisks.length ? `<span style="font-size:.83rem;color:#6B7280;margin-left:.75rem">⚠ ${lenderRisks.length} lender flag${lenderRisks.length > 1 ? 's' : ''}</span>` : ''}</div>`
+
+    // Agent action items
+    const agentActions = actionItems.filter(i => i.roles?.includes('agent') || i.roles?.includes('all'))
+    if (agentActions.length) {
+      html += `<div class="sec-card"><div class="sec-title">✅ Recommended Next Steps</div><ol class="ov-list">`
+      agentActions.forEach(i => { html += `<li>${i.action}${i.why ? `<br><span style="font-size:.8rem;color:#6B7280">${i.why}</span>` : ''}</li>` })
+      html += `</ol></div>`
+    }
+
+    // Transaction considerations — risks where negotiation_lever is Yes/Maybe
+    const negotiable = risks.filter(r => r.negotiation_lever === 'Yes' || r.negotiation_lever === 'Maybe')
+    if (negotiable.length) {
+      html += `<div class="sec-card"><div class="sec-title">🤝 Transaction Considerations</div><ul class="ov-list">`
+      negotiable.forEach(r => {
+        html += `<li>${r.label}${r.negotiation_lever === 'Yes' ? ' <span style="color:#059669;font-size:.78rem">(negotiable)</span>' : ' <span style="color:#9CA3AF;font-size:.78rem">(possibly)</span>'}</li>`
+      })
+      html += `</ul></div>`
+    }
+
+    // Lender flags
+    if (lenderRisks.length) {
       html += `<div class="sec-card ov-red-card"><div class="sec-title">🏦 Lender Flags</div><ul class="ov-list">`
-      flags.forEach(f => { html += `<li>${f}</li>` })
+      lenderRisks.forEach(r => { html += `<li>${r.label}${r.agent_note ? ` — ${r.agent_note}` : ''}</li>` })
       html += `</ul></div>`
     }
 
   } else if (role === 'lender') {
-    const fp = a.financial_projections || {}
-    const totalExposure = fp.projections_summary?.total_identified_exposure
-                       || a.overall_verdict?.total_financial_exposure
-    if (fp.projections_summary?.buyer_headline || totalExposure) {
+    const totalExposure = ov.total_financial_exposure
+    const lenderRisks   = risks.filter(r => r.lender_flag)
+    if (totalExposure) {
       html += `<div class="sec-card ov-red-card">
         <div class="sec-title">💰 Financial Risk Summary</div>
-        ${fp.projections_summary?.buyer_headline ? `<p class="ov-body">${fp.projections_summary.buyer_headline}</p>` : ''}
-        ${totalExposure ? `<div class="ov-exposure">Total identified exposure: <strong>${fmt$(totalExposure)}</strong></div>` : ''}
+        <div class="ov-exposure">Total identified exposure: <strong>${fmt$(totalExposure)}</strong></div>
       </div>`
     }
-    const lenderRisks = (as.transaction_risks || []).filter(r => r.lender_impact)
     if (lenderRisks.length) {
       html += `<div class="sec-card"><div class="sec-title">🏦 Lender Impact Items (${lenderRisks.length})</div>`
       lenderRisks.forEach(r => {
+        const color = URGENCY_COLOR[r.urgency] || 'amber'
         html += `
-          <div class="det-row dr-${URGENCY_COLOR[r.urgency] || 'amber'}">
-            <div class="det-row-badges">${sl(URGENCY_COLOR[r.urgency] || 'amber', URGENCY_LABEL[r.urgency] || 'Review Recommended')}</div>
-            <div class="det-row-title">${r.risk}</div>
+          <div class="det-row dr-${color}">
+            <div class="det-row-badges">${sl(color, URGENCY_LABEL[r.urgency] || 'Review Recommended')}</div>
+            <div class="det-row-title">${r.label}</div>
+            ${r.agent_note || r.buyer_note ? `<div class="det-row-meta">${r.agent_note || r.buyer_note}</div>` : ''}
             ${r.source_document ? `<div class="det-row-src">📄 ${r.source_document}${r.source_section ? ' · ' + r.source_section : ''}</div>` : ''}
           </div>`
       })
@@ -113,25 +158,10 @@ function renderOverview(a, role) {
 
 // ── TAB: RISKS ───────────────────────────────────────────────────────────────
 function renderRisks(a, role) {
-  let risks = []
+  let risks = a.risks?.findings || []
 
   if (role === 'lender') {
-    risks = (a.agent_summary?.transaction_risks || []).filter(r => r.lender_impact)
-  } else if (role === 'agent') {
-    risks = a.agent_summary?.transaction_risks || []
-  } else {
-    // buyer: prefer risk_findings, fall back to transaction_risks
-    const rf = (a.risk_findings?.findings || []).map(f => ({
-      risk: f.label || f.finding,
-      urgency: f.urgency,
-      lender_impact: false,
-      negotiation_lever: null,
-      source_document: f.source_document,
-      source_section:  f.source_section,
-      buyer_impact:    f.buyer_impact,
-      _finding:        f.finding
-    }))
-    risks = rf.length ? rf : (a.agent_summary?.transaction_risks || [])
+    risks = risks.filter(r => r.lender_flag)
   }
 
   if (!risks.length) {
@@ -148,16 +178,17 @@ function renderRisks(a, role) {
     html += `<div class="sec-card${urgency === 'CRITICAL' ? ' sec-card-err' : urgency === 'HIGH' ? ' sec-card-warn' : ''}">
       <div class="sec-title">${icon} ${URGENCY_LABEL[urgency]} (${items.length})</div>`
     items.forEach(r => {
+      const note = role === 'buyer' ? r.buyer_note : (r.agent_note || r.buyer_note)
       html += `
         <div class="det-row dr-${color}">
           <div class="det-row-badges">
             ${sl(color, urgency)}
-            ${r.lender_impact ? sl('red', '⚠ Lender Risk') : ''}
+            ${r.lender_flag ? sl('red', '⚠ Lender Risk') : ''}
             ${r.negotiation_lever === 'Yes' ? sl('blue', '✓ Negotiable') : r.negotiation_lever === 'Maybe' ? sl('gray', '~ Maybe') : ''}
           </div>
-          <div class="det-row-title">${r.risk || r.label || ''}</div>
-          ${r._finding && r._finding !== r.risk ? `<div class="det-row-meta">${r._finding}</div>` : ''}
-          ${r.buyer_impact ? `<div class="det-row-meta">${r.buyer_impact}</div>` : ''}
+          <div class="det-row-title">${r.label || r.verdict_label || ''}</div>
+          ${r.finding ? `<div class="det-row-meta">${r.finding}</div>` : ''}
+          ${note && note !== r.finding ? `<div class="det-row-meta" style="color:#4B5563;font-style:italic">${note}</div>` : ''}
           ${r.source_document ? `<div class="det-row-src">📄 ${r.source_document}${r.source_section ? ' · ' + r.source_section : ''}</div>` : ''}
         </div>`
     })
@@ -165,7 +196,7 @@ function renderRisks(a, role) {
   })
 
   // Notable absences
-  const absences = a.risk_findings?.notable_absences || []
+  const absences = a.risks?.notable_absences || []
   if (absences.length) {
     html += `<div class="sec-card"><div class="sec-title">✅ Notable Absences</div>`
     absences.forEach(ab => {
@@ -362,26 +393,38 @@ function renderDocuments(a, role) {
   return html || '<p class="ov-body" style="text-align:center;padding:2rem;color:#9CA3AF">No document data available.</p>'
 }
 
-// ── TAB: HIDDEN COSTS ────────────────────────────────────────────────────────
+// ── TAB: FINANCIAL OUTLOOK ───────────────────────────────────────────────────
 function renderHiddenCosts(a, role) {
-  const fp          = a.financial_projections || {}
-  const deferred    = fp.deferred_maintenance             || []
-  const specAssess  = fp.special_assessment_discussions   || []
-  const reserve     = fp.reserve_fund_shortfall
-  const feeIncrease = fp.fee_increase_discussions         || []
-  const litigation  = fp.litigation_cost_tracking         || []
-  const wishlist    = fp.capital_improvements_wishlist    || []
-  const projSum     = fp.projections_summary
+  const fo       = a.financial_outlook || {}
+  const mf       = fo.monthly_fees     || null
+  const reserve  = fo.reserve_fund     || null
+
+  // special_assessments / deferred_maintenance / litigation_costs may be {items:[]} or []
+  const toArr = v => Array.isArray(v) ? v : (v?.items || [])
+  const specAssess = toArr(fo.special_assessments)
+  const deferred   = toArr(fo.deferred_maintenance)
+  const litigation = toArr(fo.litigation_costs)
+  const insurance  = fo.insurance || null
+
+  const ov = a.overall_verdict || {}
   let html = ''
 
-  // Summary headline (dark card)
-  if (projSum) {
-    const total = projSum.total_identified_exposure
+  // Exposure summary (dark card)
+  if (ov.total_financial_exposure) {
     html += `<div class="sec-card-dark">
       <div class="sec-title">💰 Financial Exposure Summary</div>
-      ${projSum.buyer_headline ? `<p class="ov-body" style="color:rgba(255,255,255,.75);margin-bottom:.75rem">${projSum.buyer_headline}</p>` : ''}
-      ${total ? `<div class="exp-total">Total identified: <strong>${fmt$(total)}</strong></div>` : ''}
-      ${projSum.highest_risk_item ? `<div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.5rem">Highest risk: ${projSum.highest_risk_item}</div>` : ''}
+      <div class="exp-total">Total identified: <strong>${fmt$(ov.total_financial_exposure)}</strong></div>
+    </div>`
+  }
+
+  // Monthly Fees
+  if (mf?.current_monthly_fee) {
+    const hasIncrease = !!(mf.upcoming_fee || mf.upcoming_fee_percent_change)
+    html += `<div class="sec-card ${hasIncrease ? 'sec-card-warn' : ''}">
+      <div class="sec-title">📅 Monthly Fees</div>
+      <div class="det-row-meta">Current monthly fee: <strong>${fmt$(mf.current_monthly_fee)}</strong></div>
+      ${mf.upcoming_fee ? `<div class="det-row-meta" style="color:#B45309">Upcoming: <strong>${fmt$(mf.upcoming_fee)}</strong>${mf.upcoming_fee_date ? ` effective ${mf.upcoming_fee_date}` : ''}${mf.upcoming_fee_percent_change ? ` (+${mf.upcoming_fee_percent_change}%)` : ''}</div>` : ''}
+      ${mf.transfer_fees_due_at_closing ? `<div class="det-row-meta">Transfer fees at closing: <strong>${fmt$(mf.transfer_fees_due_at_closing)}</strong></div>` : ''}
     </div>`
   }
 
@@ -392,6 +435,7 @@ function renderHiddenCosts(a, role) {
     const rfTextColor = pct == null ? '#9CA3AF' : pct < 50 ? '#B91C1C' : pct < 70 ? '#92400E' : '#065F46'
     html += `<div class="sec-card ${pct != null && pct < 70 ? 'sec-card-warn' : ''}">
       <div class="sec-title">🏦 Reserve Fund</div>
+      ${!reserve.has_reserve_study ? `<div class="det-row-meta" style="color:#B91C1C;font-weight:700">⚠ No reserve study found</div>` : ''}
       ${pct != null ? `
         <div class="reserve-row" style="margin-bottom:1rem">
           <div class="reserve-labels">
@@ -400,26 +444,26 @@ function renderHiddenCosts(a, role) {
           </div>
           <div class="reserve-track"><div class="reserve-fill ${rfColor}" style="width:${Math.min(pct,100)}%"></div></div>
         </div>` : ''}
-      ${reserve.shortfall_amount         ? `<div class="det-row-meta">Shortfall: <strong>${fmt$(reserve.shortfall_amount)}</strong></div>` : ''}
-      ${reserve.projected_funding_year   ? `<div class="det-row-meta">Projected fully funded: ${reserve.projected_funding_year}</div>`     : ''}
-      ${reserve.board_action_discussed   ? `<div class="det-row-meta">Board action: ${reserve.board_action_discussed}</div>`               : ''}
+      ${reserve.shortfall_amount       ? `<div class="det-row-meta">Shortfall: <strong>${fmt$(reserve.shortfall_amount)}</strong></div>` : ''}
+      ${reserve.projected_funding_year ? `<div class="det-row-meta">Projected fully funded: ${reserve.projected_funding_year}</div>`     : ''}
+      ${reserve.board_action_discussed ? `<div class="det-row-meta">Board action: ${reserve.board_action_discussed}</div>`               : ''}
     </div>`
   }
 
   // Special Assessments
   if (specAssess.length) {
-    const hasApproved = specAssess.some(s => ['APPROVED','VOTED'].includes(s.status))
+    const hasApproved = specAssess.some(s => ['APPROVED','VOTED','LEVIED'].includes(s.status))
     html += `<div class="sec-card ${hasApproved ? 'sec-card-err' : 'sec-card-warn'}">
       <div class="sec-title">⚡ Special Assessments (${specAssess.length})</div>`
     specAssess.forEach(s => {
-      const color = ['APPROVED','VOTED'].includes(s.status) ? 'red' : 'amber'
+      const color = ['APPROVED','VOTED','LEVIED'].includes(s.status) ? 'red' : 'amber'
       html += `
         <div class="det-row dr-${color}">
           <div class="det-row-badges">${sl(color, s.status || 'DISCUSSED')}</div>
           <div class="det-row-title">${s.description}</div>
-          ${s.estimated_amount  ? `<div class="det-row-meta">Est. per unit: <strong>${fmt$(s.estimated_amount)}</strong></div>` : ''}
-          ${s.likely_timeline   ? `<div class="det-row-meta">Timeline: ${s.likely_timeline}</div>`                               : ''}
-          ${s.source_meeting    ? `<div class="det-row-src">📅 ${s.source_meeting}</div>`                                         : ''}
+          ${s.estimated_amount_per_unit ? `<div class="det-row-meta">Est. per unit: <strong>${fmt$(s.estimated_amount_per_unit)}</strong></div>` : ''}
+          ${s.likely_timeline           ? `<div class="det-row-meta">Timeline: ${s.likely_timeline}</div>`                                       : ''}
+          ${s.source_meeting            ? `<div class="det-row-src">📅 ${s.source_meeting}</div>`                                                 : ''}
         </div>`
     })
     html += `</div>`
@@ -430,10 +474,8 @@ function renderHiddenCosts(a, role) {
     html += `<div class="sec-card ${deferred.length > 2 ? 'sec-card-warn' : ''}">
       <div class="sec-title">🔧 Deferred Maintenance (${deferred.length})</div>`
     deferred.forEach(d => {
-      const color = URGENCY_COLOR[d.urgency] || 'amber'
       html += `
-        <div class="det-row dr-${color}">
-          <div class="det-row-badges">${sl(color, URGENCY_LABEL[d.urgency] || 'Review Recommended')}</div>
+        <div class="det-row dr-amber">
           <div class="det-row-title">${d.item}</div>
           ${d.estimated_cost ? `<div class="det-row-meta">Est. cost: <strong>${fmt$(d.estimated_cost)}</strong></div>` : ''}
           ${d.timeline       ? `<div class="det-row-meta">Timeline: ${d.timeline}</div>` : ''}
@@ -443,22 +485,19 @@ function renderHiddenCosts(a, role) {
     html += `</div>`
   }
 
-  // Fee Increases
-  if (feeIncrease.length) {
-    html += `<div class="sec-card sec-card-warn">
-      <div class="sec-title">📈 Fee Increase Discussions (${feeIncrease.length})</div>`
-    feeIncrease.forEach(f => {
-      const color = f.status === 'APPROVED' ? 'red' : 'amber'
-      html += `
-        <div class="det-row dr-${color}">
-          <div class="det-row-badges">${sl(color, f.status || 'DISCUSSED')}</div>
-          <div class="det-row-title">${f.fee_type || 'Fee Increase'}</div>
-          ${f.current_amount && f.proposed_amount ? `<div class="det-row-meta">${fmt$(f.current_amount)} → <strong>${fmt$(f.proposed_amount)}</strong>${f.percent_change ? ` (+${f.percent_change}%)` : ''}</div>` : ''}
-          ${f.effective_date ? `<div class="det-row-meta">Effective: ${f.effective_date}</div>` : ''}
-          ${f.source_meeting ? `<div class="det-row-src">📅 ${f.source_meeting}</div>` : ''}
-        </div>`
-    })
-    html += `</div>`
+  // Insurance
+  if (insurance) {
+    const insColor = insurance.coverage_status === 'CURRENT' ? '' : 'sec-card-err'
+    html += `<div class="sec-card ${insColor}">
+      <div class="sec-title">🛡️ Insurance</div>
+      <div class="det-row-meta">Status: ${sl(
+        insurance.coverage_status === 'CURRENT' ? 'green' : 'red',
+        insurance.coverage_status || 'UNKNOWN'
+      )}</div>
+      ${insurance.policy_expiration_date ? `<div class="det-row-meta">Policy expires: ${insurance.policy_expiration_date}</div>` : ''}
+      ${(insurance.coverage_gaps || []).map(g => `<div class="det-row-meta" style="color:#B91C1C">⚠ ${g}</div>`).join('')}
+      ${insurance.deductible_owner_responsibility ? `<div class="det-row-meta">Owner deductible: ${insurance.deductible_owner_responsibility}</div>` : ''}
+    </div>`
   }
 
   // Litigation
@@ -471,31 +510,15 @@ function renderHiddenCosts(a, role) {
         <div class="det-row dr-${color}">
           <div class="det-row-badges">${sl(color, l.resolution_status || 'ONGOING')}</div>
           <div class="det-row-title">${l.description}</div>
-          ${l.costs_to_date           ? `<div class="det-row-meta">Costs to date: ${fmt$(l.costs_to_date)}</div>`                   : ''}
+          ${l.costs_to_date            ? `<div class="det-row-meta">Costs to date: ${fmt$(l.costs_to_date)}</div>`                          : ''}
           ${l.estimated_total_exposure ? `<div class="det-row-meta">Total exposure: <strong>${fmt$(l.estimated_total_exposure)}</strong></div>` : ''}
-          ${l.source_meeting          ? `<div class="det-row-src">📅 ${l.source_meeting}</div>` : l.source_document ? `<div class="det-row-src">📄 ${l.source_document}</div>` : ''}
+          ${l.source_meeting           ? `<div class="det-row-src">📅 ${l.source_meeting}</div>` : l.source_document ? `<div class="det-row-src">📄 ${l.source_document}</div>` : ''}
         </div>`
     })
     html += `</div>`
   }
 
-  // Capital Improvements Wishlist
-  if (wishlist.length) {
-    html += `<div class="sec-card"><div class="sec-title">🏗️ Capital Improvements Wishlist (${wishlist.length})</div>`
-    wishlist.forEach(w => {
-      const color = w.status === 'APPROVED' ? 'amber' : 'gray'
-      html += `
-        <div class="det-row dr-${color}">
-          <div class="det-row-badges">${sl(color, w.status || 'WISH_LIST')}</div>
-          <div class="det-row-title">${w.item}</div>
-          ${w.estimated_cost ? `<div class="det-row-meta">Est. cost: ${fmt$(w.estimated_cost)}</div>` : ''}
-          ${w.source_meeting ? `<div class="det-row-src">📅 ${w.source_meeting}</div>` : ''}
-        </div>`
-    })
-    html += `</div>`
-  }
-
-  return html || '<p class="ov-body" style="text-align:center;padding:2rem;color:#9CA3AF">No financial projections data available.</p>'
+  return html || '<p class="ov-body" style="text-align:center;padding:2rem;color:#9CA3AF">No financial data available.</p>'
 }
 
 // ── TAB: COMPLIANCE ──────────────────────────────────────────────────────────
@@ -639,24 +662,23 @@ function renderTimeline(a, role) {
 
 // ── MAIN EXPORT ──────────────────────────────────────────────────────────────
 export function renderFullReport(a, role) {
-  const txRisks    = a.agent_summary?.transaction_risks || []
-  const rfFindings = a.risk_findings?.findings          || []
+  const allRisks = a.risks?.findings || []
 
   const riskCount = role === 'lender'
-    ? txRisks.filter(r => r.lender_impact).length
-    : (rfFindings.length || txRisks.length)
-  const riskUrgent = (a.overall_verdict?.critical_count || 0) + (a.overall_verdict?.high_count || 0) > 0
+    ? allRisks.filter(r => r.lender_flag).length
+    : allRisks.length
 
   const restrictionsFound = a.restrictions?.restrictions_found || []
-  const fp = a.financial_projections || {}
+  const fo = a.financial_outlook || {}
+  const toArr = v => Array.isArray(v) ? v : (v?.items || [])
 
   const hasFinancial = !!(
-    (fp.deferred_maintenance             || []).length ||
-    (fp.special_assessment_discussions   || []).length ||
-    (fp.litigation_cost_tracking         || []).length ||
-    (fp.fee_increase_discussions         || []).length ||
-    fp.reserve_fund_shortfall?.current_percent_funded != null ||
-    fp.projections_summary
+    fo.monthly_fees?.current_monthly_fee != null ||
+    fo.reserve_fund != null ||
+    toArr(fo.special_assessments).length ||
+    toArr(fo.deferred_maintenance).length ||
+    toArr(fo.litigation_costs).length ||
+    fo.insurance != null
   )
 
   const hasTimeline = !!(a.timeline && (
