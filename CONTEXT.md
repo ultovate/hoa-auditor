@@ -57,15 +57,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-23 22:46 UTC
-- **Commit:** `c96d5e9` — feat: add sample audit page and Supabase setup script
-
-- sample.html: public report page (no auth) that loads the is_sample=true
-  audit with masked property details and a 'sample demo' banner
-- supabase/sample_audit_setup.sql: adds is_sample column, marks Chiavari
-  audit as sample, and creates anon RLS policy for public read access
+- **Timestamp:** 2026-03-23 22:50 UTC
+- **Commit:** `127d690` — fix: use local supabase service in sample.html instead of CDN import
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
