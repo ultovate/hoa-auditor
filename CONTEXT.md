@@ -52,10 +52,11 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-23 21:09 UTC
-- **Commit:** `7bebb51` — fix: sort timeline events newest first
+- **Timestamp:** 2026-03-23 21:13 UTC
+- **Commit:** `1c61bed` — feat: add completeness legend to Analysis Completeness card
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
