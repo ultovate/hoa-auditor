@@ -48,15 +48,22 @@
 
 
 
+
 ---
 ## 🔄 Last GitHub Sync (Auto-updated)
-- **Timestamp:** 2026-03-23 19:32 UTC
-- **Commit:** `e2e98d9` — fix: replace AI self-reported total with verified line items in Financial Outlook
+- **Timestamp:** 2026-03-23 20:36 UTC
+- **Commit:** `c5f13d4` — feat: rewire summaryView.js for schema v2.0
 
-Remove unverifiable total_financial_exposure from dark summary card.
-Replace with computed sum of only items that have actual dollar amounts:
-reserve fund shortfall, special assessments (per unit), deferred maintenance
-estimates, and litigation costs. Label clearly as 'verified line items only'.
+- All data paths updated: risks.findings[] replaces buyer_summary/agent_summary/risk_findings
+- financial_outlook replaces financial_projections throughout
+- Risk counts computed from actual risks.findings[] array (no more self-reported critical_count etc.)
+- Lender KPI row shows lender flags count instead of unverifiable total exposure
+- Verdict hero chips updated: 'Action Required' replaces 'Restrictions Apply'
+- URGENCY_LABEL updated to match reportView.js (Action Required / Needs Attention)
+- Financial strip removes AI total — shows verifiable sub-section counts only
+- Buyer alerts read buyer_note from risks.findings[]
+- Agent alerts read agent_note from risks.findings[] + action_items for next steps
+- Lender alerts filter risks.findings[] by lender_flag
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - **Files changed:**
