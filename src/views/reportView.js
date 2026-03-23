@@ -409,11 +409,38 @@ function renderHiddenCosts(a, role) {
   const ov = a.overall_verdict || {}
   let html = ''
 
-  // Exposure summary (dark card)
-  if (ov.total_financial_exposure) {
+  // Verified cost summary — only items with actual dollar amounts
+  const verifiedItems = []
+  if (reserve?.shortfall_amount)
+    verifiedItems.push({ label: 'Reserve fund shortfall', amount: reserve.shortfall_amount, color: 'red' })
+  specAssess.forEach(s => {
+    if (s.estimated_amount_per_unit)
+      verifiedItems.push({ label: `Special assessment: ${s.description}`, amount: s.estimated_amount_per_unit, color: ['APPROVED','VOTED','LEVIED'].includes(s.status) ? 'red' : 'amber', note: 'per unit' })
+  })
+  deferred.forEach(d => {
+    if (d.estimated_cost)
+      verifiedItems.push({ label: d.item, amount: d.estimated_cost, color: 'amber' })
+  })
+  litigation.forEach(l => {
+    if (l.estimated_total_exposure)
+      verifiedItems.push({ label: `Legal: ${l.description}`, amount: l.estimated_total_exposure, color: 'red' })
+    else if (l.costs_to_date)
+      verifiedItems.push({ label: `Legal (costs to date): ${l.description}`, amount: l.costs_to_date, color: 'amber' })
+  })
+
+  if (verifiedItems.length) {
+    const total = verifiedItems.reduce((sum, i) => sum + Number(i.amount), 0)
     html += `<div class="sec-card-dark">
-      <div class="sec-title">💰 Financial Exposure Summary</div>
-      <div class="exp-total">Total identified: <strong>${fmt$(ov.total_financial_exposure)}</strong></div>
+      <div class="sec-title">💰 Verified Financial Exposure</div>
+      ${verifiedItems.map(i => `
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.08)">
+          <span style="font-size:.85rem;color:rgba(255,255,255,.7)">${i.label}${i.note ? ` <span style="font-size:.75rem;color:rgba(255,255,255,.4)">(${i.note})</span>` : ''}</span>
+          <strong style="color:#F87171">${fmt$(i.amount)}</strong>
+        </div>`).join('')}
+      <div style="display:flex;justify-content:space-between;margin-top:.75rem;padding-top:.5rem;border-top:1px solid rgba(255,255,255,.2)">
+        <span style="font-size:.85rem;color:rgba(255,255,255,.5)">Total (verified line items only)</span>
+        <strong style="font-size:1.1rem;color:#F9FAFB">${fmt$(total)}</strong>
+      </div>
     </div>`
   }
 
