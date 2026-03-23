@@ -142,6 +142,11 @@ function renderOverview(a, role) {
     html += `<div class="sec-card">
       <div class="sec-title">📁 Analysis Completeness</div>
       ${completeness ? `<div style="margin-bottom:.75rem">${sl(compColor, completeness + ' ANALYSIS')}</div>` : ''}
+      <div style="font-size:.78rem;color:#6B7280;margin-bottom:.75rem;line-height:1.6;border-left:3px solid #E5E7EB;padding-left:.75rem">
+        <div><strong style="color:#374151">FULL</strong> — all expected documents were present (Resale Cert, CC&Rs, Reserve Study, etc.)</div>
+        <div><strong style="color:#374151">PARTIAL</strong> — some key documents were missing but enough to do meaningful analysis</div>
+        <div><strong style="color:#374151">MINIMAL</strong> — very few documents found, analysis is limited and conclusions may not be reliable</div>
+      </div>
       ${critMissing.length ? `
         <div class="det-group-label" style="color:#B91C1C;border-top:none;margin-top:0;padding-top:0">❌ Critical Missing Documents</div>
         ${critMissing.map(d => `
