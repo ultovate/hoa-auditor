@@ -287,6 +287,6 @@ Tabbed interface: Overview · Risks · Financial Outlook · Timeline · Restrict
 - [ ] Email notification when audit complete
 - [ ] PostHog analytics integration
 - [ ] AI assistant chat (concept shell only — no API integration)
-- [ ] ZIP file extraction pipeline
-- [ ] Sample report badge/link on dashboard for beta users
+- [x] ZIP file extraction pipeline (JSZip, macOS hidden file filtering)
+- [ ] Sample report link on dashboard for beta users
 - [ ] Production domain (ultovate.com)
