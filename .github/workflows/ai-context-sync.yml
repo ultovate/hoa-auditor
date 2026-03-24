@@ -14,34 +14,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Update CONTEXT.md with latest sync info
+      - name: Write LAST_SYNC.md
         run: |
-          # Get last 10 changed files from this commit
           CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | head -10 || echo "Initial commit")
-          COMMIT_MSG=$(git log -1 --pretty=%B)
+          COMMIT_MSG=$(git log -1 --pretty=%s)
           COMMIT_HASH=$(git log -1 --pretty=%h)
           TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+          FILES_LIST=$(echo "$CHANGED_FILES" | sed 's/^/  - /')
+          printf '# Last GitHub Sync\n- **Timestamp:** %s\n- **Commit:** `%s` — %s\n- **Files changed:**\n%s\n' \
+            "$TIMESTAMP" "$COMMIT_HASH" "$COMMIT_MSG" "$FILES_LIST" > LAST_SYNC.md
 
-          # Update the sync block in CONTEXT.md
-          # Remove old sync block if exists
-          sed -i '/^---$/,/^<!-- END AUTOSYNC -->$/d' CONTEXT.md 2>/dev/null || true
-
-          # Append new sync block
-          cat >> CONTEXT.md << EOF
-
-          ---
-          ## 🔄 Last GitHub Sync (Auto-updated)
-          - **Timestamp:** $TIMESTAMP
-          - **Commit:** \`$COMMIT_HASH\` — $COMMIT_MSG
-          - **Files changed:**
-          $(echo "$CHANGED_FILES" | sed 's/^/  - /')
-          <!-- END AUTOSYNC -->
-          EOF
-
-      - name: Commit updated CONTEXT.md
+      - name: Commit LAST_SYNC.md
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CONTEXT.md
+          git add LAST_SYNC.md
           git diff --staged --quiet || git commit -m "chore: auto-sync AI context [skip ci]"
           git push
