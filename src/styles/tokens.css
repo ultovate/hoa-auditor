@@ -1,0 +1,55 @@
+/* ============================================================
+   HOA Auditor — Design Tokens
+   THIS IS THE ONLY FILE TO EDIT WHEN CHANGING THE THEME.
+   All other CSS files import this and use var() references.
+   Semantic risk colors (red/amber/green) are intentionally
+   fixed — they carry meaning and should not change with brand.
+   ============================================================ */
+
+:root {
+
+  /* ── Brand Chrome ───────────────────────────────────────────
+     Topbar, sidebar, dark surfaces                           */
+  --chrome:            #2B192E;
+  --chrome-accent:     #3D2A40;   /* gradient / hover on dark  */
+  --chrome-text:       #F5E8DA;   /* text on chrome surfaces   */
+
+  /* ── Primary Action ─────────────────────────────────────────
+     Buttons, links, active states, focus rings               */
+  --primary:           #CE8CA5;
+  --primary-hover:     #B87A93;
+  --primary-subtle:    #F5E8DA;   /* soft bg for badges/chips  */
+  --primary-text:      #7A4E62;   /* text on primary-subtle    */
+
+  /* ── Page Surfaces ──────────────────────────────────────────  */
+  --bg:                #F2F3F6;
+  --surface:           #FFFFFF;
+  --border:            #E5E7EB;
+  --border-subtle:     #F3F4F6;
+
+  /* ── Text ───────────────────────────────────────────────────  */
+  --text:              #2B192E;
+  --text-secondary:    #6B5A6D;
+  --text-muted:        #9CA3AF;
+
+  /* ── Semantic: Critical / Risk ──────────────────────────────
+     Do not change — these carry fixed meaning               */
+  --critical:          #EF4444;
+  --critical-dark:     #B91C1C;
+  --critical-darker:   #991B1B;
+  --critical-bg:       #FEF2F2;
+  --critical-border:   #FECACA;
+
+  /* ── Semantic: Caution ──────────────────────────────────────  */
+  --caution:           #F59E0B;
+  --caution-dark:      #92400E;
+  --caution-bg:        #FFFBEB;
+  --caution-border:    #FDE68A;
+
+  /* ── Semantic: Safe ─────────────────────────────────────────  */
+  --safe:              #10B981;
+  --safe-dark:         #065F46;
+  --safe-bg:           #F0FDF4;
+  --safe-border:       #BBF7D0;
+
+}

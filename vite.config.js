@@ -11,6 +11,7 @@ export default defineConfig({
         dashboard: resolve(__dirname, 'dashboard.html'),
         summary: resolve(__dirname, 'summary.html'),
         report:  resolve(__dirname, 'report.html'),
+        buyer:   resolve(__dirname, 'buyer.html'),
         sample:  resolve(__dirname, 'sample.html'),
       }
     }

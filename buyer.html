@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your HOA Review</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy: #2B192E;
+      --blue: #CE8CA5;
+      --blue-light: #D4A0B5;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-400: #9CA3AF;
+      --gray-600: #4B5563;
+      --white: #FFFFFF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); min-height: 100vh; }
+
+    .topbar {
+      background: var(--navy); padding: 1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { font-family: 'DM Serif Display', serif; color: var(--white); font-size: 1.3rem; }
+    .brand span { color: var(--blue-light); }
+
+    .topbar-right { display: flex; align-items: center; gap: .75rem; }
+
+    .btn-details {
+      padding: .4rem .9rem; background: transparent;
+      border: 1px solid rgba(255,255,255,.25); border-radius: 6px;
+      color: rgba(255,255,255,.75); font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s;
+    }
+    .btn-details:hover { background: rgba(255,255,255,.1); color: var(--white); border-color: rgba(255,255,255,.5); }
+
+    .state-card {
+      background: var(--white); border-radius: 12px; border: 1px solid var(--gray-200);
+      padding: 3rem; text-align: center; color: var(--gray-400); font-size: .9rem;
+      margin: 2rem auto; max-width: 780px;
+    }
+
+    @media (max-width: 600px) {
+      .topbar { padding: .75rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">HOA<span>Auditor</span></div>
+  <div class="topbar-right">
+    <button class="btn-details" id="btn-full-report" style="display:none">
+      See full details →
+    </button>
+  </div>
+</div>
+
+<div id="buyer-content" class="buyer-page">
+  <div class="state-card">Loading your property review...</div>
+</div>
+
+<script type="module">
+  import { renderBuyerView, initBuyerProfiles } from './src/views/buyerView.js'
+
+  const params  = new URLSearchParams(window.location.search)
+  const auditId = params.get('auditId')
+
+  if (!auditId) {
+    document.getElementById('buyer-content').innerHTML =
+      '<div class="state-card">No property found. Please use the link provided by your agent.</div>'
+  } else {
+    // Wire up "See full details" button — links to report with buyer role
+    const fullBtn = document.getElementById('btn-full-report')
+    fullBtn.style.display = 'inline-block'
+    fullBtn.addEventListener('click', () => {
+      window.location.href = import.meta.env.BASE_URL + 'report.html?auditId=' + auditId + '&role=buyer'
+    })
+
+    try {
+      const { supabase } = await import('./src/services/supabase.js')
+      const { data: audit, error } = await supabase
+        .from('audits')
+        .select('*')
+        .eq('audit_id', auditId)
+        .single()
+
+      if (error || !audit?.analysis) {
+        document.getElementById('buyer-content').innerHTML =
+          '<div class="state-card">This review is not available. Please check the link or contact your agent.</div>'
+      } else {
+        const a = audit.analysis
+
+        // Set page title to property address
+        const addr = a.metadata?.property_address || audit.property_name || ''
+        if (addr) document.title = `HOA Review — ${addr}`
+
+        // Pass profiles to lifestyle chip handler
+        initBuyerProfiles(a.buyer_profile_verdicts?.verdicts || [])
+
+        renderBuyerView(a)
+      }
+    } catch (e) {
+      document.getElementById('buyer-content').innerHTML =
+        '<div class="state-card">Unable to load review. Please try again or contact your agent.</div>'
+    }
+  }
+</script>
+
+</body>
+</html>
