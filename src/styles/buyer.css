@@ -8,11 +8,11 @@
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #E5E7EB;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .property-hero-header {
-  display: grid; grid-template-columns: 60% 40%; height: 180px;
+  display: grid; grid-template-columns: 60% 40%; height: 160px;
 }
 
 .property-hero-text {
@@ -44,19 +44,21 @@
 .property-hero-verdict {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 30px;
+   background: white;
   border-top: 1px solid #E5E7EB;
-  flex: 1;
 }
 .verdict-card p { margin: 0; }
 
 .verdict-card {
-  padding: 24px 28px; border-right: 1px solid #E5E7EB;
+  padding: 20px 24px;
+  border-radius: 12px;
+  border: 1px solid;
 }
-.verdict-card:last-child { border-right: none; }
-
-.verdict-card.critical { background: #FFF5F5; }
-.verdict-card.review   { background: #FFFBEB; }
-.verdict-card.clear    { background: #F0FDF4; }
+.verdict-card.critical { background: #FFF5F5; border-color: #FCA5A5; }
+.verdict-card.review   { background: #FFFBEB; border-color: #FCD34D; }
+.verdict-card.clear    { background: #F0FDF4; border-color: #86EFAC; }
 
 .verdict-card.critical .vc-label,
 .verdict-card.critical .vc-count,
