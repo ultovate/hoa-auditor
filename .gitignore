@@ -3,3 +3,5 @@ node_modules/
 dist/
 *.jpg
 *.png
+!public/*.jpg
+!public/*.png

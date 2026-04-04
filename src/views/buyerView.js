@@ -1,5 +1,4 @@
 import '../styles/buyer.css'
-import sampleImage from '../assets/sample_image.jpg'
 
 const toArr = v => Array.isArray(v) ? v : (v?.items || [])
 
@@ -76,7 +75,7 @@ function renderHeader(address, hoaName, verdict, findings) {
   const clearCount = findings.filter(f => f.urgency === 'LOW').length
     + (verdict.notable_absences?.length || 0)
 
-  const photoUrl = sampleImage
+  const photoUrl = '/sample_image.jpg'
 
   return `
     <div class="property-hero">
