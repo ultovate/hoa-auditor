@@ -1,5 +1,5 @@
 # Last GitHub Sync
-- **Timestamp:** 2026-04-04 01:30 UTC
-- **Commit:** `aad7105` — chore: remove *.jpg/*.png gitignore rules, track src/assets/
+- **Timestamp:** 2026-04-06 22:40 UTC
+- **Commit:** `a4c4d76` — chore: ignore all images except src/assets/
 - **Files changed:**
   - 
