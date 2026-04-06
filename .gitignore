@@ -1,3 +1,9 @@
 node_modules/
 .env
 dist/
+*.jpg
+*.jpeg
+*.png
+!src/assets/*.jpg
+!src/assets/*.jpeg
+!src/assets/*.png
