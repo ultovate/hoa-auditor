@@ -1,5 +1,5 @@
 import '../styles/buyer.css'
-import sampleImage from './assets/sample_image.jpg';
+import sampleImage from '../assets/sample_image.jpg';
 
 const toArr = v => Array.isArray(v) ? v : (v?.items || [])
 
