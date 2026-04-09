@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HOA Auditor — UX Wireframe v3</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #F2F3F6;
+      --navy:     #2B192E;
+      --mauve:    #CE8CA5;
+      --mauve-lt: #F5E8DA;
+      --emerald:  #10B981;
+      --amber:    #F59E0B;
+      --red:      #EF4444;
+      --g100:     #F3F4F6;
+      --g200:     #E5E7EB;
+      --g300:     #D1D5DB;
+      --g400:     #9CA3AF;
+      --g500:     #6B7280;
+      --g600:     #4B5563;
+      --g800:     #1F2937;
+      --wire:     #DDE1E9;
+      --wire-md:  #B0BAC8;
+      --wire-dk:  #64748B;
+      --ann:      #6D28D9;
+      --ann-bg:   #EDE9FE;
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      padding: 2.5rem 2rem 5rem;
+      min-height: 100vh;
+    }
+
+    /* ── PAGE HEADER ─────────────────────────── */
+    .page-header { text-align: center; margin-bottom: 2.5rem; }
+    .logo { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--navy); margin-bottom: .2rem; }
+    .logo span { color: var(--mauve); }
+    .page-header h1 { font-size: .88rem; font-weight: 400; color: var(--g500); margin-bottom: .5rem; }
+    .version-tag { display: inline-block; background: var(--navy); color: var(--mauve-lt); font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .2rem .75rem; border-radius: 999px; }
+
+    /* ── LAYOUT ──────────────────────────────── */
+    .canvas { max-width: 1560px; margin: 0 auto; }
+
+    /* ── FORK SECTION ────────────────────────── */
+    .fork-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+    }
+
+    /* Auth column — stands alone on the left */
+    .auth-col { flex-shrink: 0; }
+
+    /* Fork lines column */
+    .fork-lines {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      padding: 3.5rem 0 0;
+      width: 60px;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .fork-line-top, .fork-line-bot {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .fork-horiz {
+      width: 28px; height: 2px;
+      background: var(--g300);
+      position: relative;
+    }
+    .fork-horiz::after {
+      content: '';
+      position: absolute; right: -1px; top: -4px;
+      border: 5px solid transparent;
+      border-left-color: var(--g400);
+    }
+    .fork-vert {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 2px;
+      background: var(--g300);
+    }
+    .fork-lbl {
+      font-size: .58rem; color: var(--g400);
+      font-style: italic; white-space: nowrap;
+      writing-mode: horizontal-tb;
+      margin-left: .25rem;
+    }
+
+    /* Paths column */
+    .paths-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── TRACK LABELS ────────────────────────── */
+    .track-label {
+      display: flex; align-items: center; gap: .6rem;
+      margin-bottom: .75rem;
+    }
+    .track-pill {
+      font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; padding: .28rem .9rem; border-radius: 999px;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .track-pill.agent  { background: #DBEAFE; color: #1D4ED8; }
+    .track-pill.buyer  { background: #FCE7F3; color: #9D174D; }
+    .track-pill.shared { background: #FEF3C7; color: #92400E; }
+    .track-rule { flex: 1; height: 1px; background: var(--g300); }
+    .track-desc { font-size: .68rem; color: var(--g400); white-space: nowrap; }
+
+    /* ── FLOW ROW ────────────────────────────── */
+    .flow-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      overflow-x: auto;
+      padding-bottom: .5rem;
+    }
+
+    /* ── SCREEN ──────────────────────────────── */
+    .sw { display: flex; align-items: flex-start; gap: 0; flex-shrink: 0; }
+    .screen { width: 244px; flex-shrink: 0; }
+    .screen.wide { width: 268px; }
+
+    .screen-meta { padding: 0 2px; margin-bottom: .5rem; }
+    .screen-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 17px; height: 17px; border-radius: 50%;
+      font-size: .58rem; font-weight: 800; margin-right: .28rem; vertical-align: middle;
+    }
+    .screen-num.a { background: #1D4ED8; color: #fff; }
+    .screen-num.b { background: #9D174D; color: #fff; }
+    .screen-num.s { background: #92400E; color: #fff; }
+    .screen-num.shared { background: var(--navy); color: #fff; }
+    .screen-tag { font-size: .6rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--ann); vertical-align: middle; }
+    .screen-title { font-size: .76rem; font-weight: 600; color: var(--g800); margin-top: .18rem; }
+
+    /* ── FRAME ───────────────────────────────── */
+    .frame {
+      background: #fff;
+      border: 1.5px solid var(--g300);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    .frame.buyer-frame { border-color: #F9A8D4; }
+    .frame.agent-frame { border-color: #93C5FD; }
+
+    /* ── ARROW ───────────────────────────────── */
+    .arr { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 40px; flex-shrink: 0; padding-top: 3rem; }
+    .arr-line { width: 22px; height: 2px; background: var(--g300); position: relative; }
+    .arr-line::after { content: ''; position: absolute; right: -1px; top: -4px; border: 5px solid transparent; border-left-color: var(--g400); }
+    .arr-lbl { font-size: .55rem; color: var(--g400); margin-top: .3rem; text-align: center; font-style: italic; white-space: nowrap; }
+
+    /* ── ANNOTATIONS ─────────────────────────── */
+    .anns { margin-top: .5rem; display: flex; flex-direction: column; gap: .28rem; }
+    .ann { display: flex; align-items: flex-start; gap: .28rem; background: var(--ann-bg); border-radius: 5px; padding: .25rem .38rem; }
+    .ann-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ann); flex-shrink: 0; margin-top: .22rem; }
+    .ann-text { font-size: .57rem; color: var(--ann); line-height: 1.42; }
+    .badge { display: inline-block; font-size: .48rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: .08rem .32rem; border-radius: 999px; margin-right: .12rem; }
+    .b-new  { background: #D1FAE5; color: #065F46; }
+    .b-fix  { background: #FEF3C7; color: #92400E; }
+    .b-move { background: #EDE9FE; color: #5B21B6; }
+    .b-keep { background: #E0E7FF; color: #3730A3; }
+
+    /* ── SHARED LINK ENTRY NOTE ──────────────── */
+    .shared-entry {
+      display: flex; align-items: center; gap: .75rem;
+      margin: .5rem 0 .75rem;
+    }
+    .shared-entry-rule { flex: 1; height: 1px; border-top: 2px dashed var(--g300); }
+    .shared-entry-pill {
+      background: #FFFBEB; border: 1px solid #FDE68A;
+      border-radius: 8px; padding: .38rem .85rem;
+      font-size: .7rem; font-weight: 600; color: #92400E;
+      white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════════
+       WIREFRAME COMPONENTS
+       ══════════════════════════════════════════ */
+
+    /* Topbar */
+    .wt { background: var(--navy); padding: .48rem .75rem; display: flex; align-items: center; justify-content: space-between; }
+    .wt-logo { width: 68px; height: 8px; background: rgba(255,255,255,.22); border-radius: 3px; }
+    .wt-right { display: flex; align-items: center; gap: .35rem; }
+    .wt-btn-outline { height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: .48rem; font-weight: 700; color: rgba(255,255,255,.65); padding: 0 .4rem; white-space: nowrap; }
+    .wt-btn-primary { height: 16px; border-radius: 3px; background: var(--mauve); display: flex; align-items: center; justify-content: center; font-size: .5rem; font-weight: 800; color: #fff; padding: 0 .5rem; white-space: nowrap; }
+    .wt-user { display: flex; align-items: center; gap: .28rem; border: 1px solid rgba(255,255,255,.2); border-radius: 5px; padding: .18rem .4rem; }
+    .wt-user-line { width: 52px; height: 6px; background: rgba(255,255,255,.2); border-radius: 2px; }
+    .wt-chevron { width: 0; height: 0; border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 4px solid rgba(255,255,255,.35); }
+
+    /* Dropdown */
+    .wt-dropdown { margin: 0 .75rem; border: 1px solid var(--g200); border-radius: 6px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); overflow: hidden; }
+    .wt-dd-item { padding: .32rem .6rem; display: flex; align-items: center; gap: .35rem; border-bottom: 1px solid var(--g100); }
+    .wt-dd-item:last-child { border-bottom: none; }
+    .wt-dd-icon { font-size: .6rem; width: 13px; text-align: center; }
+    .wt-dd-lbl { height: 6px; background: var(--wire); border-radius: 2px; flex: 1; }
+    .wt-dd-item.danger .wt-dd-lbl { background: #FEE2E2; }
+    .wt-dd-div { height: 1px; background: var(--g200); margin: .08rem 0; }
+
+    /* Body */
+    .wb { padding: .7rem; }
+
+    /* Blocks */
+    .blk { background: var(--wire); border-radius: 4px; margin-bottom: .38rem; }
+    .blk.xs { height: 6px; }
+    .blk.sm { height: 9px; }
+    .blk.md { height: 15px; }
+    .blk.img { background: var(--wire-md); display: flex; align-items: center; justify-content: center; font-size: .5rem; color: var(--wire-dk); font-weight: 700; }
+    .blk.w40 { width: 40%; }
+    .blk.w55 { width: 55%; }
+    .blk.w65 { width: 65%; }
+    .blk.w75 { width: 75%; }
+    .blk.w80 { width: 80%; }
+
+    .wlbl { font-size: .53rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--wire-md); margin-bottom: .16rem; }
+    .winput { background: var(--g100); border: 1px solid var(--g200); border-radius: 4px; height: 18px; width: 100%; margin-bottom: .42rem; }
+    .wbtn { width: 100%; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: .55rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; margin-bottom: .38rem; }
+    .wbtn.primary { background: var(--mauve); color: #fff; }
+    .wbtn.outline { background: transparent; border: 1.5px solid var(--mauve); color: var(--mauve); }
+    .wbtn.ghost   { background: transparent; border: 1px solid var(--g300); color: var(--g500); }
+    .wdiv { height: 1px; background: var(--g200); margin: .45rem 0; }
+
+    /* Tabs */
+    .wtabs { display: flex; border-bottom: 1px solid var(--g200); margin-bottom: .55rem; }
+    .wtab { flex: 1; padding: .28rem; text-align: center; font-size: .55rem; font-weight: 600; color: var(--g400); }
+    .wtab.active { color: var(--navy); border-bottom: 2px solid var(--mauve); }
+
+    /* Role cards */
+    .wrole { border: 1px solid var(--g200); border-radius: 5px; padding: .32rem .42rem; margin-bottom: .28rem; display: flex; align-items: center; gap: .32rem; }
+    .wrole.sel { border-color: var(--mauve); background: #FDF2F6; }
+    .wrole-dot { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--g300); flex-shrink: 0; }
+    .wrole-dot.sel { border-color: var(--mauve); background: var(--mauve); }
+    .wrole-t { flex: 1; }
+    .wrole-name { height: 6px; background: var(--wire-dk); border-radius: 2px; width: 52%; margin-bottom: 3px; opacity: .45; }
+    .wrole-desc { height: 4px; background: var(--wire); border-radius: 2px; width: 88%; }
+
+    /* Trust */
+    .wtrust { display: flex; gap: .28rem; justify-content: center; flex-wrap: wrap; padding: .42rem .7rem; border-top: 1px solid var(--g100); }
+    .wtrust-b { height: 7px; width: 55px; background: var(--wire); border-radius: 999px; }
+
+    /* Audit cards */
+    .waudit { border: 1px solid var(--g200); border-radius: 6px; padding: .4rem .55rem; margin-bottom: .3rem; display: flex; align-items: center; justify-content: space-between; }
+    .waudit-addr { height: 7px; background: var(--wire-dk); border-radius: 2px; width: 88px; margin-bottom: .2rem; opacity: .45; }
+    .waudit-meta { height: 4px; background: var(--wire); border-radius: 2px; width: 65px; }
+    .waudit-badge { height: 12px; width: 46px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: .46rem; font-weight: 800; text-transform: uppercase; }
+    .waudit-badge.done { background: #D1FAE5; color: #065F46; }
+    .waudit-badge.proc { background: #FEF3C7; color: #B45309; }
+
+    /* Drop zone */
+    .wdrop { border: 2px dashed var(--g300); border-radius: 6px; padding: .65rem; text-align: center; margin-bottom: .42rem; }
+    .wdrop-icon { font-size: .95rem; margin-bottom: .18rem; opacity: .4; }
+    .wdrop-line { height: 5px; background: var(--wire); border-radius: 2px; margin: .18rem auto; }
+    .wdrop-help { font-size: .5rem; color: var(--g400); margin-top: .28rem; line-height: 1.4; }
+
+    /* File items */
+    .wfile { background: var(--g100); border-radius: 4px; padding: .22rem .42rem; margin-bottom: .22rem; display: flex; align-items: center; gap: .32rem; }
+    .wfile-name { flex: 1; height: 5px; background: var(--wire); border-radius: 2px; }
+    .wfile-badge { height: 6px; width: 26px; border-radius: 999px; }
+    .wfile-badge.ok { background: #D1FAE5; }
+    .wfile-badge.pend { background: #DBEAFE; }
+
+    /* Processing */
+    .wproc { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 6px; padding: .5rem; margin-bottom: .38rem; }
+    .wproc-row { display: flex; align-items: center; gap: .32rem; margin-bottom: .22rem; }
+    .wproc-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .wproc-dot.done { background: var(--emerald); }
+    .wproc-dot.act  { background: var(--amber); }
+    .wproc-dot.idle { background: var(--g300); }
+    .wproc-lbl { flex: 1; height: 5px; background: var(--wire); border-radius: 2px; }
+    .wproc-lbl.ok  { background: rgba(5,150,105,.35); }
+    .wproc-lbl.lit { background: rgba(146,64,14,.38); }
+    .wprog { height: 3px; background: var(--g200); border-radius: 999px; margin-top: .32rem; overflow: hidden; }
+    .wprog-fill { height: 100%; background: var(--amber); border-radius: 999px; }
+
+    /* Hero */
+    .whero { display: grid; grid-template-columns: 60% 40%; height: 68px; }
+    .whero-text { background: var(--navy); padding: .55rem .7rem; display: flex; flex-direction: column; justify-content: center; gap: .22rem; }
+    .whero-ey   { height: 4px; background: rgba(206,140,165,.55); border-radius: 2px; width: 52%; }
+    .whero-addr { height: 8px; background: rgba(255,255,255,.5); border-radius: 2px; width: 88%; }
+    .whero-meta { height: 4px; background: rgba(255,255,255,.2); border-radius: 2px; width: 62%; }
+    .whero-img  { background: var(--wire-md); display: flex; align-items: center; justify-content: center; font-size: .5rem; color: var(--wire-dk); font-weight: 700; }
+
+    /* Section card */
+    .wsec { background: #fff; border: 1px solid var(--g200); border-radius: 8px; margin: .45rem .55rem; padding: .55rem .65rem; }
+    .wsec-hd { display: flex; align-items: center; gap: .32rem; margin-bottom: .45rem; padding-bottom: .38rem; border-bottom: 1px solid var(--g100); }
+    .wsec-accent { width: 3px; height: 13px; border-radius: 999px; background: var(--mauve); flex-shrink: 0; }
+    .wsec-title { height: 6px; background: var(--wire-dk); border-radius: 2px; width: 70px; opacity: .4; }
+
+    /* Stat grid — flat */
+    .wstat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .32rem; margin-bottom: .42rem; }
+    .wstat { padding: .42rem .48rem; border-bottom: 1px solid var(--g100); }
+    .wstat-lbl { height: 4px; background: var(--wire); border-radius: 2px; width: 62%; margin-bottom: .28rem; }
+    .wstat-val { height: 12px; border-radius: 3px; width: 52%; margin-bottom: .2rem; }
+    .wstat-val.g { background: rgba(5,150,105,.28); }
+    .wstat-val.a { background: rgba(217,119,6,.28); }
+    .wstat-val.r { background: rgba(220,38,38,.28); }
+    .wstat-val.n { background: var(--wire); }
+    .wstat-sub { height: 4px; background: var(--wire); border-radius: 2px; width: 78%; opacity: .6; }
+
+    /* Risk row */
+    .wrisk { border-left: 2.5px solid; border-radius: 0 5px 5px 0; padding: .38rem .48rem; margin-bottom: .28rem; background: #FAFAFA; }
+    .wrisk.cr { border-color: #DC2626; }
+    .wrisk.me { border-color: #D97706; }
+    .wrisk.lo { border-color: #9CA3AF; }
+    .wrisk-title { height: 6px; background: var(--wire-dk); border-radius: 2px; width: 68%; margin-bottom: .22rem; opacity: .42; }
+    .wrisk-amt   { height: 9px; background: var(--wire-md); border-radius: 2px; width: 38%; margin-bottom: .18rem; }
+    .wrisk-desc  { height: 4px; background: var(--wire); border-radius: 2px; width: 88%; }
+
+    /* Insurance */
+    .wins-ok { display: inline-block; height: 13px; width: 75px; border-radius: 5px; background: #D1FAE5; margin-bottom: .42rem; }
+    .wins-row { border-top: 1px solid var(--g100); padding: .32rem 0; }
+    .wins-q { height: 4px; background: var(--wire); border-radius: 2px; width: 52%; margin-bottom: .18rem; }
+    .wins-a { height: 4px; background: var(--wire-md); border-radius: 2px; width: 88%; margin-bottom: .1rem; }
+
+    /* Lifestyle */
+    .wlife-intro { font-size: .58rem; color: var(--g500); line-height: 1.48; margin-bottom: .38rem; }
+    .wchips { display: flex; flex-wrap: wrap; gap: .22rem; margin-bottom: .42rem; }
+    .wchip { height: 15px; border-radius: 999px; border: 1px solid var(--g200); background: #fff; padding: 0 .48rem; display: flex; align-items: center; font-size: .5rem; color: var(--g500); font-weight: 600; white-space: nowrap; }
+    .wchip.sel { background: var(--mauve); color: #fff; border-color: var(--mauve); }
+    .wlife-res { border-radius: 6px; padding: .42rem .52rem; margin-bottom: .28rem; border: 1px solid; }
+    .wlife-res.ok  { background: #F0FDF4; border-color: #BBF7D0; }
+    .wlife-res.cau { background: #FFFBEB; border-color: #FDE68A; }
+    .wlife-hd { display: flex; align-items: center; gap: .32rem; margin-bottom: .22rem; }
+    .wlife-badge { height: 7px; width: 38px; border-radius: 3px; flex-shrink: 0; }
+    .wlife-badge.ok  { background: #D1FAE5; }
+    .wlife-badge.cau { background: #FEF3C7; }
+    .wlife-name { height: 6px; background: var(--wire-dk); border-radius: 2px; flex: 1; opacity: .38; }
+    .wlife-text { height: 4px; background: var(--wire); border-radius: 2px; width: 88%; margin-bottom: .12rem; }
+
+    /* Checklist */
+    .wcl-item { display: flex; align-items: center; gap: .32rem; padding: .28rem 0; border-bottom: 1px solid var(--g100); }
+    .wcl-badge { height: 10px; width: 40px; border-radius: 3px; flex-shrink: 0; }
+    .wcl-badge.now    { background: #FEE2E2; }
+    .wcl-badge.before { background: #FEF3C7; }
+    .wcl-badge.after  { background: #D1FAE5; }
+    .wcl-text { flex: 1; height: 5px; background: var(--wire); border-radius: 2px; }
+
+    /* CTA */
+    .wcta { background: var(--navy); border-radius: 8px; padding: .65rem; margin: .45rem .55rem; text-align: center; }
+    .wcta-hl  { height: 7px; background: rgba(255,255,255,.38); border-radius: 2px; width: 72%; margin: 0 auto .28rem; }
+    .wcta-sub { height: 5px; background: rgba(255,255,255,.15); border-radius: 2px; width: 52%; margin: 0 auto .48rem; }
+    .wcta-btn { height: 20px; background: var(--mauve); border-radius: 5px; margin: 0 auto; width: 86%; display: flex; align-items: center; justify-content: center; font-size: .52rem; font-weight: 800; color: #fff; }
+
+    /* Disclaimer strip */
+    .wdisclaim { background: #F8FAFC; border-top: 1px solid var(--g200); border-bottom: 1px solid var(--g200); padding: .32rem .7rem; }
+    .wdisclaim .dl { height: 4px; background: var(--wire); border-radius: 2px; margin-bottom: .12rem; }
+    .wdisclaim .dl.sh { width: 62%; }
+
+    /* Share card */
+    .wshare { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 7px; padding: .5rem .6rem; margin: .42rem .55rem; }
+    .wshare-hd { height: 6px; background: #065F46; opacity: .38; border-radius: 2px; width: 65%; margin-bottom: .32rem; }
+    .wshare-link { background: #fff; border: 1px solid var(--g200); border-radius: 4px; height: 17px; display: flex; align-items: center; padding: 0 .38rem; gap: .32rem; margin-bottom: .28rem; }
+    .wshare-link-text { flex: 1; height: 4px; background: var(--wire); border-radius: 2px; }
+    .wshare-link-copy { width: 20px; height: 9px; background: var(--mauve); border-radius: 3px; flex-shrink: 0; }
+    .wshare-note { height: 4px; background: var(--wire); border-radius: 2px; width: 78%; }
+
+    /* Findings */
+    .wfind { border-left: 2.5px solid; border-radius: 0 6px 6px 0; padding: .38rem .48rem; margin: 0 .48rem .28rem; background: #fafafa; }
+    .wfind.cr { border-color: #DC2626; }
+    .wfind.hi { border-color: #D97706; }
+    .wfind.lo { border-color: #9CA3AF; }
+    .wfind-top { display: flex; align-items: center; gap: .28rem; margin-bottom: .2rem; }
+    .wfind-badge { height: 7px; width: 30px; border-radius: 999px; }
+    .wfind-badge.cr { background: #FEE2E2; }
+    .wfind-badge.hi { background: #FEF3C7; }
+    .wfind-badge.lo { background: #D1FAE5; }
+    .wfind-title { flex: 1; height: 6px; background: var(--wire-dk); border-radius: 2px; opacity: .32; }
+    .wfind-body { height: 4px; background: var(--wire); border-radius: 2px; width: 83%; margin-bottom: .12rem; }
+    .wfind-src  { height: 4px; background: #DBEAFE; border-radius: 2px; width: 48%; }
+
+    /* ── BUYER UPLOAD CALLOUT ────────────────── */
+    .buyer-hint {
+      background: #FDF2F6; border: 1px solid #F9A8D4;
+      border-radius: 5px; padding: .38rem .5rem;
+      font-size: .58rem; color: #9D174D; line-height: 1.45;
+      margin-bottom: .4rem;
+    }
+
+    /* ── SIDE NAV ────────────────────────────── */
+    /* Agent-only. Buyer uses topbar only.        */
+    .wframe-agent {
+      display: flex; min-height: 320px;
+    }
+    /* Expanded state — shows icon + label */
+    .wsnav {
+      background: var(--navy);
+      display: flex; flex-direction: column;
+      flex-shrink: 0; padding: .55rem 0;
+      border-right: 1px solid rgba(255,255,255,.08);
+    }
+    .wsnav.exp { width: 68px; }
+    .wsnav.col { width: 24px; }
+
+    .wsnav-logo {
+      height: 9px; background: rgba(255,255,255,.2);
+      border-radius: 2px; margin: 0 .45rem .7rem;
+    }
+    .wsnav.col .wsnav-logo { margin: 0 .25rem .55rem; }
+
+    .wsnav-item {
+      display: flex; align-items: center; gap: .3rem;
+      padding: .32rem .45rem; margin: .08rem .22rem;
+      border-radius: 4px; cursor: pointer;
+    }
+    .wsnav-item.active { background: rgba(255,255,255,.12); }
+    .wsnav-item:hover  { background: rgba(255,255,255,.07); }
+    .wsnav-icon {
+      width: 10px; height: 10px; border-radius: 2px;
+      background: rgba(255,255,255,.25); flex-shrink: 0;
+    }
+    .wsnav-item.active .wsnav-icon { background: var(--mauve); }
+    .wsnav-lbl {
+      height: 5px; background: rgba(255,255,255,.2);
+      border-radius: 2px; flex: 1;
+    }
+    .wsnav-item.active .wsnav-lbl { background: rgba(255,255,255,.5); }
+    .wsnav.col .wsnav-lbl { display: none; }
+    .wsnav.col .wsnav-item { padding: .32rem .22rem; justify-content: center; }
+
+    .wsnav-divider {
+      height: 1px; background: rgba(255,255,255,.08);
+      margin: .35rem .35rem;
+    }
+    .wsnav-toggle {
+      margin-top: auto; padding: .32rem; text-align: center;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .wsnav-toggle-icon {
+      width: 10px; height: 10px; background: rgba(255,255,255,.15);
+      border-radius: 2px; margin: 0 auto;
+    }
+
+    /* Content column next to side nav */
+    .wsnav-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* ── ACCORDION ───────────────────────────── */
+    .wacc { margin: .45rem .55rem; }
+
+    .wacc-row {
+      border: 1px solid var(--g200); border-radius: 7px;
+      overflow: hidden; margin-bottom: .3rem;
+      background: #fff;
+    }
+    .wacc-hd {
+      display: flex; align-items: center; gap: .35rem;
+      padding: .42rem .5rem; cursor: pointer;
+    }
+    .wacc-accent {
+      width: 3px; height: 13px; border-radius: 999px;
+      background: var(--mauve); flex-shrink: 0;
+    }
+    .wacc-title {
+      flex: 1; height: 6px; background: var(--wire-dk);
+      border-radius: 2px; opacity: .42;
+    }
+    .wacc-pill {
+      height: 11px; border-radius: 999px;
+      display: flex; align-items: center;
+      padding: 0 .38rem; font-size: .48rem;
+      font-weight: 800; white-space: nowrap; flex-shrink: 0;
+    }
+    .wacc-pill.ok    { background: #D1FAE5; color: #065F46; }
+    .wacc-pill.warn  { background: #FEF3C7; color: #92400E; }
+    .wacc-pill.risk  { background: #FEE2E2; color: #B91C1C; }
+    .wacc-pill.muted { background: var(--g100); color: var(--g500); }
+    .wacc-chevron {
+      width: 0; height: 0; flex-shrink: 0;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-left: 5px solid var(--g300);
+      transition: transform .15s;
+    }
+    .wacc-row.open .wacc-chevron {
+      transform: rotate(90deg);
+    }
+    .wacc-body {
+      display: none;
+      padding: .35rem .55rem .5rem;
+      border-top: 1px solid var(--g100);
+    }
+    .wacc-row.open .wacc-body { display: block; }
+
+    /* At-a-glance strip */
+    .wglance {
+      display: flex; gap: 0;
+      background: #F8F6FA;
+      border-top: 1px solid var(--g200);
+      border-bottom: 1px solid var(--g200);
+    }
+    .wglance-cell {
+      flex: 1; padding: .42rem .35rem; text-align: center;
+      border-right: 1px solid var(--g200);
+    }
+    .wglance-cell:last-child { border-right: none; }
+    .wglance-val {
+      height: 10px; border-radius: 3px; margin: 0 auto .2rem;
+      width: 55%;
+    }
+    .wglance-val.g { background: rgba(5,150,105,.3); }
+    .wglance-val.a { background: rgba(217,119,6,.3); }
+    .wglance-val.r { background: rgba(220,38,38,.3); }
+    .wglance-lbl { height: 4px; background: var(--wire); border-radius: 2px; width: 70%; margin: 0 auto; }
+
+    /* Sticky CTA bar (buyer) */
+    .wsticky-cta {
+      position: sticky; bottom: 0;
+      background: var(--navy); padding: .45rem .55rem;
+      border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .wsticky-btn {
+      width: 100%; height: 20px; background: var(--mauve);
+      border-radius: 5px; display: flex; align-items: center;
+      justify-content: center; font-size: .52rem;
+      font-weight: 800; color: #fff;
+    }
+
+    /* ── LEGEND ──────────────────────────────── */
+    .legend { max-width: 1560px; margin: 2rem auto 0; background: #fff; border: 1px solid var(--g200); border-radius: 8px; padding: .8rem 1.2rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+    .legend-title { font-size: .63rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--g400); }
+    .legend-item { display: flex; align-items: center; gap: .38rem; font-size: .68rem; color: var(--g600); }
+    .legend-note { font-size: .65rem; color: var(--g400); margin-left: auto; font-style: italic; }
+
+    /* ── ROLE DIVERGENCE LABEL ───────────────── */
+    .diverge-note {
+      background: var(--navy); color: rgba(255,255,255,.65);
+      font-size: .6rem; font-weight: 600;
+      padding: .2rem .65rem; border-radius: 999px;
+      white-space: nowrap; align-self: center;
+    }
+
+    /* vertical spacer between paths */
+    .path-gap { height: 1rem; }
+  </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ────────────────────────────────────────── -->
+<div class="page-header">
+  <div class="logo">HOA<span>Auditor</span></div>
+  <h1>UX Wireframe — v3 &nbsp;·&nbsp; Role-based flow &nbsp;·&nbsp; Buyer upload enabled</h1>
+  <span class="version-tag">April 2026</span>
+</div>
+
+<div class="canvas">
+
+  <!-- ══════════════════════════════════════════════════════
+       SHARED AUTH (all roles)
+       ══════════════════════════════════════════════════════ -->
+  <div style="display:flex;align-items:flex-start;gap:0;margin-bottom:0;">
+
+    <!-- AUTH SCREEN -->
+    <div style="flex-shrink:0;width:244px;">
+      <div class="screen-meta">
+        <span class="screen-num shared">S1</span>
+        <span class="screen-tag">Shared</span>
+        <div class="screen-title">Create Account / Sign In</div>
+      </div>
+      <div class="frame">
+        <div class="wt"><div class="wt-logo"></div></div>
+        <div class="wb">
+          <div class="blk xs w65" style="margin-bottom:.55rem;"></div>
+          <div class="wtabs">
+            <div class="wtab active">Sign In</div>
+            <div class="wtab">Create Account</div>
+          </div>
+          <div class="wlbl">Email Address</div>
+          <div class="winput"></div>
+          <div class="wlbl">Password</div>
+          <div class="winput"></div>
+          <div style="text-align:right;margin-bottom:.42rem;">
+            <div class="blk xs" style="width:52px;display:inline-block;background:#DDD6FE;margin:0;"></div>
+          </div>
+          <div class="wbtn primary">Sign In</div>
+          <div class="wdiv"></div>
+          <!-- Role picker — all 3 roles -->
+          <div class="wlbl" style="margin-bottom:.32rem;">I am a...</div>
+          <div class="wrole">
+            <div class="wrole-dot"></div>
+            <div class="wrole-t">
+              <div class="wrole-name"></div>
+              <div class="wrole-desc"></div>
+            </div>
+          </div>
+          <div class="wrole sel">
+            <div class="wrole-dot sel"></div>
+            <div class="wrole-t">
+              <div class="wrole-name" style="background:var(--mauve);opacity:.5;"></div>
+              <div class="wrole-desc"></div>
+            </div>
+          </div>
+          <div class="wrole">
+            <div class="wrole-dot"></div>
+            <div class="wrole-t">
+              <div class="wrole-name"></div>
+              <div class="wrole-desc"></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.4rem;margin-top:.55rem;background:var(--g100);border-radius:5px;padding:.35rem .45rem;">
+            <div style="width:9px;height:9px;border:1px solid var(--g300);border-radius:2px;flex-shrink:0;margin-top:.1rem;"></div>
+            <div style="flex:1;">
+              <div class="blk xs w80" style="margin-bottom:.1rem;"></div>
+              <div class="blk xs w55"></div>
+            </div>
+          </div>
+        </div>
+        <div class="wtrust">
+          <div class="wtrust-b"></div>
+          <div class="wtrust-b"></div>
+          <div class="wtrust-b"></div>
+        </div>
+      </div>
+      <div class="anns">
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>All 3 roles shown: Agent / Title Company · Buyer · Lender</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Buyer role description: "I'm reviewing a property I'm considering buying"</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Terms checkbox + trust badges</div></div>
+      </div>
+    </div>
+
+    <!-- FORK VISUAL -->
+    <div style="display:flex;flex-direction:column;align-items:flex-start;padding-top:3.4rem;width:80px;flex-shrink:0;position:relative;">
+      <!-- vertical bar -->
+      <div style="position:absolute;left:0;top:3.65rem;bottom:4.2rem;width:2px;background:var(--g300);"></div>
+      <!-- top branch -->
+      <div style="display:flex;align-items:center;height:40px;">
+        <div style="width:40px;height:2px;background:var(--g300);position:relative;">
+          <div style="position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left-color:var(--g400);"></div>
+        </div>
+        <div style="font-size:.52rem;color:#1D4ED8;font-weight:700;margin-left:.25rem;white-space:nowrap;">Agent →</div>
+      </div>
+      <!-- middle branch -->
+      <div style="display:flex;align-items:center;height:120px;">
+        <div style="width:40px;height:2px;background:var(--g300);position:relative;">
+          <div style="position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left-color:var(--g400);"></div>
+        </div>
+        <div style="font-size:.52rem;color:#9D174D;font-weight:700;margin-left:.25rem;white-space:nowrap;">Buyer →</div>
+      </div>
+    </div>
+
+    <!-- PATHS COLUMN -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:1.25rem;">
+
+      <!-- ════════════════════════════════════════
+           PATH A — AGENT / TITLE COMPANY
+           ════════════════════════════════════════ -->
+      <div>
+        <div class="track-label">
+          <span class="track-pill agent">Agent &amp; Title Company</span>
+          <div class="track-rule"></div>
+          <span class="track-desc">Uploads docs · reviews findings · shares buyer link</span>
+        </div>
+        <div class="flow-row">
+
+          <!-- A2: Dashboard — EXPANDED side nav -->
+          <div class="sw">
+            <div class="screen" style="width:290px;">
+              <div class="screen-meta">
+                <span class="screen-num a">A2</span>
+                <span class="screen-tag">Dashboard</span>
+                <div class="screen-title">Audit List</div>
+              </div>
+              <div class="frame agent-frame">
+                <div class="wframe-agent">
+                  <!-- Side nav EXPANDED -->
+                  <div class="wsnav exp">
+                    <div class="wsnav-logo"></div>
+                    <div class="wsnav-item active">
+                      <div class="wsnav-icon"></div>
+                      <div class="wsnav-lbl"></div>
+                    </div>
+                    <div class="wsnav-item">
+                      <div class="wsnav-icon"></div>
+                      <div class="wsnav-lbl" style="width:20px;"></div>
+                    </div>
+                    <div class="wsnav-divider"></div>
+                    <div class="wsnav-item">
+                      <div class="wsnav-icon"></div>
+                      <div class="wsnav-lbl"></div>
+                    </div>
+                    <div style="margin-top:auto;">
+                      <div class="wsnav-divider"></div>
+                      <!-- Account row with dropdown indicator -->
+                      <div class="wsnav-item" style="position:relative;">
+                        <div class="wsnav-icon" style="border-radius:50%;"></div>
+                        <div class="wsnav-lbl"></div>
+                      </div>
+                      <!-- Inline dropdown for account -->
+                      <div style="background:rgba(255,255,255,.06);border-radius:4px;margin:.18rem .22rem;padding:.18rem 0;">
+                        <div style="display:flex;align-items:center;gap:.28rem;padding:.2rem .38rem;"><div style="width:7px;height:7px;background:rgba(255,255,255,.2);border-radius:2px;flex-shrink:0;"></div><div style="height:4px;background:rgba(255,255,255,.18);border-radius:2px;flex:1;"></div></div>
+                        <div style="display:flex;align-items:center;gap:.28rem;padding:.2rem .38rem;"><div style="width:7px;height:7px;background:rgba(255,255,255,.2);border-radius:2px;flex-shrink:0;"></div><div style="height:4px;background:rgba(255,255,255,.18);border-radius:2px;flex:1;"></div></div>
+                        <div style="height:1px;background:rgba(255,255,255,.08);margin:.1rem .38rem;"></div>
+                        <div style="display:flex;align-items:center;gap:.28rem;padding:.2rem .38rem;"><div style="width:7px;height:7px;background:rgba(239,68,68,.3);border-radius:2px;flex-shrink:0;"></div><div style="height:4px;background:rgba(239,68,68,.2);border-radius:2px;width:30px;"></div></div>
+                      </div>
+                      <div class="wsnav-toggle"><div class="wsnav-toggle-icon"></div></div>
+                    </div>
+                  </div>
+                  <!-- Content -->
+                  <div class="wsnav-content">
+                    <div style="padding:.42rem .5rem;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;">
+                      <div class="blk sm" style="width:55px;margin:0;"></div>
+                      <div class="wbtn primary" style="width:58px;height:17px;margin:0;font-size:.46rem;">+ New</div>
+                    </div>
+                    <div class="wb" style="padding:.45rem .48rem;">
+                      <div class="waudit"><div><div class="waudit-addr"></div><div class="waudit-meta"></div></div><div class="waudit-badge done">Done</div></div>
+                      <div class="waudit"><div><div class="waudit-addr"></div><div class="waudit-meta"></div></div><div class="waudit-badge proc">Running</div></div>
+                      <div class="waudit"><div><div class="waudit-addr"></div><div class="waudit-meta"></div></div><div class="waudit-badge done">Done</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Side nav replaces topbar — always 1 click back to audit list from anywhere</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Profile · Change Password · Sign Out in side nav account section</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Collapse toggle at bottom — saves screen width when reviewing audit detail</div></div>
+              </div>
+            </div>
+            <div class="arr"><div class="arr-line"></div><div class="arr-lbl">+ New</div></div>
+          </div>
+
+          <!-- A3: Upload — COLLAPSED side nav -->
+          <div class="sw">
+            <div class="screen" style="width:270px;">
+              <div class="screen-meta">
+                <span class="screen-num a">A3</span>
+                <span class="screen-tag">Upload</span>
+                <div class="screen-title">Upload HOA Docs</div>
+              </div>
+              <div class="frame agent-frame">
+                <div class="wframe-agent">
+                  <!-- Side nav COLLAPSED -->
+                  <div class="wsnav col">
+                    <div class="wsnav-logo"></div>
+                    <div class="wsnav-item"><div class="wsnav-icon"></div></div>
+                    <div class="wsnav-item active"><div class="wsnav-icon"></div></div>
+                    <div class="wsnav-divider"></div>
+                    <div class="wsnav-item"><div class="wsnav-icon"></div></div>
+                    <div style="margin-top:auto;">
+                      <div class="wsnav-divider"></div>
+                      <div class="wsnav-item"><div class="wsnav-icon" style="border-radius:50%;"></div></div>
+                      <div class="wsnav-toggle"><div class="wsnav-toggle-icon"></div></div>
+                    </div>
+                  </div>
+                  <!-- Content -->
+                  <div class="wsnav-content">
+                    <div class="wb">
+                      <div class="wlbl">Property Address</div>
+                      <div class="winput"></div>
+                      <div class="wdrop">
+                        <div class="wdrop-icon">📄</div>
+                        <div class="wdrop-line" style="width:68%;"></div>
+                        <div class="wdrop-line" style="width:44%;"></div>
+                        <div class="wdrop-help">Resale cert · CC&Rs · Financials</div>
+                      </div>
+                      <div class="wfile"><span style="font-size:.55rem;">📄</span><div class="wfile-name"></div><div class="wfile-badge ok"></div></div>
+                      <div class="wfile"><span style="font-size:.55rem;">📄</span><div class="wfile-name"></div><div class="wfile-badge pend"></div></div>
+                      <div class="wbtn primary" style="margin-top:.42rem;">Analyze Documents</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Side nav collapsed — icon only, maximises upload area</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Upload mechanics unchanged</div></div>
+              </div>
+            </div>
+            <div class="arr"><div class="arr-line"></div><div class="arr-lbl">Submit</div></div>
+          </div>
+
+          <!-- A4: Processing — COLLAPSED side nav -->
+          <div class="sw">
+            <div class="screen" style="width:270px;">
+              <div class="screen-meta">
+                <span class="screen-num a">A4</span>
+                <span class="screen-tag">Processing</span>
+                <div class="screen-title">Analysis In Progress</div>
+              </div>
+              <div class="frame agent-frame">
+                <div class="wframe-agent">
+                  <div class="wsnav col">
+                    <div class="wsnav-logo"></div>
+                    <div class="wsnav-item"><div class="wsnav-icon"></div></div>
+                    <div class="wsnav-item active"><div class="wsnav-icon"></div></div>
+                    <div class="wsnav-divider"></div>
+                    <div class="wsnav-item"><div class="wsnav-icon"></div></div>
+                    <div style="margin-top:auto;">
+                      <div class="wsnav-divider"></div>
+                      <div class="wsnav-item"><div class="wsnav-icon" style="border-radius:50%;"></div></div>
+                      <div class="wsnav-toggle"><div class="wsnav-toggle-icon"></div></div>
+                    </div>
+                  </div>
+                  <div class="wsnav-content">
+                    <div class="wb" style="padding-top:.85rem;">
+                      <div style="text-align:center;margin-bottom:.75rem;">
+                        <div style="font-size:1.3rem;margin-bottom:.32rem;">⚙️</div>
+                        <div class="blk sm w65" style="margin:0 auto .25rem;"></div>
+                        <div class="blk xs w45" style="margin:0 auto;"></div>
+                      </div>
+                      <div class="wproc">
+                        <div class="wproc-row"><div class="wproc-dot done"></div><div class="wproc-lbl ok"></div><span style="font-size:.46rem;color:#065F46;font-weight:700;">✓</span></div>
+                        <div class="wproc-row"><div class="wproc-dot act"></div><div class="wproc-lbl lit"></div><span style="font-size:.46rem;color:#B45309;font-weight:700;">...</span></div>
+                        <div class="wproc-row" style="opacity:.38;"><div class="wproc-dot idle"></div><div class="wproc-lbl"></div></div>
+                        <div class="wprog"><div class="wprog-fill" style="width:58%;"></div></div>
+                      </div>
+                      <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:5px;padding:.4rem;font-size:.5rem;color:#1D4ED8;text-align:center;line-height:1.42;">🔒 Documents encrypted &amp; processed securely</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>3 named stages: Reading → Analyzing → Almost ready</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Side nav stays collapsed — processing is a passive wait state</div></div>
+              </div>
+            </div>
+            <div class="arr"><div class="arr-line"></div><div class="arr-lbl">Complete</div></div>
+          </div>
+
+          <!-- A5: Property Overview (Agent) -->
+          <div class="sw">
+            <div class="screen wide">
+              <div class="screen-meta">
+                <span class="screen-num a">A5</span>
+                <span class="screen-tag">Property Overview</span>
+                <div class="screen-title">Agent Dashboard</div>
+              </div>
+              <div class="frame agent-frame">
+                <!-- A5: side nav COLLAPSED + content -->
+                <div class="wframe-agent">
+                  <div class="wsnav col">
+                    <div class="wsnav-logo"></div>
+                    <div class="wsnav-item"><div class="wsnav-icon"></div></div>
+                    <div class="wsnav-item active"><div class="wsnav-icon"></div></div>
+                    <div class="wsnav-divider"></div>
+                    <div class="wsnav-item"><div class="wsnav-icon"></div></div>
+                    <div style="margin-top:auto;">
+                      <div class="wsnav-divider"></div>
+                      <div class="wsnav-item"><div class="wsnav-icon" style="border-radius:50%;"></div></div>
+                      <div class="wsnav-toggle"><div class="wsnav-toggle-icon"></div></div>
+                    </div>
+                  </div>
+                  <div class="wsnav-content">
+                    <!-- Content header: actions -->
+                    <div style="padding:.4rem .5rem;border-bottom:1px solid var(--g200);display:flex;align-items:center;justify-content:space-between;background:#fff;">
+                      <div class="blk xs" style="width:70px;margin:0;"></div>
+                      <div style="display:flex;gap:.28rem;">
+                        <div class="wbtn ghost" style="width:46px;height:16px;margin:0;font-size:.44rem;">Export</div>
+                        <div class="wbtn primary" style="width:58px;height:16px;margin:0;font-size:.44rem;">Report →</div>
+                      </div>
+                    </div>
+                    <!-- Hero -->
+                    <div class="whero" style="height:60px;">
+                      <div class="whero-text"><div class="whero-ey"></div><div class="whero-addr"></div><div class="whero-meta"></div></div>
+                      <div class="whero-img">PHOTO</div>
+                    </div>
+                    <!-- Disclaimer strip -->
+                    <div class="wdisclaim"><div class="dl"></div><div class="dl sh"></div></div>
+                    <!-- Share card — always visible, not in accordion -->
+                    <div class="wshare" style="margin:.4rem .48rem;">
+                      <div class="wshare-hd"></div>
+                      <div class="wshare-link"><div class="wshare-link-text"></div><div class="wshare-link-copy"></div></div>
+                      <div class="wshare-note"></div>
+                    </div>
+                    <!-- At-a-glance strip -->
+                    <div class="wglance">
+                      <div class="wglance-cell"><div class="wglance-val a"></div><div class="wglance-lbl"></div></div>
+                      <div class="wglance-cell"><div class="wglance-val r"></div><div class="wglance-lbl"></div></div>
+                      <div class="wglance-cell"><div class="wglance-val g"></div><div class="wglance-lbl"></div></div>
+                    </div>
+                    <!-- ACCORDION -->
+                    <div class="wacc">
+                      <!-- Financial & Maintenance — OPEN (has risks) -->
+                      <div class="wacc-row open">
+                        <div class="wacc-hd">
+                          <div class="wacc-accent"></div>
+                          <div class="wacc-title" style="width:75px;"></div>
+                          <div class="wacc-pill risk">2 risks</div>
+                          <div class="wacc-chevron"></div>
+                        </div>
+                        <div class="wacc-body">
+                          <div class="wstat-grid">
+                            <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val g"></div></div>
+                            <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val a"></div></div>
+                            <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val r"></div></div>
+                            <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val n"></div></div>
+                          </div>
+                          <div class="wrisk cr" style="margin-bottom:.22rem;"><div class="wrisk-title"></div><div class="wrisk-desc"></div><div style="height:3px;background:#DBEAFE;border-radius:2px;width:50%;margin-top:.18rem;"></div></div>
+                          <div class="wrisk me"><div class="wrisk-title"></div><div class="wrisk-desc"></div><div style="height:3px;background:#DBEAFE;border-radius:2px;width:44%;margin-top:.18rem;"></div></div>
+                        </div>
+                      </div>
+                      <!-- Insurance — CLOSED -->
+                      <div class="wacc-row">
+                        <div class="wacc-hd">
+                          <div class="wacc-accent"></div>
+                          <div class="wacc-title" style="width:55px;"></div>
+                          <div class="wacc-pill ok">✓ Current</div>
+                          <div class="wacc-chevron"></div>
+                        </div>
+                      </div>
+                      <!-- WUCIOA Compliance — CLOSED -->
+                      <div class="wacc-row">
+                        <div class="wacc-hd">
+                          <div class="wacc-accent"></div>
+                          <div class="wacc-title" style="width:65px;"></div>
+                          <div class="wacc-pill warn">16 / 26</div>
+                          <div class="wacc-chevron"></div>
+                        </div>
+                      </div>
+                      <!-- Risk Findings — CLOSED -->
+                      <div class="wacc-row">
+                        <div class="wacc-hd">
+                          <div class="wacc-accent" style="background:#DC2626;"></div>
+                          <div class="wacc-title" style="width:60px;"></div>
+                          <div class="wacc-pill risk">2 critical</div>
+                          <div class="wacc-chevron"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Side nav collapsed — agent is focused on the audit, not navigating</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Share card always visible above accordion — primary action never buried</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>At-a-glance strip — 3 key numbers before any section is opened</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Accordion: Financial open (has risks), Insurance/Compliance/Findings collapsed</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>No verdict count cards — removed across all personas</div></div>
+              </div>
+            </div>
+            <div class="arr"><div class="arr-line"></div><div class="arr-lbl">Full Report →</div></div>
+          </div>
+
+          <!-- SHARED: Full Report (role-based) -->
+          <div class="sw">
+            <div class="screen">
+              <div class="screen-meta">
+                <span class="screen-num" style="background:#6D28D9;">★</span>
+                <span class="screen-tag">Shared Screen</span>
+                <div class="screen-title">Full Report (role-based)</div>
+              </div>
+              <div class="frame" style="border-color:#A78BFA;">
+                <!-- Topbar adapts by role -->
+                <div class="wt">
+                  <div class="wt-logo"></div>
+                  <div class="wt-right">
+                    <div class="wt-btn-outline">← Back</div>
+                    <div class="wt-user"><div class="wt-user-line"></div><div class="wt-chevron"></div></div>
+                  </div>
+                </div>
+                <!-- Role indicator strip -->
+                <div style="background:#4C1D95;padding:.32rem .65rem;display:flex;align-items:center;gap:.5rem;">
+                  <div style="font-size:.52rem;color:#DDD6FE;font-weight:700;white-space:nowrap;">Viewing as:</div>
+                  <div style="height:14px;border-radius:999px;background:#6D28D9;display:flex;align-items:center;padding:0 .45rem;font-size:.5rem;color:#fff;font-weight:700;white-space:nowrap;">Agent</div>
+                  <div style="height:14px;border-radius:999px;border:1px solid #7C3AED;display:flex;align-items:center;padding:0 .45rem;font-size:.5rem;color:#DDD6FE;font-weight:600;white-space:nowrap;">Buyer</div>
+                </div>
+                <!-- Disclaimer strip — all personas -->
+                <div class="wdisclaim"><div class="dl"></div><div class="dl sh"></div></div>
+                <!-- Filter chips -->
+                <div style="display:flex;gap:.28rem;padding:.42rem .55rem;background:var(--g100);border-bottom:1px solid var(--g200);">
+                  <div style="flex:1;height:13px;border-radius:999px;background:var(--navy);"></div>
+                  <div style="flex:1;height:13px;border-radius:999px;border:1px solid var(--g300);background:#fff;"></div>
+                  <div style="flex:1;height:13px;border-radius:999px;border:1px solid var(--g300);background:#fff;"></div>
+                </div>
+                <div style="padding:.45rem 0 .7rem;">
+                  <div class="wfind cr"><div class="wfind-top"><div class="wfind-badge cr"></div><div class="wfind-title"></div></div><div class="wfind-body"></div><div class="wfind-body" style="width:62%;"></div><div class="wfind-src" style="margin-top:.18rem;"></div></div>
+                  <div class="wfind hi"><div class="wfind-top"><div class="wfind-badge hi"></div><div class="wfind-title"></div></div><div class="wfind-body"></div><div class="wfind-src" style="margin-top:.18rem;"></div></div>
+                  <div class="wfind lo"><div class="wfind-top"><div class="wfind-badge lo"></div><div class="wfind-title"></div></div><div class="wfind-body" style="width:68%;"></div><div class="wfind-src" style="margin-top:.18rem;"></div></div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Same report.html for both roles — role= param filters content</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>Agent role: professional language + source citations. Buyer role: plain English + "what this means for you"</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Role indicator strip — shows which view is active, easy to switch</div></div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /agent flow-row -->
+      </div>
+
+      <!-- ════════════════════════════════════════
+           PATH B — BUYER (authenticated upload)
+           ════════════════════════════════════════ -->
+      <div>
+        <div class="track-label">
+          <span class="track-pill buyer">Buyer — Uploads Own Docs</span>
+          <div class="track-rule"></div>
+          <span class="track-desc">Logs in as Buyer · uploads · gets buyer-focused results</span>
+        </div>
+        <div class="flow-row">
+
+          <!-- B2: Buyer Upload -->
+          <div class="sw">
+            <div class="screen">
+              <div class="screen-meta">
+                <span class="screen-num b">B2</span>
+                <span class="screen-tag">Upload</span>
+                <div class="screen-title">Upload HOA Docs</div>
+              </div>
+              <div class="frame buyer-frame">
+                <div class="wt">
+                  <div class="wt-logo"></div>
+                  <div class="wt-right"><div class="wt-user"><div class="wt-user-line"></div><div class="wt-chevron"></div></div></div>
+                </div>
+                <div class="wb">
+                  <!-- Warmer framing for buyer -->
+                  <div class="buyer-hint">Got your HOA documents from your agent? Upload them here to see what matters to you.</div>
+                  <div class="wlbl">Property Address</div>
+                  <div class="winput"></div>
+                  <div class="wdrop">
+                    <div class="wdrop-icon">📄</div>
+                    <div class="wdrop-line" style="width:68%;"></div>
+                    <div class="wdrop-line" style="width:44%;"></div>
+                    <div class="wdrop-help">Any HOA docs you received —<br>no need to know what they are</div>
+                  </div>
+                  <div class="wfile"><span style="font-size:.6rem;">📄</span><div class="wfile-name"></div><div class="wfile-badge ok"></div></div>
+                  <div class="wbtn primary" style="margin-top:.45rem;">Review My Documents</div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Buyer-toned upload screen — warmer copy, no jargon</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>CTA says "Review My Documents" not "Analyze" — buyer language</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Drop zone copy: "no need to know what they are" — reduces friction</div></div>
+              </div>
+            </div>
+            <div class="arr"><div class="arr-line"></div><div class="arr-lbl">Submit</div></div>
+          </div>
+
+          <!-- B3: Processing (same component, buyer copy) -->
+          <div class="sw">
+            <div class="screen">
+              <div class="screen-meta">
+                <span class="screen-num b">B3</span>
+                <span class="screen-tag">Processing</span>
+                <div class="screen-title">Reviewing Your Documents</div>
+              </div>
+              <div class="frame buyer-frame">
+                <div class="wt">
+                  <div class="wt-logo"></div>
+                  <div class="wt-right"><div class="wt-user"><div class="wt-user-line"></div><div class="wt-chevron"></div></div></div>
+                </div>
+                <div class="wb" style="padding-top:.9rem;">
+                  <div style="text-align:center;margin-bottom:.8rem;">
+                    <div style="font-size:1.4rem;margin-bottom:.35rem;">🏠</div>
+                    <div class="blk sm w65" style="margin:0 auto .28rem;"></div>
+                    <div class="blk xs w45" style="margin:0 auto;"></div>
+                  </div>
+                  <div class="wproc" style="background:#FDF2F6;border-color:#F9A8D4;">
+                    <div class="wproc-row"><div class="wproc-dot done"></div><div class="wproc-lbl ok"></div><span style="font-size:.48rem;color:#065F46;font-weight:700;">✓</span></div>
+                    <div class="wproc-row"><div class="wproc-dot act" style="background:var(--mauve);"></div><div class="wproc-lbl" style="background:rgba(157,23,77,.3);"></div><span style="font-size:.48rem;color:#9D174D;font-weight:700;">...</span></div>
+                    <div class="wproc-row" style="opacity:.38;"><div class="wproc-dot idle"></div><div class="wproc-lbl"></div></div>
+                    <div class="wprog"><div class="wprog-fill" style="width:58%;background:var(--mauve);"></div></div>
+                  </div>
+                  <div style="background:#FDF2F6;border:1px solid #F9A8D4;border-radius:5px;padding:.42rem;font-size:.53rem;color:#9D174D;text-align:center;line-height:1.45;">🔒 Your documents are private and secure</div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Buyer-toned processing — house icon, mauve progress, "Your documents are private"</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Same 3-stage structure as agent — shared component, different copy</div></div>
+              </div>
+            </div>
+            <div class="arr"><div class="arr-line"></div><div class="arr-lbl">Complete</div></div>
+          </div>
+
+          <!-- B4: Buyer Dashboard — topbar only (no side nav) -->
+          <div class="sw">
+            <div class="screen wide">
+              <div class="screen-meta">
+                <span class="screen-num b">B4</span>
+                <span class="screen-tag">Buyer Dashboard</span>
+                <div class="screen-title">Property Overview</div>
+              </div>
+              <div class="frame buyer-frame">
+                <!-- Topbar: Full Report + user dropdown -->
+                <div class="wt">
+                  <div class="wt-logo"></div>
+                  <div class="wt-right">
+                    <div class="wt-btn-primary">Full Report →</div>
+                    <div class="wt-user"><div class="wt-user-line"></div><div class="wt-chevron"></div></div>
+                  </div>
+                </div>
+                <!-- Hero -->
+                <div class="whero">
+                  <div class="whero-text"><div class="whero-ey"></div><div class="whero-addr"></div><div class="whero-meta"></div></div>
+                  <div class="whero-img">PHOTO</div>
+                </div>
+                <!-- Disclaimer strip — all personas -->
+                <div class="wdisclaim"><div class="dl"></div><div class="dl sh"></div></div>
+                <!-- At-a-glance strip -->
+                <div class="wglance">
+                  <div class="wglance-cell"><div class="wglance-val g"></div><div class="wglance-lbl"></div></div>
+                  <div class="wglance-cell"><div class="wglance-val a"></div><div class="wglance-lbl"></div></div>
+                  <div class="wglance-cell"><div class="wglance-val r"></div><div class="wglance-lbl"></div></div>
+                </div>
+                <!-- ACCORDION -->
+                <div class="wacc">
+                  <!-- Financials & Maintenance — OPEN (has risks) -->
+                  <div class="wacc-row open">
+                    <div class="wacc-hd">
+                      <div class="wacc-accent"></div>
+                      <div class="wacc-title" style="width:80px;"></div>
+                      <div class="wacc-pill risk">2 risks</div>
+                      <div class="wacc-chevron"></div>
+                    </div>
+                    <div class="wacc-body">
+                      <div class="wstat-grid">
+                        <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val g"></div><div class="wstat-sub"></div></div>
+                        <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val a"></div><div class="wstat-sub"></div></div>
+                        <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val r"></div><div class="wstat-sub"></div></div>
+                        <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val n"></div><div class="wstat-sub"></div></div>
+                      </div>
+                      <div class="wrisk cr" style="margin-bottom:.22rem;"><div class="wrisk-title"></div><div class="wrisk-amt"></div><div class="wrisk-desc"></div></div>
+                      <div class="wrisk me"><div class="wrisk-title"></div><div class="wrisk-desc"></div></div>
+                    </div>
+                  </div>
+                  <!-- Insurance — CLOSED -->
+                  <div class="wacc-row">
+                    <div class="wacc-hd">
+                      <div class="wacc-accent"></div>
+                      <div class="wacc-title" style="width:55px;"></div>
+                      <div class="wacc-pill ok">✓ Current</div>
+                      <div class="wacc-chevron"></div>
+                    </div>
+                  </div>
+                  <!-- Lifestyle — CLOSED -->
+                  <div class="wacc-row">
+                    <div class="wacc-hd">
+                      <div class="wacc-accent"></div>
+                      <div class="wacc-title" style="width:60px;"></div>
+                      <div class="wacc-pill muted">Not set</div>
+                      <div class="wacc-chevron"></div>
+                    </div>
+                  </div>
+                  <!-- Before You Sign — CLOSED -->
+                  <div class="wacc-row">
+                    <div class="wacc-hd">
+                      <div class="wacc-accent"></div>
+                      <div class="wacc-title" style="width:70px;"></div>
+                      <div class="wacc-pill warn">4 items</div>
+                      <div class="wacc-chevron"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Sticky CTA — outside accordion, always visible -->
+                <div class="wsticky-cta">
+                  <div class="wsticky-btn">Talk to a real estate professional →</div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>At-a-glance strip — 3 key numbers (dues, closing costs, reserve %) before any section</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Accordion: Financial open (risks exist), Insurance/Lifestyle/Checklist collapsed with status pills</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Sticky CTA bar — "Talk to a real estate professional" always visible, never buried</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Lifestyle pill shows "Not set" — invites buyer to personalise without blocking them</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>Disclaimer strip present — applies to all personas</div></div>
+              </div>
+            </div>
+            <div class="arr"><div class="arr-line"></div><div class="arr-lbl">Full Report</div></div>
+          </div>
+
+          <!-- B5: → same shared Full Report screen as A5 -->
+          <div class="sw">
+            <div class="screen">
+              <div class="screen-meta">
+                <span class="screen-num" style="background:#6D28D9;">★</span>
+                <span class="screen-tag">Same as A5 →</span>
+                <div class="screen-title">Full Report (role=buyer)</div>
+              </div>
+              <div class="frame" style="border-color:#A78BFA;">
+                <div class="wt">
+                  <div class="wt-logo"></div>
+                  <div class="wt-right">
+                    <div class="wt-btn-outline">← Back</div>
+                    <div class="wt-user"><div class="wt-user-line"></div><div class="wt-chevron"></div></div>
+                  </div>
+                </div>
+                <div style="background:#4C1D95;padding:.32rem .65rem;display:flex;align-items:center;gap:.5rem;">
+                  <div style="font-size:.52rem;color:#DDD6FE;font-weight:700;white-space:nowrap;">Viewing as:</div>
+                  <div style="height:14px;border-radius:999px;border:1px solid #7C3AED;display:flex;align-items:center;padding:0 .45rem;font-size:.5rem;color:#DDD6FE;font-weight:600;white-space:nowrap;">Agent</div>
+                  <div style="height:14px;border-radius:999px;background:#6D28D9;display:flex;align-items:center;padding:0 .45rem;font-size:.5rem;color:#fff;font-weight:700;white-space:nowrap;">Buyer</div>
+                </div>
+                <div style="display:flex;gap:.28rem;padding:.42rem .55rem;background:var(--g100);border-bottom:1px solid var(--g200);">
+                  <div style="flex:1;height:13px;border-radius:999px;background:var(--navy);"></div>
+                  <div style="flex:1;height:13px;border-radius:999px;border:1px solid var(--g300);background:#fff;"></div>
+                  <div style="flex:1;height:13px;border-radius:999px;border:1px solid var(--g300);background:#fff;"></div>
+                </div>
+                <div style="padding:.45rem 0 .7rem;">
+                  <div class="wfind cr"><div class="wfind-top"><div class="wfind-badge cr"></div><div class="wfind-title"></div></div><div class="wfind-body"></div><div class="wfind-body" style="width:62%;"></div><div class="wfind-src" style="margin-top:.18rem;"></div></div>
+                  <div class="wfind hi"><div class="wfind-top"><div class="wfind-badge hi"></div><div class="wfind-title"></div></div><div class="wfind-body"></div><div class="wfind-src" style="margin-top:.18rem;"></div></div>
+                  <div class="wfind lo"><div class="wfind-top"><div class="wfind-badge lo"></div><div class="wfind-title"></div></div><div class="wfind-body" style="width:68%;"></div><div class="wfind-src" style="margin-top:.18rem;"></div></div>
+                </div>
+              </div>
+              <div class="anns">
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Same report.html — "Buyer" tab active, plain English copy</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Source citations still visible — builds trust for buyer too</div></div>
+                <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>"← Back" returns to buyer dashboard (B4)</div></div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /buyer flow-row -->
+      </div>
+
+    </div><!-- /paths-col -->
+  </div><!-- /fork-wrap -->
+
+
+  <!-- ══════════════════════════════════════════════════════
+       ALTERNATE ENTRY — Shared link (no login)
+       ══════════════════════════════════════════════════════ -->
+  <div style="margin-top:1.75rem;">
+    <div class="track-label">
+      <span class="track-pill shared">Alternate Buyer Entry — Agent shares link (no login needed)</span>
+      <div class="track-rule"></div>
+      <span class="track-desc">Agent copies buyer link from A5 Property Overview → buyer opens it directly, no account required</span>
+    </div>
+    <div class="flow-row">
+
+      <!-- Link entry point -->
+      <div class="sw">
+        <div class="screen">
+          <div class="screen-meta">
+            <span class="screen-num s">↗</span>
+            <span class="screen-tag">Entry</span>
+            <div class="screen-title">Opens shared link</div>
+          </div>
+          <div class="frame" style="border-color:#FDE68A;">
+            <div style="background:#FFFBEB;padding:.55rem .7rem;">
+              <div style="font-size:.58rem;font-weight:700;color:#92400E;margin-bottom:.35rem;">From agent's email or text</div>
+              <div style="background:#fff;border:1px solid var(--g200);border-radius:5px;padding:.38rem .5rem;display:flex;align-items:center;gap:.35rem;">
+                <div style="font-size:.7rem;">🔗</div>
+                <div style="flex:1;"><div class="blk xs" style="width:90%;margin-bottom:.1rem;background:#D1FAE5;"></div><div class="blk xs" style="width:62%;background:#D1FAE5;"></div></div>
+              </div>
+            </div>
+            <div class="wb">
+              <div style="font-size:.58rem;color:var(--g500);line-height:1.45;margin-bottom:.38rem;">No account needed — the link opens their property review directly</div>
+              <div class="blk xs w75"></div>
+              <div class="blk xs w55"></div>
+            </div>
+          </div>
+          <div class="anns">
+            <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Existing shared link flow — buyer.html?auditId=xxx — no auth gate</div></div>
+          </div>
+        </div>
+        <div class="arr"><div class="arr-line"></div><div class="arr-lbl">Opens</div></div>
+      </div>
+
+      <!-- Lands on same Buyer Dashboard (B4) -->
+      <div class="sw">
+        <div class="screen wide">
+          <div class="screen-meta">
+            <span class="screen-num s">B4</span>
+            <span class="screen-tag">Same Screen</span>
+            <div class="screen-title">Buyer Dashboard (no login)</div>
+          </div>
+          <div class="frame" style="border-color:#FDE68A;">
+            <div class="wt">
+              <div class="wt-logo"></div>
+              <div class="wt-right">
+                <div class="wt-btn-primary">Full Report →</div>
+                <!-- No user dropdown — not logged in -->
+              </div>
+            </div>
+            <!-- Hero -->
+            <div class="whero">
+              <div class="whero-text"><div class="whero-ey"></div><div class="whero-addr"></div><div class="whero-meta"></div></div>
+              <div class="whero-img">PHOTO</div>
+            </div>
+            <!-- Disclaimer strip -->
+            <div class="wdisclaim"><div class="dl"></div><div class="dl sh"></div></div>
+            <!-- Save-to-account nudge — unauthenticated only -->
+            <div style="background:#FFFBEB;border-bottom:1px solid #FDE68A;padding:.32rem .65rem;display:flex;align-items:center;gap:.42rem;">
+              <div style="flex:1;height:5px;background:#FDE68A;border-radius:2px;opacity:.7;"></div>
+              <div style="height:14px;border-radius:999px;background:#F59E0B;display:flex;align-items:center;padding:0 .48rem;font-size:.46rem;font-weight:800;color:#fff;white-space:nowrap;">Save to account →</div>
+            </div>
+            <!-- At-a-glance strip -->
+            <div class="wglance">
+              <div class="wglance-cell"><div class="wglance-val g"></div><div class="wglance-lbl"></div></div>
+              <div class="wglance-cell"><div class="wglance-val a"></div><div class="wglance-lbl"></div></div>
+              <div class="wglance-cell"><div class="wglance-val r"></div><div class="wglance-lbl"></div></div>
+            </div>
+            <!-- ACCORDION — same structure as authenticated B4 -->
+            <div class="wacc">
+              <!-- Financials & Maintenance — OPEN (has risks) -->
+              <div class="wacc-row open">
+                <div class="wacc-hd">
+                  <div class="wacc-accent"></div>
+                  <div class="wacc-title" style="width:80px;"></div>
+                  <div class="wacc-pill risk">2 risks</div>
+                  <div class="wacc-chevron"></div>
+                </div>
+                <div class="wacc-body">
+                  <div class="wstat-grid">
+                    <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val g"></div><div class="wstat-sub"></div></div>
+                    <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val a"></div><div class="wstat-sub"></div></div>
+                    <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val r"></div><div class="wstat-sub"></div></div>
+                    <div class="wstat"><div class="wstat-lbl"></div><div class="wstat-val n"></div><div class="wstat-sub"></div></div>
+                  </div>
+                  <div class="wrisk cr" style="margin-bottom:.22rem;"><div class="wrisk-title"></div><div class="wrisk-amt"></div><div class="wrisk-desc"></div></div>
+                  <div class="wrisk me"><div class="wrisk-title"></div><div class="wrisk-desc"></div></div>
+                </div>
+              </div>
+              <!-- Insurance — CLOSED -->
+              <div class="wacc-row">
+                <div class="wacc-hd">
+                  <div class="wacc-accent"></div>
+                  <div class="wacc-title" style="width:55px;"></div>
+                  <div class="wacc-pill ok">✓ Current</div>
+                  <div class="wacc-chevron"></div>
+                </div>
+              </div>
+              <!-- Lifestyle — CLOSED -->
+              <div class="wacc-row">
+                <div class="wacc-hd">
+                  <div class="wacc-accent"></div>
+                  <div class="wacc-title" style="width:60px;"></div>
+                  <div class="wacc-pill muted">Not set</div>
+                  <div class="wacc-chevron"></div>
+                </div>
+              </div>
+              <!-- Before You Sign — CLOSED -->
+              <div class="wacc-row">
+                <div class="wacc-hd">
+                  <div class="wacc-accent"></div>
+                  <div class="wacc-title" style="width:70px;"></div>
+                  <div class="wacc-pill warn">4 items</div>
+                  <div class="wacc-chevron"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Sticky CTA — "Ask your agent" (shared-link buyer has an agent relationship) -->
+            <div class="wsticky-cta">
+              <div class="wsticky-btn">Ask your agent about these →</div>
+            </div>
+          </div>
+          <div class="anns">
+            <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Accordion matches authenticated B4 — same sections, same order, same pills</div></div>
+            <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>No user dropdown — unauthenticated; no account menu</div></div>
+            <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>"Save to account →" nudge strip — amber, below disclaimer; prompts signup without blocking</div></div>
+            <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>CTA reads "Ask your agent about these →" — this buyer was sent the link by their agent</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /canvas -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+     FULL REPORT — GLOBAL PAGE TEMPLATE
+     This section defines the structural template for report.html.
+     It becomes the reference layout for ALL authenticated pages.
+     ══════════════════════════════════════════════════════════════════ -->
+<div class="canvas" style="margin-top:3rem;">
+
+  <div class="page-header" style="text-align:left;margin-bottom:1.25rem;">
+    <div class="logo">HOA<span>Auditor</span> <span style="font-family:'DM Sans',sans-serif;font-size:.7rem;font-weight:400;color:var(--g500);letter-spacing:.04em;">— Full Report · Global Page Template</span></div>
+    <p style="font-size:.72rem;color:var(--g500);margin-top:.28rem;">This shell applies to report.html and sets the structural standard for all subsequent pages.</p>
+  </div>
+
+  <!-- TWO COLUMN ANNOTATION LAYOUT: wireframe left, notes right -->
+  <div style="display:flex;gap:2rem;align-items:flex-start;">
+
+    <!-- ── WIREFRAME FRAME ──────────────────────────────────────── -->
+    <div style="flex-shrink:0;width:560px;">
+
+      <!-- Frame border -->
+      <div style="border:1.5px solid var(--g300);border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);background:#fff;">
+
+        <!-- ① PERSISTENT HEADER — full width, all roles -->
+        <div style="background:var(--navy);padding:.5rem .75rem;display:flex;align-items:center;gap:.6rem;border-bottom:1px solid rgba(255,255,255,.08);">
+          <!-- Logo -->
+          <div style="width:72px;height:9px;background:rgba(255,255,255,.25);border-radius:3px;flex-shrink:0;"></div>
+          <!-- Search bar -->
+          <div style="flex:1;height:22px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:5px;display:flex;align-items:center;padding:0 .5rem;gap:.35rem;">
+            <div style="width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25);flex-shrink:0;"></div>
+            <div style="height:4px;background:rgba(255,255,255,.12);border-radius:2px;width:55%;"></div>
+          </div>
+          <!-- User account pill -->
+          <div style="display:flex;align-items:center;gap:.32rem;border:1px solid rgba(255,255,255,.18);border-radius:5px;padding:.22rem .48rem;flex-shrink:0;">
+            <div style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0;"></div>
+            <div style="width:38px;height:5px;background:rgba(255,255,255,.2);border-radius:2px;"></div>
+            <div style="width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-top:4px solid rgba(255,255,255,.3);"></div>
+          </div>
+        </div>
+
+        <!-- BODY: side nav + main content -->
+        <div style="display:flex;min-height:480px;">
+
+          <!-- ② SIDE NAV — agent only, collapsed by default -->
+          <div style="background:var(--navy);width:44px;flex-shrink:0;display:flex;flex-direction:column;padding:.5rem 0;border-right:1px solid rgba(255,255,255,.08);">
+            <!-- Nav items -->
+            <div style="display:flex;flex-direction:column;gap:.12rem;padding:0 .3rem;">
+              <!-- Audits — active -->
+              <div style="background:rgba(255,255,255,.12);border-radius:4px;padding:.32rem;display:flex;justify-content:center;">
+                <div style="width:12px;height:12px;background:var(--mauve);border-radius:2px;"></div>
+              </div>
+              <!-- New Audit -->
+              <div style="border-radius:4px;padding:.32rem;display:flex;justify-content:center;">
+                <div style="width:12px;height:12px;background:rgba(255,255,255,.22);border-radius:2px;"></div>
+              </div>
+              <!-- Divider -->
+              <div style="height:1px;background:rgba(255,255,255,.08);margin:.25rem 0;"></div>
+              <!-- Settings -->
+              <div style="border-radius:4px;padding:.32rem;display:flex;justify-content:center;">
+                <div style="width:12px;height:12px;background:rgba(255,255,255,.22);border-radius:2px;"></div>
+              </div>
+            </div>
+            <!-- Account + toggle at bottom -->
+            <div style="margin-top:auto;">
+              <div style="height:1px;background:rgba(255,255,255,.08);margin:.25rem .3rem;"></div>
+              <div style="padding:.32rem;display:flex;justify-content:center;">
+                <div style="width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.22);"></div>
+              </div>
+              <div style="padding:.3rem;text-align:center;border-top:1px solid rgba(255,255,255,.08);">
+                <div style="width:10px;height:10px;background:rgba(255,255,255,.15);border-radius:2px;margin:0 auto;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ③ MAIN CONTENT COLUMN -->
+          <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+
+            <!-- ④ PROPERTY BANNER -->
+            <div style="background:var(--navy);padding:.6rem .75rem;border-bottom:1px solid rgba(255,255,255,.08);">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;">
+                <div style="flex:1;">
+                  <!-- Eyebrow: HOA name -->
+                  <div style="height:4px;background:rgba(206,140,165,.55);border-radius:2px;width:45%;margin-bottom:.32rem;"></div>
+                  <!-- Property address — prominent -->
+                  <div style="height:11px;background:rgba(255,255,255,.55);border-radius:2px;width:82%;margin-bottom:.28rem;"></div>
+                  <!-- Sub: Submitted date · N files -->
+                  <div style="height:4px;background:rgba(255,255,255,.2);border-radius:2px;width:52%;"></div>
+                </div>
+                <!-- WUCIOA counter — agent only -->
+                <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:5px;padding:.28rem .55rem;flex-shrink:0;text-align:center;">
+                  <div style="height:9px;background:var(--mauve);border-radius:3px;width:32px;margin-bottom:.18rem;opacity:.7;"></div>
+                  <div style="height:4px;background:rgba(255,255,255,.2);border-radius:2px;width:28px;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⑤ CATEGORY TAB BAR + EXPORT — all roles -->
+            <div style="background:#fff;border-bottom:1px solid var(--g200);padding:.42rem .65rem;display:flex;align-items:center;gap:.32rem;">
+              <!-- Category tabs — Risks active by default -->
+              <div style="display:flex;gap:.22rem;flex:1;flex-wrap:wrap;">
+                <!-- Risks — active (default) -->
+                <div style="height:18px;padding:0 .55rem;border-radius:999px;background:var(--navy);display:flex;align-items:center;font-size:.5rem;font-weight:800;color:#fff;white-space:nowrap;">Risks</div>
+                <div style="height:18px;padding:0 .55rem;border-radius:999px;border:1px solid var(--g200);background:#fff;display:flex;align-items:center;font-size:.5rem;font-weight:600;color:var(--g500);white-space:nowrap;">Financial</div>
+                <div style="height:18px;padding:0 .55rem;border-radius:999px;border:1px solid var(--g200);background:#fff;display:flex;align-items:center;font-size:.5rem;font-weight:600;color:var(--g500);white-space:nowrap;">Timeline</div>
+                <div style="height:18px;padding:0 .55rem;border-radius:999px;border:1px solid var(--g200);background:#fff;display:flex;align-items:center;font-size:.5rem;font-weight:600;color:var(--g500);white-space:nowrap;">Restrictions</div>
+                <div style="height:18px;padding:0 .55rem;border-radius:999px;border:1px solid var(--g200);background:#fff;display:flex;align-items:center;font-size:.5rem;font-weight:600;color:var(--g500);white-space:nowrap;">Documents</div>
+                <div style="height:18px;padding:0 .55rem;border-radius:999px;border:1px solid var(--g200);background:#fff;display:flex;align-items:center;font-size:.5rem;font-weight:600;color:var(--g500);white-space:nowrap;">Compliance</div>
+                <div style="height:18px;padding:0 .55rem;border-radius:999px;border:1px solid var(--g200);background:#fff;display:flex;align-items:center;font-size:.5rem;font-weight:600;color:var(--g500);white-space:nowrap;">Summary</div>
+              </div>
+              <!-- Export PDF — agent only -->
+              <div style="height:20px;padding:0 .55rem;border-radius:4px;border:1.5px solid rgba(43,25,46,0.2);background:transparent;display:flex;align-items:center;font-size:.48rem;font-weight:700;color:var(--g600);gap:.25rem;white-space:nowrap;flex-shrink:0;">
+                <div style="width:8px;height:10px;border:1px solid var(--g400);border-radius:1px;position:relative;display:flex;align-items:center;justify-content:center;">
+                  <div style="width:5px;height:1px;background:var(--g400);"></div>
+                </div>
+                Export PDF
+              </div>
+            </div>
+
+            <!-- ⑥ FINDINGS LIST — scrollable -->
+            <div style="flex:1;overflow-y:auto;padding:.55rem .65rem;background:var(--bg);">
+              <!-- Finding card — HIGH -->
+              <div style="border-left:4px solid #DC2626;background:#FFF5F5;border-radius:0;padding:.5rem .65rem;margin-bottom:.42rem;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.22rem;">
+                  <div style="height:4px;background:rgba(107,90,109,.45);border-radius:2px;width:38%;"></div>
+                  <div style="height:13px;padding:0 .45rem;border-radius:999px;background:#FEE2E2;display:flex;align-items:center;font-size:.46rem;font-weight:800;color:#B91C1C;white-space:nowrap;flex-shrink:0;">HIGH</div>
+                </div>
+                <div style="height:7px;background:rgba(43,25,46,.35);border-radius:2px;width:72%;margin-bottom:.22rem;"></div>
+                <div style="height:4px;background:var(--wire);border-radius:2px;width:92%;margin-bottom:.14rem;"></div>
+                <div style="height:4px;background:var(--wire);border-radius:2px;width:75%;margin-bottom:.2rem;"></div>
+                <div style="height:4px;background:#DBEAFE;border-radius:2px;width:48%;"></div>
+              </div>
+              <!-- Finding card — MEDIUM -->
+              <div style="border-left:4px solid #D97706;background:#FFFBEB;border-radius:0;padding:.5rem .65rem;margin-bottom:.42rem;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.22rem;">
+                  <div style="height:4px;background:rgba(107,90,109,.45);border-radius:2px;width:32%;"></div>
+                  <div style="height:13px;padding:0 .45rem;border-radius:999px;background:#FEF3C7;display:flex;align-items:center;font-size:.46rem;font-weight:800;color:#B45309;white-space:nowrap;flex-shrink:0;">MEDIUM</div>
+                </div>
+                <div style="height:7px;background:rgba(43,25,46,.35);border-radius:2px;width:65%;margin-bottom:.22rem;"></div>
+                <div style="height:4px;background:var(--wire);border-radius:2px;width:88%;margin-bottom:.14rem;"></div>
+                <div style="height:4px;background:#DBEAFE;border-radius:2px;width:42%;"></div>
+              </div>
+              <!-- Finding card — LOW -->
+              <div style="border-left:4px solid #9CA3AF;background:#F9FAFB;border-radius:0;padding:.5rem .65rem;margin-bottom:.42rem;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.22rem;">
+                  <div style="height:4px;background:rgba(107,90,109,.45);border-radius:2px;width:28%;"></div>
+                  <div style="height:13px;padding:0 .45rem;border-radius:999px;background:#E5E7EB;display:flex;align-items:center;font-size:.46rem;font-weight:800;color:#374151;white-space:nowrap;flex-shrink:0;">LOW</div>
+                </div>
+                <div style="height:7px;background:rgba(43,25,46,.35);border-radius:2px;width:58%;margin-bottom:.22rem;"></div>
+                <div style="height:4px;background:var(--wire);border-radius:2px;width:80%;margin-bottom:.14rem;"></div>
+                <div style="height:4px;background:#DBEAFE;border-radius:2px;width:38%;"></div>
+              </div>
+            </div>
+
+          </div><!-- /main content column -->
+        </div><!-- /body flex row -->
+
+      </div><!-- /frame -->
+
+      <!-- Role labels below frame -->
+      <div style="display:flex;gap:1rem;margin-top:.65rem;padding:0 .25rem;">
+        <div style="display:flex;align-items:center;gap:.35rem;font-size:.6rem;color:var(--g500);">
+          <span style="display:inline-block;width:8px;height:8px;background:#1D4ED8;border-radius:2px;"></span>
+          Header + side nav: Agent &amp; Title Company
+        </div>
+        <div style="display:flex;align-items:center;gap:.35rem;font-size:.6rem;color:var(--g500);">
+          <span style="display:inline-block;width:8px;height:8px;background:#9D174D;border-radius:2px;"></span>
+          Category tabs + content: all roles
+        </div>
+      </div>
+
+    </div><!-- /wireframe frame col -->
+
+    <!-- ── ANNOTATIONS COLUMN ───────────────────────────────────── -->
+    <div style="flex:1;display:flex;flex-direction:column;gap:.85rem;padding-top:.25rem;">
+
+      <!-- Annotation: Header -->
+      <div style="background:var(--ann-bg);border-radius:7px;padding:.65rem .85rem;">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ann);margin-bottom:.35rem;">① Persistent Header — all roles</div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Logo left · search bar centre · user account pill right</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Navy #2B192E background — matches side nav, unifies chrome</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Search bar: searches across audits (agents) or within report findings (buyers)</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>User pill: opens profile / change password / sign out dropdown</div></div>
+      </div>
+
+      <!-- Annotation: Side nav -->
+      <div style="background:var(--ann-bg);border-radius:7px;padding:.65rem .85rem;">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ann);margin-bottom:.35rem;">② Side Nav — agent &amp; title company only</div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Collapsed (44px) by default on detail screens — expands to 140px on click</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Audits · New Audit · Settings · Account — same items as A2 dashboard</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>Buyers have no side nav — #nav-mount renders empty for buyer sessions</div></div>
+      </div>
+
+      <!-- Annotation: Property banner -->
+      <div style="background:var(--ann-bg);border-radius:7px;padding:.65rem .85rem;">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ann);margin-bottom:.35rem;">③ Property Banner — factual metadata only</div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Agent: HOA name eyebrow · property address · submitted date · doc count · WUCIOA counter pill top-right</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Buyer: HOA name eyebrow · property address · submitted date · doc count — no WUCIOA counter</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>No overall verdict (CRITICAL/CAUTION/SAFE) — tool translates documents, does not render judgment</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Navy background — banner is part of the chrome, not a content card</div></div>
+      </div>
+
+      <!-- Annotation: Category tabs -->
+      <div style="background:var(--ann-bg);border-radius:7px;padding:.65rem .85rem;">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ann);margin-bottom:.35rem;">④ Category Tabs — all roles</div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Tabs: <strong>Risks</strong> · Financial · Timeline · Restrictions · Documents · Compliance · Summary</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span><strong>Risks</strong> is the default active tab on page load</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Summary is last — renamed from Overview; contains action items + analysis completeness only</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>Active tab: navy fill, white text. Inactive: white bg, grey border, grey text</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>Not severity filters — categories navigate to different content sections, not filter by HIGH/LOW</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Sticky below banner — stays visible while scrolling tab content</div></div>
+      </div>
+
+      <!-- Annotation: Export -->
+      <div style="background:var(--ann-bg);border-radius:7px;padding:.65rem .85rem;">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--ann);margin-bottom:.35rem;">⑤ Export PDF — agent &amp; title only</div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-new">New</span>Ghost button, right-aligned in the filter bar — always visible without scrolling</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-fix">Fix</span>Buyers see no export button — their action is the sticky CTA at bottom</div></div>
+        <div class="ann"><div class="ann-dot"></div><div class="ann-text"><span class="badge b-keep">Keep</span>Produces PDF with source citations intact — professional agent copy</div></div>
+      </div>
+
+      <!-- Annotation: Template note -->
+      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:7px;padding:.65rem .85rem;">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#065F46;margin-bottom:.35rem;">Template scope — applies to all pages</div>
+        <div class="ann" style="background:transparent;padding:0;"><div class="ann-dot" style="background:#16A34A;"></div><div class="ann-text" style="color:#065F46;">Header + side nav = persistent shell. Never re-rendered on navigation.</div></div>
+        <div class="ann" style="background:transparent;padding:0;"><div class="ann-dot" style="background:#16A34A;"></div><div class="ann-text" style="color:#065F46;">Banner + chips bar + content column = page-specific. Swapped per route.</div></div>
+        <div class="ann" style="background:transparent;padding:0;"><div class="ann-dot" style="background:#16A34A;"></div><div class="ann-text" style="color:#065F46;">Side nav hidden for all buyer sessions — #nav-mount empty, content fills full width.</div></div>
+      </div>
+
+    </div><!-- /annotations col -->
+
+  </div><!-- /two-col layout -->
+
+</div><!-- /canvas report template -->
+
+
+<!-- ── LEGEND ──────────────────────────────────────────────── -->
+<div class="legend">
+  <div class="legend-title">Key</div>
+  <div class="legend-item"><span class="badge b-new">New</span>Build — doesn't exist</div>
+  <div class="legend-item"><span class="badge b-fix">Fix</span>Change existing</div>
+  <div class="legend-item"><span class="badge b-move">Move</span>Reposition</div>
+  <div class="legend-item"><span class="badge b-keep">Keep</span>Already correct</div>
+  <div class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#DBEAFE;border:1.5px solid #93C5FD;margin-right:.28rem;"></span>Agent screens</div>
+  <div class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#FCE7F3;border:1.5px solid #F9A8D4;margin-right:.28rem;"></span>Buyer screens</div>
+  <div class="legend-item"><span style="display:inline-block;width:11px;height:11px;border-radius:2px;background:#FFFBEB;border:1.5px solid #FDE68A;margin-right:.28rem;"></span>Shared link (no auth)</div>
+  <div class="legend-note">S1 = shared auth · A = agent path · B = buyer path · Scroll right within each row if needed</div>
+</div>
+
+</body>
+</html>

@@ -6,54 +6,42 @@
   <title>HOA Auditor — Full Report</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --navy: #2B192E;
-      --blue: #CE8CA5;
-      --blue-light: #D4A0B5;
-      --gray-100: #F3F4F6;
-      --gray-200: #E5E7EB;
-      --gray-400: #9CA3AF;
-      --gray-600: #4B5563;
-      --white: #FFFFFF;
-    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--gray-100); min-height: 100vh; }
+    body { font-family: 'DM Sans', sans-serif; background: #F2F3F6; min-height: 100vh; display: flex; flex-direction: column; }
 
-    .topbar {
-      background: var(--navy); padding: 1rem 2rem;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 10;
-    }
-    .brand { font-family: 'DM Serif Display', serif; color: var(--white); font-size: 1.3rem; }
-    .brand span { color: var(--blue-light); }
-    .user-info { display: flex; align-items: center; gap: 1rem; }
-    .user-email { color: var(--gray-400); font-size: .85rem; }
-    .btn-signout {
-      padding: .4rem .9rem; background: transparent;
-      border: 1px solid rgba(255,255,255,.2); border-radius: 6px;
-      color: rgba(255,255,255,.6); font-family: 'DM Sans', sans-serif;
-      font-size: .82rem; cursor: pointer; transition: all .2s;
-    }
-    .btn-signout:hover { border-color: rgba(255,255,255,.5); color: var(--white); }
+    /* ── PERSISTENT HEADER — full width, all roles, never re-renders ─ */
+    #header-mount { flex-shrink: 0; }
 
-    .back-btn {
-      display: flex; align-items: center; gap: .4rem; color: var(--gray-600);
-      font-size: .88rem; cursor: pointer; background: none; border: none;
-      font-family: 'DM Sans', sans-serif; padding: 0;
-    }
-    .back-btn:hover { color: var(--blue); }
+    /* ── PAGE SHELL — flex row below header ──────────────────────── */
+    /* #nav-mount: 56px agent only, hidden (display:none) for buyer  */
+    /* #main-col:  flex:1, fills full width when nav is absent       */
+    #page-shell { display: flex; flex: 1; }
+    #nav-mount  { width: 56px; flex-shrink: 0; }
+    #main-col   { flex: 1; overflow-x: hidden; overflow-y: auto; }
 
+    /* ── AGENT VIEW — content only, no flex needed here ─────────── */
+    #agent-view { display: block; }
+
+    /* ── BUYER VIEW ───────────────────────────────────────────── */
+    #buyer-view { display: none; position: relative; padding-bottom: 56px; }
+
+    /* ── HERO (buyer.css classes — do not modify) ─────────────── */
+    /* property-hero, property-hero-header, property-hero-text,    */
+    /* ph-eyebrow, ph-address, ph-meta, property-hero-image        */
+    /* These classes are owned by src/styles/buyer.css             */
+    .property-hero { border-radius: 0; border: none; margin-bottom: 0; }
+
+    /* ── CONTENT BODY ─────────────────────────────────────────── */
+    .report-body { padding: 16px; }
+
+    /* ── STATE CARD (loading / error) ────────────────────────── */
     .state-card {
-      background: var(--white); border-radius: 12px; border: 1px solid var(--gray-200);
-      padding: 3rem; text-align: center; color: var(--gray-400); font-size: .9rem;
+      background: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB;
+      padding: 3rem; text-align: center; color: #9CA3AF; font-size: .9rem;
+      margin: 16px;
     }
 
-    @media (max-width: 600px) {
-      .topbar { padding: .75rem 1rem; }
-      .user-email { display: none; }
-    }
-
-    /* ── AI ASSISTANT BUBBLE ── */
+    /* ── AI ASSISTANT BUBBLE ──────────────────────────────────── */
     #ai-bubble {
       position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 900;
       width: 52px; height: 52px; border-radius: 50%;
@@ -100,15 +88,13 @@
     .ai-msg.user { flex-direction: row-reverse; }
     .ai-msg-bubble {
       max-width: 80%; padding: .55rem .8rem; border-radius: 12px;
-      font-size: .82rem; line-height: 1.5; color: #1F2937;
-      background: #F3F4F6;
+      font-size: .82rem; line-height: 1.5; color: #1F2937; background: #F3F4F6;
     }
     .ai-msg.user .ai-msg-bubble { background: #1D4ED8; color: #fff; border-radius: 12px 12px 2px 12px; }
     .ai-msg.bot  .ai-msg-bubble { border-radius: 12px 12px 12px 2px; }
     .ai-typing span {
       display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-      background: #9CA3AF; margin: 0 1px;
-      animation: ai-bounce .9s infinite;
+      background: #9CA3AF; margin: 0 1px; animation: ai-bounce .9s infinite;
     }
     .ai-typing span:nth-child(2) { animation-delay: .15s; }
     .ai-typing span:nth-child(3) { animation-delay: .3s; }
@@ -152,30 +138,50 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">HOA<span>Auditor</span></div>
-  <div class="user-info">
-    <span class="user-email" id="user-email"></span>
-    <button class="btn-signout" onclick="handleSignOut()">Sign out</button>
-  </div>
-</div>
+<!-- ── PERSISTENT HEADER — all roles, mounts once on load ──────────── -->
+<div id="header-mount"></div>
 
-<div class="report-page">
+<!-- ── PAGE SHELL — side nav | main content ────────────────────────── -->
+<div id="page-shell">
 
-  <div class="report-nav">
-    <button class="back-btn" onclick="history.back()">← Back to Summary</button>
-  </div>
+  <!-- Side nav — persistent for agents, empty for buyers -->
+  <div id="nav-mount"></div>
 
-  <div class="report-eyebrow">Full Report</div>
-  <div class="report-property-label" id="report-property-label">Loading...</div>
+  <!-- Main content column — banner first, then views -->
+  <div id="main-col">
 
-  <div id="report-content">
-    <div class="state-card">Loading report...</div>
-  </div>
+    <!-- Property banner — persistent, all roles, factual metadata only -->
+    <div id="banner-mount"></div>
 
-</div>
+    <!-- Category tabs — sticky, all roles -->
+    <div id="tabs-mount"></div>
 
-<!-- AI Assistant Bubble -->
+    <!-- Tab content area — re-renders on tab switch -->
+    <div id="content-mount"></div>
+
+    <!-- Role toggle — always at top of content column -->
+    <div id="role-toggle-mount"></div>
+
+    <!-- ── AGENT VIEW ──────────────────────────────────────────── -->
+    <div id="agent-view">
+      <div id="agent-action-header"></div>
+      <div id="agent-hero-mount"></div>
+      <div id="agent-findings-mount"></div>
+    </div>
+
+    <!-- ── BUYER VIEW — hidden until role toggle → Buyer ───────── -->
+    <div id="buyer-view">
+      <div id="buyer-topbar-mount"></div>
+      <div id="buyer-hero-mount"></div>
+      <div id="buyer-save-strip-mount"></div>
+      <div id="buyer-findings-mount"></div>
+      <div id="buyer-cta-mount"></div>
+    </div>
+
+  </div><!-- /main-col -->
+</div><!-- /page-shell -->
+
+<!-- ── AI ASSISTANT BUBBLE — unchanged ──────────────────────────────── -->
 <button id="ai-bubble" title="Ask about this HOA" aria-label="AI Assistant">
   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -209,12 +215,16 @@
   <div class="ai-input-row">
     <input type="text" id="ai-input" placeholder="Ask anything..." />
     <button id="ai-send">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
     </button>
   </div>
   <div class="ai-coming-soon-note">✦ AI responses coming soon</div>
 </div>
 
+<!-- ── AI BUBBLE SCRIPT — unchanged ─────────────────────────────────── -->
 <script>
   const bubble   = document.getElementById('ai-bubble')
   const panel    = document.getElementById('ai-panel')
@@ -231,12 +241,8 @@
     if (chip) sendMessage(chip.textContent)
   })
 
-  sendBtn.addEventListener('click', () => {
-    if (input.value.trim()) sendMessage(input.value.trim())
-  })
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && input.value.trim()) sendMessage(input.value.trim())
-  })
+  sendBtn.addEventListener('click', () => { if (input.value.trim()) sendMessage(input.value.trim()) })
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && input.value.trim()) sendMessage(input.value.trim()) })
 
   function addMsg(text, type) {
     const div = document.createElement('div')
@@ -250,14 +256,11 @@
   function sendMessage(text) {
     input.value = ''
     addMsg(text, 'user')
-
-    // Typing indicator
     const typing = document.createElement('div')
     typing.className = 'ai-msg bot'
     typing.innerHTML = `<div class="ai-msg-bubble ai-typing"><span></span><span></span><span></span></div>`
     messages.appendChild(typing)
     messages.scrollTop = messages.scrollHeight
-
     setTimeout(() => {
       typing.remove()
       addMsg('This feature is coming soon — AI-powered answers based on your HOA documents. Stay tuned! ✨', 'bot')
@@ -265,33 +268,46 @@
   }
 </script>
 
+<!-- ── MODULE SCRIPT — components + data ────────────────────────────── -->
 <script type="module">
+  import './src/styles/buyer.css'
+  import { renderPropertyBanner, renderCategoryTabs, renderRoleToggle, renderFindingCard, renderAccordionRow } from './src/components/shared.js'
+  import { renderPersistentHeader, renderSideNav, renderExportButton, renderComplianceCounter } from './src/components/agentShell.js'
+  import { renderTopBar, renderStickyCTA, renderSaveToAccountStrip } from './src/components/buyerShell.js'
   import { getCurrentUser, signOut } from './src/services/authService.js'
-  import { renderFullReport } from './src/views/reportView.js'
+  import { supabase } from './src/services/supabase.js'
 
-  // ── AUTH ─────────────────────────────────────────────
-  const user = await getCurrentUser()
-  if (!user) {
+  // ── INIT (async IIFE — avoids illegal top-level return) ────────────
+  ;(async () => {
+
+  // ── AUTH ────────────────────────────────────────────────────────────
+  const user          = await getCurrentUser()
+  const authenticated = !!user
+
+  // Shared-link buyers (no account) land here without a session.
+  // Agents always require auth — redirect if no user and not a shared link.
+  const params  = new URLSearchParams(window.location.search)
+  const auditId = params.get('auditId')
+  const urlRole = params.get('role') || 'agent'
+
+  const isSharedLink = !authenticated && urlRole === 'buyer'
+
+  if (!authenticated && !isSharedLink) {
     window.location.href = import.meta.env.BASE_URL + 'auth.html'
+    return
   }
 
-  const role = user.user_metadata?.role || 'buyer'
-  document.getElementById('user-email').textContent = user.email
+  if (!auditId) {
+    window.location.href = import.meta.env.BASE_URL + 'dashboard.html'
+    return
+  }
 
-  window.handleSignOut = async function() {
+  window.handleSignOut = async () => {
     await signOut()
     window.location.href = import.meta.env.BASE_URL + 'auth.html'
   }
 
-  // ── LOAD AUDIT ───────────────────────────────────────
-  const params  = new URLSearchParams(window.location.search)
-  const auditId = params.get('auditId')
-
-  if (!auditId) {
-    window.location.href = import.meta.env.BASE_URL + 'dashboard.html'
-  }
-
-  const { supabase } = await import('./src/services/supabase.js')
+  // ── LOAD AUDIT ──────────────────────────────────────────────────────
   const { data: audit } = await supabase
     .from('audits')
     .select('*')
@@ -299,21 +315,302 @@
     .single()
 
   if (!audit?.analysis) {
-    document.getElementById('report-property-label').textContent = ''
-    document.getElementById('report-content').innerHTML =
+    document.getElementById('agent-findings-mount').innerHTML =
       '<div class="state-card">No analysis available for this property.</div>'
-  } else {
-    const a       = audit.analysis
-    const hoaName = a.metadata?.hoa_name || ''
-    const addr    = a.metadata?.property_address || audit.property_name || ''
-
-    document.getElementById('report-property-label').textContent =
-      [hoaName, addr].filter(Boolean).join(' · ')
-
-    document.title = `HOA Auditor — ${audit.property_name || 'Full Report'}`
-
-    renderFullReport(a, role)
+    document.getElementById('buyer-findings-mount').innerHTML =
+      '<div class="state-card">No analysis available for this property.</div>'
+    mountRoleToggle()
+    swapViews()
+    return
   }
+
+  const a          = audit.analysis
+  const findings   = a.risks?.findings || []
+  const compliance = a.compliance_check || {}
+  const addr       = a.metadata?.property_address || audit.property_name || ''
+  const hoaName    = a.metadata?.hoa_name || ''
+
+  document.title = `HOA Auditor — ${addr || 'Full Report'}`
+
+  // ── ROLE STATE ──────────────────────────────────────────────────────
+  // Agent tab is active by default regardless of user role —
+  // renderRoleToggle is a view switcher, not an auth gate.
+  let activeRole = 'agent'
+
+  // ── HELPERS ─────────────────────────────────────────────────────────
+
+  function buildHero() {
+    // Uses existing buyer.css classes — do not add inline font/color overrides.
+    return `<div class="property-hero">
+  <div class="property-hero-header">
+    <div class="property-hero-text">
+      <div class="ph-eyebrow">${hoaName}</div>
+      <div class="ph-address">${addr}</div>
+      <div class="ph-meta">Full Report</div>
+    </div>
+    <div class="property-hero-image"></div>
+  </div>
+</div>`
+  }
+
+  function buildFindings(noteField) {
+    // noteField: 'agent_note' for agent view, 'buyer_note' for buyer view.
+    // Falls back to finding text if the role-specific note is absent.
+    if (!findings.length) {
+      return '<p style="font-size:14px;color:#6B5A6D;padding:16px 0;">No findings recorded for this property.</p>'
+    }
+    return findings.map(f => renderFindingCard({
+      severity: f.urgency   || 'LOW',
+      eyebrow:  f.category  || 'Finding',
+      title:    f.label     || f.finding || '',
+      detail:   f[noteField] || f.finding || '',
+      source:   [f.source_document, f.source_section].filter(Boolean).join(' ') || 'Document on file',
+    })).join('')
+  }
+
+  // ── ROLE TOGGLE ─────────────────────────────────────────────────────
+  function mountRoleToggle() {
+    const el = document.getElementById('role-toggle-mount')
+    el.innerHTML = renderRoleToggle(activeRole)
+
+    // Attach click handlers to the two role spans rendered by renderRoleToggle.
+    // renderRoleToggle renders exactly two <span> elements: Agent and Buyer.
+    el.querySelectorAll('span').forEach(span => {
+      span.addEventListener('click', () => {
+        const clicked = span.textContent.trim().toLowerCase()
+        if (clicked !== activeRole) {
+          activeRole = clicked
+          mountRoleToggle()   // re-render toggle with new active state
+          swapViews()
+        }
+      })
+    })
+  }
+
+  function swapViews() {
+    // Side nav (#nav-mount) is never touched here — it persists across role switches
+    document.getElementById('agent-view').style.display = activeRole === 'agent' ? 'block' : 'none'
+    document.getElementById('buyer-view').style.display = activeRole === 'buyer'  ? 'block' : 'none'
+  }
+
+  // ── AGENT VIEW ──────────────────────────────────────────────────────
+  function mountAgentView() {
+    // Side nav — injected once into the persistent #nav-mount outside the toggle
+    document.getElementById('nav-mount').innerHTML =
+      renderSideNav({ expanded: false, activeItem: 'dashboard' })
+
+    // Action header: back link | compliance counter | export button
+    const pill = renderComplianceCounter('WUCIOA', compliance.verified ?? 0, compliance.total ?? 26)
+    const pillBg    = pill.type === 'ok' ? '#DCFCE7' : '#FEF3C7'
+    const pillColor = pill.type === 'ok' ? '#15803D' : '#92400E'
+
+    document.getElementById('agent-action-header').innerHTML =
+      `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(43,25,46,0.1);background:#FFFFFF;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="history.back()" style="background:none;border:none;font-size:13px;color:#6B5A6D;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;">← Back</button>
+          <span style="color:#E5E7EB;">|</span>
+          <span style="font-size:12px;color:#6B5A6D;">WUCIOA</span>
+          <span style="background:${pillBg};color:${pillColor};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">${pill.text}</span>
+        </div>
+        ${renderExportButton()}
+      </div>`
+
+    // Property hero
+    document.getElementById('agent-hero-mount').innerHTML = buildHero()
+
+    // Findings — agent_note field carries professional language + citations
+    document.getElementById('agent-findings-mount').innerHTML =
+      `<div class="report-body">${buildFindings('agent_note')}</div>`
+  }
+
+  // ── BUYER VIEW ──────────────────────────────────────────────────────
+  function mountBuyerView() {
+    // Top bar — authenticated buyers get account dropdown, shared-link buyers do not
+    document.getElementById('buyer-topbar-mount').innerHTML =
+      renderTopBar({ authenticated })
+
+    // Property hero — same markup, same classes, different mount point
+    document.getElementById('buyer-hero-mount').innerHTML = buildHero()
+
+    // Save-to-account strip — amber nudge, unauthenticated buyers only
+    document.getElementById('buyer-save-strip-mount').innerHTML =
+      authenticated ? '' : renderSaveToAccountStrip()
+
+    // Findings — buyer_note field carries plain-English copy
+    document.getElementById('buyer-findings-mount').innerHTML =
+      `<div class="report-body">${buildFindings('buyer_note')}</div>`
+
+    // Sticky CTA — copy differs by entry path
+    const ctaLabel = authenticated
+      ? 'Talk to a real estate professional →'
+      : 'Ask your agent about these →'
+    document.getElementById('buyer-cta-mount').innerHTML = renderStickyCTA(ctaLabel)
+  }
+
+  // ── SHELL INIT ───────────────────────────────────────────────────────
+  // Phase 1: persistent shell — header + side nav.
+  // Phase 2: property banner — first element in #main-col.
+  // Tabs and findings deferred until banner is verified.
+
+  // 1. Persistent header — all roles, never re-renders
+  document.getElementById('header-mount').innerHTML = renderPersistentHeader()
+
+  // 2. Side nav — agent only; buyer gets display:none so #main-col fills full width
+  if (urlRole === 'agent') {
+    document.getElementById('nav-mount').innerHTML =
+      renderSideNav({ expanded: false, activeItem: 'dashboard' })
+  } else {
+    document.getElementById('nav-mount').style.display = 'none'
+  }
+
+  // 3. Property banner — hardcoded test data, factual metadata only, no verdict
+  document.getElementById('banner-mount').innerHTML = renderPropertyBanner(
+    {
+      hoaName:       'Chiavari Owners Association',
+      address:       '10398 NE 17th St., #302, Bellevue WA 98004',
+      submittedDate: 'April 8, 2026',
+      docCount:      '6 documents',
+      wucioa:        { verified: 0, total: 26 },
+    },
+    urlRole
+  )
+
+  // 4. Category tabs + content
+  let activeTab = 'risks'
+  const tabsMount   = document.getElementById('tabs-mount')
+  const contentMount = document.getElementById('content-mount')
+
+  // noteField — agent sees professional language, buyer sees plain-English copy
+  const noteField = urlRole === 'buyer' ? 'buyer_note' : 'agent_note'
+
+  // Sort order for risk findings: CRITICAL + HIGH first, then MEDIUM, then LOW
+  const SORT_ORDER = { CRITICAL: 0, HIGH: 0, MEDIUM: 1, LOW: 2 }
+
+  function findingCards(items) {
+    return items.map(f => renderFindingCard({
+      severity: f.urgency    || 'LOW',
+      eyebrow:  f.category   || 'Finding',
+      title:    f.label      || f.finding || '',
+      detail:   f[noteField] || f.finding || '',
+      source:   [f.source_document, f.source_section].filter(Boolean).join(' · ') || 'Document on file',
+    })).join('')
+  }
+
+  function gridWrap(cardsHtml, count) {
+    const style = count >= 5 ? 'display:grid;grid-template-columns:1fr 1fr;gap:16px;' : ''
+    return `<div style="${style}">${cardsHtml}</div>`
+  }
+
+  function renderRisksContent() {
+    const all    = a.risks?.findings || []
+    const high   = all.filter(f => f.urgency === 'CRITICAL' || f.urgency === 'HIGH')
+    const medium = all.filter(f => f.urgency === 'MEDIUM')
+    const low    = all.filter(f => f.urgency === 'LOW')
+
+    if (!all.length) {
+      return `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No risks identified</p>
+        <p style="font-size:14px;font-weight:400;color:#2B192E;line-height:1.6;margin:0;">No significant risks were found in the uploaded documents.</p>
+      </div>`
+    }
+
+    let html = ''
+
+    // HIGH — always visible
+    if (high.length) {
+      html += gridWrap(findingCards(high), high.length)
+    }
+
+    // MEDIUM — collapsed accordion
+    if (medium.length) {
+      html += renderAccordionRow({
+        title:    `Show ${medium.length} medium finding${medium.length > 1 ? 's' : ''}`,
+        pillType: 'warn',
+        pillText: `${medium.length}`,
+        bodyHtml: gridWrap(findingCards(medium), medium.length),
+        open:     false,
+      })
+    }
+
+    // LOW — collapsed accordion
+    if (low.length) {
+      html += renderAccordionRow({
+        title:    `Show ${low.length} low finding${low.length > 1 ? 's' : ''}`,
+        pillType: 'muted',
+        pillText: `${low.length}`,
+        bodyHtml: gridWrap(findingCards(low), low.length),
+        open:     false,
+      })
+    }
+
+    return html
+  }
+
+  function mountTabContent() {
+    if (activeTab === 'risks') {
+      contentMount.innerHTML = `<div style="padding:24px;">${renderRisksContent()}</div>`
+    } else {
+      // Other tabs deferred — placeholder until each is implemented
+      contentMount.innerHTML = ''
+    }
+  }
+
+  function mountTabs() {
+    tabsMount.innerHTML = renderCategoryTabs(activeTab)
+  }
+
+  mountTabs()
+  mountTabContent()
+
+  tabsMount.addEventListener('click', e => {
+    const tab = e.target.closest('[data-tab]')
+    if (tab && tab.dataset.tab !== activeTab) {
+      activeTab = tab.dataset.tab
+      mountTabs()
+      mountTabContent()
+    }
+  })
+
+  // Accordion toggle — event delegation on contentMount, survives re-renders.
+  // Walks up from the click target to find the accordion wrapper:
+  //   wrapper = div with border-radius:7px and exactly 2 children (header + body)
+  //   header  = wrapper.children[0]  (the clickable row)
+  //   body    = wrapper.children[1]  (the collapsible content)
+  // Stops propagation so nested finding cards don't accidentally trigger.
+  contentMount.addEventListener('click', e => {
+    // Walk up to find an accordion wrapper — identified by border-radius:7px + 2 children
+    let el = e.target
+    let wrapper = null
+    while (el && el !== contentMount) {
+      if (
+        el.children.length === 2 &&
+        el.style.borderRadius === '7px' &&
+        el.children[0].style.cursor === 'pointer'
+      ) {
+        wrapper = el
+        break
+      }
+      el = el.parentElement
+    }
+    if (!wrapper) return
+
+    const header  = wrapper.children[0]
+    const body    = wrapper.children[1]
+    const chevron = header.querySelector('div[style*="border-left:5px"]')
+    if (!body) return
+
+    const isOpen = body.style.display !== 'none'
+    body.style.display = isOpen ? 'none' : 'block'
+    if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(90deg)'
+  })
+
+  // ── DEFERRED — old role-toggle views, not yet migrated ───────────────
+  // mountAgentView()
+  // mountBuyerView()
+  // mountRoleToggle()
+  // swapViews()
+
+  })() // end async IIFE
 </script>
 
 </body>
