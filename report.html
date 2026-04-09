@@ -546,9 +546,187 @@
     return html
   }
 
+  function renderFinancialContent() {
+    const fo         = a.financial_outlook || {}
+    const mf         = fo.monthly_fees  || {}
+    const reserve    = fo.reserve_fund  || {}
+    const insurance  = fo.insurance     || null
+    const toArr      = v => Array.isArray(v) ? v : (v?.items || [])
+    const specAssess = toArr(fo.special_assessments)
+    const deferred   = toArr(fo.deferred_maintenance)
+    const litigation = toArr(fo.litigation_costs)
+    const fmt$       = n => (n != null && n !== '') ? '$' + Number(n).toLocaleString() : null
+
+    let html = ''
+
+    // ── SECTION 1: Verified Financial Exposure ────────────────────────
+    const lineItems = []
+    if (reserve.shortfall_amount)
+      lineItems.push({ label: 'Reserve fund shortfall', amount: reserve.shortfall_amount })
+    specAssess.forEach(s => {
+      if (s.estimated_amount_per_unit)
+        lineItems.push({ label: `Special assessment: ${s.description}`, amount: s.estimated_amount_per_unit, note: 'per unit' })
+    })
+    deferred.forEach(d => {
+      if (d.estimated_cost)
+        lineItems.push({ label: d.item, amount: d.estimated_cost })
+    })
+    litigation.forEach(l => {
+      const amt = l.estimated_total_exposure || l.costs_to_date
+      if (amt) lineItems.push({ label: `Legal: ${l.description}`, amount: amt })
+    })
+
+    if (lineItems.length) {
+      const total = lineItems.reduce((sum, i) => sum + Number(i.amount), 0)
+      html += `<div style="background:#2B192E;border-radius:10px;padding:18px 20px;margin-bottom:18px;max-width:640px;margin-left:auto;margin-right:auto;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(245,232,218,0.6);margin:0 0 12px;">Verified Financial Exposure</p>
+        ${lineItems.map(i => `
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
+            <span style="font-size:13px;color:rgba(255,255,255,0.7);">${i.label}${i.note ? ` <span style="font-size:11px;color:rgba(255,255,255,0.35);">(${i.note})</span>` : ''}</span>
+            <strong style="font-size:13px;color:#FFFFFF;white-space:nowrap;margin-left:16px;">${fmt$(i.amount)}</strong>
+          </div>`).join('')}
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.2);">
+          <span style="font-size:12px;color:rgba(255,255,255,0.45);">Total (verified line items only)</span>
+          <strong style="font-size:16px;color:#F9FAFB;">${fmt$(total)}</strong>
+        </div>
+      </div>`
+    }
+
+    // ── SECTION 2: Monthly Fees ───────────────────────────────────────
+    if (mf.current_monthly_fee) {
+      const feeLines = [`<p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 4px;">Current monthly fee: ${fmt$(mf.current_monthly_fee)}</p>`]
+      if (mf.upcoming_fee)
+        feeLines.push(`<p style="font-size:13px;color:#B45309;margin:0 0 4px;">Upcoming fee: ${fmt$(mf.upcoming_fee)}${mf.upcoming_fee_date ? ` effective ${mf.upcoming_fee_date}` : ''}${mf.upcoming_fee_percent_change ? ` (+${mf.upcoming_fee_percent_change}%)` : ''}</p>`)
+      if (mf.transfer_fees_due_at_closing)
+        feeLines.push(`<p style="font-size:13px;color:#6B5A6D;margin:0;">Transfer fees at closing: ${fmt$(mf.transfer_fees_due_at_closing)}</p>`)
+      html += `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;margin-bottom:14px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 10px;">Monthly Fees</p>
+        ${feeLines.join('')}
+      </div>`
+    }
+
+    // ── SECTION 3: Reserve Fund ───────────────────────────────────────
+    if (Object.keys(reserve).length) {
+      const pct      = reserve.current_percent_funded
+      const barFill  = pct != null ? Math.min(pct, 100) : 0
+      const barColor = pct == null ? '#9CA3AF' : pct < 50 ? '#DC2626' : pct < 70 ? '#D97706' : '#15803D'
+      const progressBar = pct != null
+        ? `<div style="background:#E5E7EB;border-radius:999px;height:8px;margin:8px 0 10px;overflow:hidden;">
+            <div style="background:${barColor};width:${barFill}%;height:100%;border-radius:999px;"></div>
+           </div>`
+        : ''
+      const reserveLines = []
+      if (!reserve.has_reserve_study)
+        reserveLines.push(`<p style="font-size:13px;color:#B91C1C;font-weight:600;margin:0 0 4px;">No reserve study found</p>`)
+      if (pct != null)
+        reserveLines.push(`<p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 2px;">${pct}% funded</p>${progressBar}`)
+      if (reserve.shortfall_amount)
+        reserveLines.push(`<p style="font-size:13px;color:#B91C1C;margin:0 0 4px;">Shortfall: <strong>${fmt$(reserve.shortfall_amount)}</strong></p>`)
+      if (reserve.projected_funding_year)
+        reserveLines.push(`<p style="font-size:13px;color:#6B5A6D;margin:0 0 4px;">Projected fully funded: ${reserve.projected_funding_year}</p>`)
+      if (reserve.board_action_discussed)
+        reserveLines.push(`<p style="font-size:13px;color:#6B5A6D;margin:0;line-height:1.5;">${reserve.board_action_discussed}</p>`)
+      html += `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;margin-bottom:14px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 10px;">Reserve Fund</p>
+        ${reserveLines.join('')}
+      </div>`
+    }
+
+    // ── SECTION 4: Special Assessments ───────────────────────────────
+    if (specAssess.length) {
+      const cards = specAssess.map(s => {
+        const isActive  = ['APPROVED','VOTED','LEVIED'].includes(s.status)
+        const badgeBg   = isActive ? '#FEE2E2' : '#FEF3C7'
+        const badgeColor = isActive ? '#B91C1C' : '#B45309'
+        return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.1);border-radius:8px;padding:14px 16px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <p style="font-size:13px;font-weight:500;color:#2B192E;margin:0;flex:1;padding-right:12px;">${s.description}</p>
+            <span style="background:${badgeBg};color:${badgeColor};font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;">${s.status || 'PROPOSED'}</span>
+          </div>
+          ${s.estimated_amount_per_unit ? `<p style="font-size:13px;color:#B91C1C;font-weight:500;margin:0 0 3px;">Est. per unit: ${fmt$(s.estimated_amount_per_unit)}</p>` : ''}
+          ${s.likely_timeline           ? `<p style="font-size:12px;color:#6B5A6D;margin:0 0 3px;">Timeline: ${s.likely_timeline}</p>` : ''}
+          ${s.source_meeting            ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">📅 ${s.source_meeting}</span>` : ''}
+        </div>`
+      }).join('')
+      html += `<div style="margin-bottom:14px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">Special Assessments</p>
+        ${cards}
+      </div>`
+    }
+
+    // ── SECTION 5: Deferred Maintenance ──────────────────────────────
+    if (deferred.length) {
+      const rows = deferred.map(d => `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(43,25,46,0.08);gap:12px;">
+          <div style="flex:1;">
+            <p style="font-size:13px;font-weight:500;color:#2B192E;margin:0 0 3px;">${d.item}</p>
+            ${d.timeline ? `<p style="font-size:12px;color:#6B5A6D;margin:0 0 3px;">Timeline: ${d.timeline}</p>` : ''}
+            ${d.source_meeting  ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">📅 ${d.source_meeting}</span>` : d.source_document ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">📄 ${d.source_document}</span>` : ''}
+          </div>
+          ${d.estimated_cost ? `<p style="font-size:13px;color:#B45309;font-weight:500;white-space:nowrap;margin:0;">${fmt$(d.estimated_cost)}</p>` : ''}
+        </div>`).join('')
+      html += `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;margin-bottom:14px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Deferred Maintenance</p>
+        ${rows}
+      </div>`
+    }
+
+    // ── SECTION 6: Insurance ──────────────────────────────────────────
+    if (insurance) {
+      const isActive   = insurance.coverage_status === 'CURRENT'
+      const badgeBg    = isActive ? '#DCFCE7' : '#FEE2E2'
+      const badgeColor = isActive ? '#15803D' : '#B91C1C'
+      const insLines   = []
+      if (insurance.policy_expiration_date)
+        insLines.push(`<p style="font-size:13px;color:#6B5A6D;margin:0 0 4px;">Policy expires: ${insurance.policy_expiration_date}</p>`)
+      ;(insurance.coverage_gaps || []).forEach(g =>
+        insLines.push(`<p style="font-size:13px;color:#B91C1C;margin:0 0 3px;">⚠ ${g}</p>`)
+      )
+      if (insurance.deductible_owner_responsibility)
+        insLines.push(`<p style="font-size:13px;color:#6B5A6D;margin:0;">Owner deductible: ${insurance.deductible_owner_responsibility}</p>`)
+      html += `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">Insurance</p>
+          <span style="background:${badgeBg};color:${badgeColor};font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">${insurance.coverage_status || 'UNKNOWN'}</span>
+        </div>
+        ${insLines.join('')}
+      </div>`
+    }
+
+    // ── SECTION 7: Litigation ─────────────────────────────────────────
+    if (litigation.length) {
+      const cards = litigation.map(l => {
+        const isSettled  = l.resolution_status === 'SETTLED'
+        const badgeBg    = isSettled ? '#DCFCE7' : '#FEE2E2'
+        const badgeColor = isSettled ? '#15803D' : '#B91C1C'
+        const src        = l.source_meeting || l.source_document
+        return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.1);border-radius:8px;padding:14px 16px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <p style="font-size:13px;font-weight:500;color:#2B192E;margin:0;flex:1;padding-right:12px;">${l.description}</p>
+            <span style="background:${badgeBg};color:${badgeColor};font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0;">${l.resolution_status || 'ONGOING'}</span>
+          </div>
+          ${l.costs_to_date            ? `<p style="font-size:13px;color:#6B5A6D;margin:0 0 3px;">Costs to date: ${fmt$(l.costs_to_date)}</p>` : ''}
+          ${l.estimated_total_exposure ? `<p style="font-size:13px;color:#B91C1C;font-weight:500;margin:0 0 3px;">Total exposure: ${fmt$(l.estimated_total_exposure)}</p>` : ''}
+          ${src ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">${l.source_meeting ? '📅' : '📄'} ${src}</span>` : ''}
+        </div>`
+      }).join('')
+      html += `<div style="margin-bottom:14px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">Litigation</p>
+        ${cards}
+      </div>`
+    }
+
+    return html || `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;">
+      <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No financial data available</p>
+      <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No financial information was found in the uploaded documents.</p>
+    </div>`
+  }
+
   function mountTabContent() {
     if (activeTab === 'risks') {
       contentMount.innerHTML = `<div style="padding:24px;">${renderRisksContent()}</div>`
+    } else if (activeTab === 'financial') {
+      contentMount.innerHTML = `<div style="padding:24px;">${renderFinancialContent()}</div>`
     } else {
       // Other tabs deferred — placeholder until each is implemented
       contentMount.innerHTML = ''

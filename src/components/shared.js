@@ -22,9 +22,19 @@
 //   Sidebar:       #2B192E   Sidebar text: #F5E8DA   Border:     rgba(43,25,46,0.1)
 //   Source text:   #A67388
 //
+// Finding card backgrounds — all severities use #FFFFFF.
+// Outlined badges, no fill — left border signals severity, badge confirms it.
+//   HIGH card:    border-left:4px solid #DC2626; background:#FFFFFF
+//   MEDIUM card:  border-left:4px solid #D97706; background:#FFFFFF
+//   LOW card:     border-left:4px solid #9CA3AF; background:#FFFFFF
+//
+// Badge styles (outlined, no fill):
+//   HIGH badge:   color:#DC2626; border:1px solid #DC2626; background:transparent
+//   MEDIUM badge: color:#D97706; border:1px solid #D97706; background:transparent
+//   LOW badge:    color:#9CA3AF; border:1px solid #9CA3AF; background:transparent
+//
 // Wireframe-derived (canonical here, not in ui-builder.md):
 //   #9CA3AF  — LOW card border-left   source: wireframe .wrisk.lo { border-color }
-//   #F9FAFB  — LOW card background    source: wireframe .wrisk.lo (implied neutral bg)
 //   #92400E  — warn accordion pill    source: wireframe .wacc-pill.warn { color }
 
 // ── SEVERITY MAP ──────────────────────────────────────────────────────────────
@@ -33,13 +43,13 @@
 // LOW card border (#9CA3AF) is derived from the wireframe .wrisk.lo rule —
 // ui-builder.md defines the badge colors but not a card border for LOW.
 const SEVERITY = {
-  HIGH:     { label: 'HIGH',   border: '#DC2626', bg: '#FFF5F5', badgeColor: '#B91C1C', badgeBg: '#FEE2E2' },
+  HIGH:     { label: 'HIGH',     border: '#DC2626', bg: '#FFFFFF', badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
   // CRITICAL is not a display tier — maps silently to HIGH styling and label.
   // Data urgency:'CRITICAL' renders badge text "HIGH", same border/bg as HIGH.
-  CRITICAL: { label: 'HIGH',   border: '#DC2626', bg: '#FFF5F5', badgeColor: '#B91C1C', badgeBg: '#FEE2E2' },
-  MEDIUM:   { label: 'MEDIUM', border: '#D97706', bg: '#FFFBEB', badgeColor: '#B45309', badgeBg: '#FEF3C7' },
-  LOW:      { label: 'LOW',    border: '#9CA3AF', bg: '#F9FAFB', badgeColor: '#374151', badgeBg: '#E5E7EB' },
-  VERIFIED: { label: 'VERIFIED', border: '#16A34A', bg: '#F0FDF4', badgeColor: '#15803D', badgeBg: '#DCFCE7' },
+  CRITICAL: { label: 'HIGH',     border: '#DC2626', bg: '#FFFFFF', badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
+  MEDIUM:   { label: 'MEDIUM',   border: '#D97706', bg: '#FFFFFF', badgeColor: '#D97706', badgeBg: 'transparent', badgeBorder: '#D97706' },
+  LOW:      { label: 'LOW',      border: '#9CA3AF', bg: '#FFFFFF', badgeColor: '#9CA3AF', badgeBg: 'transparent', badgeBorder: '#9CA3AF' },
+  VERIFIED: { label: 'VERIFIED', border: '#16A34A', bg: '#F0FDF4', badgeColor: '#15803D', badgeBg: '#DCFCE7',     badgeBorder: null },
 };
 
 // ── ACCORDION PILL MAP ────────────────────────────────────────────────────────
@@ -58,7 +68,11 @@ const ACCORDION_PILL = {
 export function renderBadge(severity) {
   const s = SEVERITY[severity] ?? SEVERITY.LOW;
   // Use s.label so CRITICAL silently displays as "HIGH"
-  return `<span style="color:${s.badgeColor};background:${s.badgeBg};padding:2px 10px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">${s.label}</span>`;
+  // badgeBorder present → outlined style (no fill); absent → filled style (VERIFIED)
+  const borderStyle = s.badgeBorder
+    ? `border:1px solid ${s.badgeBorder};`
+    : 'border:1px solid transparent;';
+  return `<span style="color:${s.badgeColor};background:${s.badgeBg};${borderStyle}padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">${s.label}</span>`;
 }
 
 // ── renderFindingCard ─────────────────────────────────────────────────────────

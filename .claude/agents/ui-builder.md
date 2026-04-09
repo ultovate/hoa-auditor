@@ -30,14 +30,17 @@ Source text:    #A67388
 
 ## Status colors — use exactly as written
 ```
-HIGH badge:     color:#B91C1C; background:#FEE2E2
-HIGH card:      border-left:4px solid #DC2626; background:#FFF5F5; border-radius:0
-MEDIUM badge:   color:#B45309; background:#FEF3C7
-MEDIUM card:    border-left:4px solid #D97706; background:#FFFBEB; border-radius:0
-LOW badge:      color:#374151; background:#E5E7EB
+HIGH badge:     color:#DC2626; background:transparent; border:1px solid #DC2626
+HIGH card:      border-left:4px solid #DC2626; background:#FFFFFF; border-radius:0
+MEDIUM badge:   color:#D97706; background:transparent; border:1px solid #D97706
+MEDIUM card:    border-left:4px solid #D97706; background:#FFFFFF; border-radius:0
+LOW badge:      color:#9CA3AF; background:transparent; border:1px solid #9CA3AF
+LOW card:       border-left:4px solid #9CA3AF; background:#FFFFFF; border-radius:0
 VERIFIED badge: color:#15803D; background:#DCFCE7
 VERIFIED card:  border-left:4px solid #16A34A; background:#F0FDF4; border-radius:0
 ```
+Cards use white background only — no colored card backgrounds.
+Outlined badges, no fill — left border signals severity, badge confirms it.
 
 ## HTML patterns — use these exactly
 
