@@ -954,6 +954,136 @@
     return html
   }
 
+  function renderDocumentsContent() {
+    const docs        = a.document_inventory || []
+    const md          = a.missing_documents  || {}
+    const critMissing = md.critical_missing    || []
+    const recMissing  = md.recommended_missing || []
+
+    if (!docs.length && !critMissing.length && !recMissing.length) {
+      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No documents found</p>
+        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No document inventory was found in the analysis.</p>
+      </div>`
+    }
+
+    const CARD  = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
+    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'
+
+    // Group label map — document_type_id → display group
+    const GROUP_MAP = {
+      'cc_rs':              'Governing Documents',
+      'bylaws':             'Governing Documents',
+      'rules_regulations':  'Governing Documents',
+      'articles':           'Governing Documents',
+      'budget':             'Financial Documents',
+      'reserve_study':      'Financial Documents',
+      'financial_statement':'Financial Documents',
+      'balance_sheet':      'Financial Documents',
+      'meeting_minutes':    'Meeting Minutes',
+      'annual_meeting':     'Meeting Minutes',
+      'special_meeting':    'Meeting Minutes',
+    }
+    const GROUP_ORDER = ['Governing Documents', 'Financial Documents', 'Meeting Minutes', 'Other']
+
+    // Assign each doc to a group
+    const byGroup = {}
+    docs.forEach(d => {
+      const group = GROUP_MAP[d.document_type_id] || 'Other'
+      if (!byGroup[group]) byGroup[group] = []
+      byGroup[group].push(d)
+    })
+
+    const sortedGroups = GROUP_ORDER.filter(g => byGroup[g])
+
+    let html = ''
+
+    if (docs.length) {
+      html += `<div style="${CARD}">`
+
+      sortedGroups.forEach((group, gi) => {
+        if (gi > 0) html += `<div style="height:1px;background:rgba(43,25,46,0.06);margin:16px 0;"></div>`
+        html += `<p style="${LABEL}">${group}</p>`
+
+        byGroup[group].forEach((d, i) => {
+          const dateStr = d.date
+            ? new Date(d.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+            : null
+          const statusBadge = d.is_stale
+            ? `<span style="color:#D97706;background:transparent;border:1px solid #D97706;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">Verify</span>`
+            : `<span style="color:#15803D;background:transparent;border:1px solid #15803D;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">Current</span>`
+          const divider = i < byGroup[group].length - 1
+            ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+            : ''
+
+          html += `<div style="display:flex;align-items:flex-start;gap:12px;">
+            <span style="font-size:18px;flex-shrink:0;line-height:1.4;">📄</span>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+                <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;">${d.document_label}</p>
+                ${statusBadge}
+              </div>
+              ${d.filename    ? `<p style="font-size:13px;color:#6B5A6D;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.filename}</p>` : ''}
+              ${d.page_count  ? `<p style="font-size:13px;color:#6B5A6D;margin:3px 0 0;">${d.page_count} pages${dateStr ? ' · ' + dateStr : ''}</p>` : (dateStr ? `<p style="font-size:13px;color:#6B5A6D;margin:3px 0 0;">${dateStr}</p>` : '')}
+              ${d.notes       ? `<p style="font-size:11px;font-family:monospace;color:#A67388;margin:4px 0 0;">${d.notes}</p>` : ''}
+            </div>
+          </div>${divider}`
+        })
+      })
+
+      html += `</div>`
+    }
+
+    // Critical missing documents
+    if (critMissing.length) {
+      const rows = critMissing.map((d, i) => {
+        const divider = i < critMissing.length - 1
+          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          : ''
+        return `<div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="font-size:18px;flex-shrink:0;line-height:1.4;">❌</span>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+              <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;">${d.label}</p>
+              ${renderBadge('HIGH')}
+            </div>
+            ${d.why_critical  ? `<p style="font-size:14px;color:#6B5A6D;line-height:1.6;margin:4px 0 0;">${d.why_critical}</p>`  : ''}
+            ${d.how_to_obtain ? `<p style="font-size:11px;font-family:monospace;color:#A67388;margin:4px 0 0;">→ ${d.how_to_obtain}</p>` : ''}
+          </div>
+        </div>${divider}`
+      }).join('')
+      html += `<div style="${CARD}">
+        <p style="${LABEL}">Critical Missing Documents</p>
+        ${rows}
+      </div>`
+    }
+
+    // Recommended missing documents
+    if (recMissing.length) {
+      const rows = recMissing.map((d, i) => {
+        const divider = i < recMissing.length - 1
+          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          : ''
+        return `<div style="display:flex;align-items:flex-start;gap:12px;">
+          <span style="font-size:18px;flex-shrink:0;line-height:1.4;">📋</span>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+              <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;">${d.label}</p>
+              ${renderBadge('MEDIUM')}
+            </div>
+            ${d.why_recommended ? `<p style="font-size:14px;color:#6B5A6D;line-height:1.6;margin:4px 0 0;">${d.why_recommended}</p>` : ''}
+          </div>
+        </div>${divider}`
+      }).join('')
+      html += `<div style="${CARD}">
+        <p style="${LABEL}">Recommended Documents to Request</p>
+        ${rows}
+      </div>`
+    }
+
+    return html
+  }
+
   function mountTabContent() {
     contentMount.innerHTML = ''
     if (activeTab === 'risks') {
@@ -964,6 +1094,8 @@
       contentMount.innerHTML = `<div style="padding:24px;">${renderRestrictionsContent()}</div>`
     } else if (activeTab === 'timeline') {
       contentMount.innerHTML = `<div style="padding:24px;">${renderTimelineContent()}</div>`
+    } else if (activeTab === 'documents') {
+      contentMount.innerHTML = `<div style="padding:24px;">${renderDocumentsContent()}</div>`
     }
     // Other tabs deferred — placeholder until each is implemented
   }
