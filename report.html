@@ -747,15 +747,130 @@
     </div>`
   }
 
+  function renderRestrictionsContent() {
+    const found    = a.restrictions?.restrictions_found || []
+    const profiles = a.buyer_profile_verdicts?.verdicts || []
+
+    if (!found.length && !profiles.length) {
+      return `<div style="background:#FFFFFF;border-radius:8px;border:1px solid rgba(43,25,46,0.08);padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No restrictions data available</p>
+        <p style="font-size:14px;font-weight:400;color:#2B192E;line-height:1.6;margin:0;">No restriction information was found in the uploaded documents.</p>
+      </div>`
+    }
+
+    // Verdict → badge key + label
+    function verdictBadge(verdict) {
+      if (verdict === 'DO NOT BUY') return { key: 'HIGH',     label: 'Restrictions Apply'    }
+      if (verdict === 'CAUTION')    return { key: 'MEDIUM',   label: 'Review Recommended'    }
+      return                               { key: 'VERIFIED', label: 'No Issues Found'       }
+    }
+
+    // Inline accordion — same DOM structure as riskAccordion so toggle handler fires
+    // wrapper: border-radius:8px + 2 children (header cursor:pointer + body display:none)
+    function restAccordion({ title, count, pillSeverity, bodyHtml }) {
+      const s       = { HIGH: '#DC2626', MEDIUM: '#D97706', LOW: '#9CA3AF' }
+      const color   = s[pillSeverity] || '#9CA3AF'
+      const pill    = `<span style="color:${color};background:transparent;border:1px solid ${color};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0;">${count}</span>`
+      const chevron = `<div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:5px solid rgba(43,25,46,0.25);flex-shrink:0;"></div>`
+      return `<div data-rest-acc="1" style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;overflow:hidden;margin-bottom:8px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;">
+    <p style="font-size:13px;font-weight:600;color:#2B192E;margin:0;">${title}</p>
+    <div style="display:flex;align-items:center;gap:8px;">${pill}${chevron}</div>
+  </div>
+  <div style="display:none;padding:14px 20px 20px;border-top:1px solid rgba(43,25,46,0.08);">
+    ${bodyHtml}
+  </div>
+</div>`
+    }
+
+    let html = ''
+
+    // ── SECTION 1: Buyer Profile Verdicts ────────────────────────────
+    if (profiles.length) {
+      const cards = profiles.map(v => {
+        const { key, label } = verdictBadge(v.verdict)
+        const badge = renderBadge(key)
+        return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">${v.buyer_type_label || 'Buyer Profile'}</p>
+            ${badge}
+          </div>
+          ${v.verdict_reason ? `<p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">${v.verdict_reason}</p>` : ''}
+        </div>`
+      }).join('')
+      html += `<div style="margin-bottom:24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">Buyer Profile Verdicts</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">${cards}</div>
+      </div>`
+    }
+
+    // ── SECTION 2: Rules by Category ─────────────────────────────────
+    if (found.length) {
+      // Group by category
+      const byCategory = {}
+      found.forEach(res => {
+        const cat = res.category_label || res.category_id || 'Other'
+        if (!byCategory[cat]) byCategory[cat] = []
+        byCategory[cat].push(res)
+      })
+
+      // Sort: categories with HIGH items first
+      const sortedCats = Object.keys(byCategory).sort((x, y) => {
+        const xHigh = byCategory[x].filter(r => r.buyer_impact === 'HIGH' || r.buyer_impact === 'CRITICAL').length
+        const yHigh = byCategory[y].filter(r => r.buyer_impact === 'HIGH' || r.buyer_impact === 'CRITICAL').length
+        return yHigh - xHigh
+      })
+
+      // Expand All header row
+      html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">Rules by Category</p>
+        <button id="restrict-expand-all" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6B5A6D;cursor:pointer;padding:0;font-family:inherit;">Expand All</button>
+      </div>`
+
+      sortedCats.forEach(cat => {
+        const items = byCategory[cat]
+        const hasHigh   = items.some(r => r.buyer_impact === 'HIGH' || r.buyer_impact === 'CRITICAL')
+        const hasMedium = items.some(r => r.buyer_impact === 'MEDIUM')
+        const pillSev   = hasHigh ? 'HIGH' : hasMedium ? 'MEDIUM' : 'LOW'
+
+        const bodyRows = items.map(res => {
+          const src = res.source_document
+            ? `<span style="font-size:11px;font-family:monospace;color:#A67388;display:block;margin-top:4px;">${res.source_document}${res.source_section ? ' · ' + res.source_section : ''}</span>`
+            : ''
+          const dealbreakerNote = res.dealbreaker_for
+            ? `<p style="font-size:12px;color:#B91C1C;font-weight:600;margin:4px 0 0;">Dealbreaker for: ${res.dealbreaker_for}</p>`
+            : ''
+          return `<div style="padding:10px 0;border-bottom:1px solid rgba(43,25,46,0.06);">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+              <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;flex:1;">${res.rule}</p>
+              ${renderBadge(res.buyer_impact || 'LOW')}
+            </div>
+            ${dealbreakerNote}${src}
+          </div>`
+        }).join('')
+
+        html += restAccordion({
+          title:        cat,
+          count:        `${items.length} rule${items.length > 1 ? 's' : ''}`,
+          pillSeverity: pillSev,
+          bodyHtml:     bodyRows,
+        })
+      })
+    }
+
+    return html
+  }
+
   function mountTabContent() {
+    contentMount.innerHTML = ''
     if (activeTab === 'risks') {
       contentMount.innerHTML = `<div style="padding:24px;">${renderRisksContent()}</div>`
     } else if (activeTab === 'financial') {
       contentMount.innerHTML = `<div style="padding:24px;">${renderFinancialContent()}</div>`
-    } else {
-      // Other tabs deferred — placeholder until each is implemented
-      contentMount.innerHTML = ''
+    } else if (activeTab === 'restrictions') {
+      contentMount.innerHTML = `<div style="padding:24px;">${renderRestrictionsContent()}</div>`
     }
+    // Other tabs deferred — placeholder until each is implemented
   }
 
   function mountTabs() {
@@ -815,6 +930,22 @@
     const isExpanding = btn.textContent.trim() === 'Expand All'
     btn.textContent = isExpanding ? 'Collapse All' : 'Expand All'
     contentMount.querySelectorAll('[data-risk-acc]').forEach(wrapper => {
+      const body    = wrapper.children[1]
+      const chevron = wrapper.children[0].querySelector('div[style*="border-left:5px"]')
+      if (!body) return
+      body.style.display = isExpanding ? 'block' : 'none'
+      if (chevron) chevron.style.transform = isExpanding ? 'rotate(90deg)' : ''
+    })
+  })
+
+  // Expand All / Collapse All — restrictions tab only.
+  // Targets [data-rest-acc] wrappers injected by restAccordion() in renderRestrictionsContent.
+  contentMount.addEventListener('click', e => {
+    const btn = e.target.closest('#restrict-expand-all')
+    if (!btn) return
+    const isExpanding = btn.textContent.trim() === 'Expand All'
+    btn.textContent = isExpanding ? 'Collapse All' : 'Expand All'
+    contentMount.querySelectorAll('[data-rest-acc]').forEach(wrapper => {
       const body    = wrapper.children[1]
       const chevron = wrapper.children[0].querySelector('div[style*="border-left:5px"]')
       if (!body) return
