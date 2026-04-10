@@ -29,9 +29,17 @@
 //   LOW card:     border-left:4px solid #9CA3AF; background:#FFFFFF
 //
 // Badge styles (outlined, no fill):
-//   HIGH badge:   color:#DC2626; border:1px solid #DC2626; background:transparent
-//   MEDIUM badge: color:#D97706; border:1px solid #D97706; background:transparent
-//   LOW badge:    color:#9CA3AF; border:1px solid #9CA3AF; background:transparent
+//   HIGH badge:     color:#DC2626; border:1px solid #DC2626; background:transparent
+//   MEDIUM badge:   color:#D97706; border:1px solid #D97706; background:transparent
+//   LOW badge:      color:#9CA3AF; border:1px solid #9CA3AF; background:transparent
+//
+// Status badge styles (badge-only — not used for finding card borders):
+//   LAPSED badge:   color:#DC2626; border:1px solid #DC2626; background:transparent
+//   ONGOING badge:  color:#DC2626; border:1px solid #DC2626; background:transparent
+//   ACTIVE badge:   color:#DC2626; border:1px solid #DC2626; background:transparent
+//   PROPOSED badge: color:#D97706; border:1px solid #D97706; background:transparent
+//   SETTLED badge:  color:#15803D; border:1px solid #15803D; background:transparent
+//   CURRENT badge:  color:#15803D; border:1px solid #15803D; background:transparent
 //
 // Wireframe-derived (canonical here, not in ui-builder.md):
 //   #9CA3AF  — LOW card border-left   source: wireframe .wrisk.lo { border-color }
@@ -39,7 +47,9 @@
 
 // ── SEVERITY MAP ──────────────────────────────────────────────────────────────
 // Keys: 'HIGH' | 'MEDIUM' | 'LOW' | 'VERIFIED'
-// All values are exact from ui-builder.md status color table.
+//   + status badge keys: 'LAPSED' | 'ONGOING' | 'ACTIVE' | 'PROPOSED' | 'SETTLED' | 'CURRENT'
+// Severity keys drive both finding card borders (border field) and badges.
+// Status keys are badge-only — border/bg fields are unused for card rendering.
 // LOW card border (#9CA3AF) is derived from the wireframe .wrisk.lo rule —
 // ui-builder.md defines the badge colors but not a card border for LOW.
 const SEVERITY = {
@@ -50,6 +60,13 @@ const SEVERITY = {
   MEDIUM:   { label: 'MEDIUM',   border: '#D97706', bg: '#FFFFFF', badgeColor: '#D97706', badgeBg: 'transparent', badgeBorder: '#D97706' },
   LOW:      { label: 'LOW',      border: '#9CA3AF', bg: '#FFFFFF', badgeColor: '#9CA3AF', badgeBg: 'transparent', badgeBorder: '#9CA3AF' },
   VERIFIED: { label: 'VERIFIED', border: '#16A34A', bg: '#F0FDF4', badgeColor: '#15803D', badgeBg: '#DCFCE7',     badgeBorder: null },
+  // ── Status badge keys (badge-only — border/bg not used for card rendering) ──
+  LAPSED:   { label: 'LAPSED',   border: null, bg: null, badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
+  ONGOING:  { label: 'ONGOING',  border: null, bg: null, badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
+  ACTIVE:   { label: 'ACTIVE',   border: null, bg: null, badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
+  PROPOSED: { label: 'PROPOSED', border: null, bg: null, badgeColor: '#D97706', badgeBg: 'transparent', badgeBorder: '#D97706' },
+  SETTLED:  { label: 'SETTLED',  border: null, bg: null, badgeColor: '#15803D', badgeBg: 'transparent', badgeBorder: '#15803D' },
+  CURRENT:  { label: 'CURRENT',  border: null, bg: null, badgeColor: '#15803D', badgeBg: 'transparent', badgeBorder: '#15803D' },
 };
 
 // ── ACCORDION PILL MAP ────────────────────────────────────────────────────────
@@ -64,7 +81,9 @@ const ACCORDION_PILL = {
 
 // ── renderBadge ───────────────────────────────────────────────────────────────
 // severity: 'HIGH' | 'MEDIUM' | 'LOW' | 'VERIFIED'
+//         | 'LAPSED' | 'ONGOING' | 'ACTIVE' | 'PROPOSED' | 'SETTLED' | 'CURRENT'
 // Pattern: ui-builder.md badge (inline span, top-right of finding card)
+// Status keys (LAPSED…CURRENT) are badge-only — not wired to finding card borders.
 export function renderBadge(severity) {
   const s = SEVERITY[severity] ?? SEVERITY.LOW;
   // Use s.label so CRITICAL silently displays as "HIGH"
@@ -109,7 +128,7 @@ export function renderStatCard({ label = '', value = '', sub = '' }) {
   const subHtml = sub
     ? `<p style="font-size:11px;color:#6B5A6D;margin:4px 0 0;">${sub}</p>`
     : '';
-  return `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;">
+  return `<div style="background:#FFFFFF;border-radius:8px;border:1px solid rgba(43,25,46,0.08);padding:20px 24px;">
   <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">${label}</p>
   <p style="font-size:14px;font-weight:500;color:#2B192E;line-height:1.6;margin:0;">${value}</p>
   ${subHtml}
@@ -138,7 +157,7 @@ export function renderAccordionRow({ title = '', pillType = 'muted', pillText = 
     : 'border-left:5px solid rgba(43,25,46,0.25);';
   const bodyStyle = open ? 'display:block;' : 'display:none;';
 
-  return `<div style="border:1px solid rgba(43,25,46,0.1);border-radius:7px;overflow:hidden;margin-bottom:8px;background:#FFFFFF;">
+  return `<div style="border:1px solid rgba(43,25,46,0.08);border-radius:8px;overflow:hidden;margin-bottom:8px;background:#FFFFFF;">
   <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;">
     <div style="width:3px;height:13px;border-radius:999px;background:#CE8CA5;flex-shrink:0;"></div>
     <p style="flex:1;font-size:13px;font-weight:600;color:#2B192E;margin:0;">${title}</p>
@@ -201,8 +220,8 @@ export function renderPropertyBanner({ hoaName = '', address = '', submittedDate
 const CATEGORY_TABS = [
   { id: 'risks',        label: 'Risks'        },
   { id: 'financial',    label: 'Financial'    },
-  { id: 'timeline',     label: 'Timeline'     },
   { id: 'restrictions', label: 'Restrictions' },
+  { id: 'timeline',     label: 'Timeline'     },
   { id: 'documents',    label: 'Documents'    },
   { id: 'compliance',   label: 'Compliance'   },
   { id: 'summary',      label: 'Summary'      },

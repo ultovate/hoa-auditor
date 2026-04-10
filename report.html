@@ -508,10 +508,28 @@
     const low    = all.filter(f => f.urgency === 'LOW')
 
     if (!all.length) {
-      return `<div style="background:#F2F3F6;border-radius:10px;border:1px solid rgba(43,25,46,0.08);padding:16px 18px;">
+      return `<div style="background:#FFFFFF;border-radius:8px;border:1px solid rgba(43,25,46,0.08);padding:20px 24px;">
         <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No risks identified</p>
         <p style="font-size:14px;font-weight:400;color:#2B192E;line-height:1.6;margin:0;">No significant risks were found in the uploaded documents.</p>
       </div>`
+    }
+
+    // Inline accordion builder — exact spec: bg #FFFFFF, border rgba(43,25,46,0.08),
+    // border-radius 8px, header padding 14px 20px. DOM structure matches toggle handler:
+    // wrapper (2 children, border-radius:8px) → children[0] header (cursor:pointer)
+    //                                         → children[1] body  (display:none)
+    function riskAccordion({ label, count, pillColor, pillBorder, bodyHtml }) {
+      const chevron = `<div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:5px solid rgba(43,25,46,0.25);flex-shrink:0;"></div>`
+      const pill    = `<span style="color:${pillColor};background:transparent;border:1px solid ${pillBorder};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0;">${count}</span>`
+      return `<div data-risk-acc="1" style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;overflow:hidden;margin-bottom:8px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;">
+    <p style="font-size:13px;font-weight:600;color:#2B192E;margin:0;">${label}</p>
+    <div style="display:flex;align-items:center;gap:8px;">${pill}${chevron}</div>
+  </div>
+  <div style="display:none;padding:14px 20px 20px;border-top:1px solid rgba(43,25,46,0.08);">
+    ${bodyHtml}
+  </div>
+</div>`
     }
 
     let html = ''
@@ -521,25 +539,32 @@
       html += gridWrap(findingCards(high), high.length)
     }
 
-    // MEDIUM — collapsed accordion
+    // Expand All button — only when there are collapsed sections
+    if (medium.length || low.length) {
+      html += `<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button id="risks-expand-all" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6B5A6D;cursor:pointer;padding:0;font-family:inherit;">Expand All</button>
+      </div>`
+    }
+
+    // MEDIUM — collapsed
     if (medium.length) {
-      html += renderAccordionRow({
-        title:    `Show ${medium.length} medium finding${medium.length > 1 ? 's' : ''}`,
-        pillType: 'warn',
-        pillText: `${medium.length}`,
-        bodyHtml: gridWrap(findingCards(medium), medium.length),
-        open:     false,
+      html += riskAccordion({
+        label:       `Show ${medium.length} medium finding${medium.length > 1 ? 's' : ''}`,
+        count:       medium.length,
+        pillColor:   '#D97706',
+        pillBorder:  '#D97706',
+        bodyHtml:    gridWrap(findingCards(medium), medium.length),
       })
     }
 
-    // LOW — collapsed accordion
+    // LOW — collapsed
     if (low.length) {
-      html += renderAccordionRow({
-        title:    `Show ${low.length} low finding${low.length > 1 ? 's' : ''}`,
-        pillType: 'muted',
-        pillText: `${low.length}`,
-        bodyHtml: gridWrap(findingCards(low), low.length),
-        open:     false,
+      html += riskAccordion({
+        label:       `Show ${low.length} low finding${low.length > 1 ? 's' : ''}`,
+        count:       low.length,
+        pillColor:   '#9CA3AF',
+        pillBorder:  '#9CA3AF',
+        bodyHtml:    gridWrap(findingCards(low), low.length),
       })
     }
 
@@ -751,18 +776,18 @@
 
   // Accordion toggle — event delegation on contentMount, survives re-renders.
   // Walks up from the click target to find the accordion wrapper:
-  //   wrapper = div with border-radius:7px and exactly 2 children (header + body)
+  //   wrapper = div with border-radius:8px and exactly 2 children (header + body)
   //   header  = wrapper.children[0]  (the clickable row)
   //   body    = wrapper.children[1]  (the collapsible content)
   // Stops propagation so nested finding cards don't accidentally trigger.
   contentMount.addEventListener('click', e => {
-    // Walk up to find an accordion wrapper — identified by border-radius:7px + 2 children
+    // Walk up to find an accordion wrapper — identified by border-radius:8px + 2 children
     let el = e.target
     let wrapper = null
     while (el && el !== contentMount) {
       if (
         el.children.length === 2 &&
-        el.style.borderRadius === '7px' &&
+        el.style.borderRadius === '8px' &&
         el.children[0].style.cursor === 'pointer'
       ) {
         wrapper = el
@@ -780,6 +805,22 @@
     const isOpen = body.style.display !== 'none'
     body.style.display = isOpen ? 'none' : 'block'
     if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(90deg)'
+  })
+
+  // Expand All / Collapse All — risks tab only.
+  // Targets [data-risk-acc] wrappers — injected by riskAccordion() in renderRisksContent.
+  contentMount.addEventListener('click', e => {
+    const btn = e.target.closest('#risks-expand-all')
+    if (!btn) return
+    const isExpanding = btn.textContent.trim() === 'Expand All'
+    btn.textContent = isExpanding ? 'Collapse All' : 'Expand All'
+    contentMount.querySelectorAll('[data-risk-acc]').forEach(wrapper => {
+      const body    = wrapper.children[1]
+      const chevron = wrapper.children[0].querySelector('div[style*="border-left:5px"]')
+      if (!body) return
+      body.style.display = isExpanding ? 'block' : 'none'
+      if (chevron) chevron.style.transform = isExpanding ? 'rotate(90deg)' : ''
+    })
   })
 
   // ── DEFERRED — old role-toggle views, not yet migrated ───────────────
