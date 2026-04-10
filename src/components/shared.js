@@ -34,12 +34,22 @@
 //   LOW badge:      color:#9CA3AF; border:1px solid #9CA3AF; background:transparent
 //
 // Status badge styles (badge-only — not used for finding card borders):
-//   LAPSED badge:   color:#DC2626; border:1px solid #DC2626; background:transparent
-//   ONGOING badge:  color:#DC2626; border:1px solid #DC2626; background:transparent
-//   ACTIVE badge:   color:#DC2626; border:1px solid #DC2626; background:transparent
-//   PROPOSED badge: color:#D97706; border:1px solid #D97706; background:transparent
-//   SETTLED badge:  color:#15803D; border:1px solid #15803D; background:transparent
-//   CURRENT badge:  color:#15803D; border:1px solid #15803D; background:transparent
+//   LAPSED badge:    color:#DC2626; border:1px solid #DC2626; background:transparent
+//   ONGOING badge:   color:#DC2626; border:1px solid #DC2626; background:transparent
+//   ACTIVE badge:    color:#DC2626; border:1px solid #DC2626; background:transparent
+//   PROPOSED badge:  color:#D97706; border:1px solid #D97706; background:transparent
+//   SETTLED badge:   color:#15803D; border:1px solid #15803D; background:transparent
+//   CURRENT badge:   color:#15803D; border:1px solid #15803D; background:transparent
+//
+// Compliance checklist status badge styles (Compliance tab only):
+//   FOUND badge:     color:#15803D; border:1px solid #15803D  — item confirmed present
+//   UNCLEAR badge:   color:#D97706; border:1px solid #D97706  — item ambiguous
+//   NOT_FOUND badge: color:#DC2626; border:1px solid #DC2626  — item missing
+//
+//   ⚠ DO NOT substitute HIGH/MEDIUM/VERIFIED for these — they exist as distinct keys
+//   precisely to avoid that. The Compliance tab maps analysis `status` field values
+//   directly: FOUND → 'FOUND', UNCLEAR → 'UNCLEAR', NOT_FOUND → 'NOT_FOUND'.
+//   N/A items are treated the same as FOUND (item is satisfied/not applicable).
 //
 // Wireframe-derived (canonical here, not in ui-builder.md):
 //   #9CA3AF  — LOW card border-left   source: wireframe .wrisk.lo { border-color }
@@ -48,6 +58,7 @@
 // ── SEVERITY MAP ──────────────────────────────────────────────────────────────
 // Keys: 'HIGH' | 'MEDIUM' | 'LOW' | 'VERIFIED'
 //   + status badge keys: 'LAPSED' | 'ONGOING' | 'ACTIVE' | 'PROPOSED' | 'SETTLED' | 'CURRENT'
+//   + compliance keys:   'FOUND' | 'UNCLEAR' | 'NOT_FOUND'
 // Severity keys drive both finding card borders (border field) and badges.
 // Status keys are badge-only — border/bg fields are unused for card rendering.
 // LOW card border (#9CA3AF) is derived from the wireframe .wrisk.lo rule —
@@ -65,8 +76,12 @@ const SEVERITY = {
   ONGOING:  { label: 'ONGOING',  border: null, bg: null, badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
   ACTIVE:   { label: 'ACTIVE',   border: null, bg: null, badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
   PROPOSED: { label: 'PROPOSED', border: null, bg: null, badgeColor: '#D97706', badgeBg: 'transparent', badgeBorder: '#D97706' },
-  SETTLED:  { label: 'SETTLED',  border: null, bg: null, badgeColor: '#15803D', badgeBg: 'transparent', badgeBorder: '#15803D' },
-  CURRENT:  { label: 'CURRENT',  border: null, bg: null, badgeColor: '#15803D', badgeBg: 'transparent', badgeBorder: '#15803D' },
+  SETTLED:   { label: 'SETTLED',    border: null, bg: null, badgeColor: '#15803D', badgeBg: 'transparent', badgeBorder: '#15803D' },
+  CURRENT:   { label: 'CURRENT',    border: null, bg: null, badgeColor: '#15803D', badgeBg: 'transparent', badgeBorder: '#15803D' },
+  // ── Compliance checklist status keys ─────────────────────────────────────────
+  FOUND:     { label: 'FOUND',      border: null, bg: null, badgeColor: '#15803D', badgeBg: 'transparent', badgeBorder: '#15803D' },
+  UNCLEAR:   { label: 'UNCLEAR',    border: null, bg: null, badgeColor: '#D97706', badgeBg: 'transparent', badgeBorder: '#D97706' },
+  NOT_FOUND: { label: 'NOT FOUND',  border: null, bg: null, badgeColor: '#DC2626', badgeBg: 'transparent', badgeBorder: '#DC2626' },
 };
 
 // ── ACCORDION PILL MAP ────────────────────────────────────────────────────────

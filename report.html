@@ -1096,8 +1096,79 @@
       contentMount.innerHTML = `<div style="padding:24px;">${renderTimelineContent()}</div>`
     } else if (activeTab === 'documents') {
       contentMount.innerHTML = `<div style="padding:24px;">${renderDocumentsContent()}</div>`
+    } else if (activeTab === 'compliance') {
+      contentMount.innerHTML = `<div style="padding:24px;">${renderComplianceContent()}</div>`
     }
-    // Other tabs deferred — placeholder until each is implemented
+    // Summary tab deferred — placeholder until implemented
+  }
+
+  function renderComplianceContent() {
+    const cc = a.compliance_check
+    if (!cc?.items?.length) {
+      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No compliance data</p>
+        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No WUCIOA compliance check was performed. This report may not be for a Washington state property.</p>
+      </div>`
+    }
+
+    const items    = cc.items
+    const verified = items.filter(i => i.status === 'FOUND' || i.status === 'N/A').length
+    const total    = items.length
+
+    // Status → badge key
+    function itemBadge(status) {
+      if (status === 'FOUND' || status === 'N/A') return 'FOUND'
+      if (status === 'UNCLEAR')                   return 'UNCLEAR'
+      return 'NOT_FOUND'
+    }
+
+    const CARD  = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
+    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'
+
+    // Header card
+    let html = `<div style="${CARD}">
+      <p style="${LABEL}">WUCIOA Compliance Check — RCW 64.90.640</p>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
+        <span style="font-size:28px;font-weight:600;color:#2B192E;">${verified}</span>
+        <span style="font-size:14px;color:#6B5A6D;">of ${total} items verified</span>
+      </div>
+      ${cc.state ? `<p style="font-size:13px;color:#6B5A6D;margin:0;">State: ${cc.state}${cc.overall_status ? ' · ' + cc.overall_status : ''}</p>` : ''}
+    </div>`
+
+    // Full checklist card
+    html += `<div style="${CARD}">`
+    html += `<p style="${LABEL}">Checklist Items</p>`
+
+    items.forEach((item, i) => {
+      const badgeKey  = itemBadge(item.status)
+      const needsAction = badgeKey === 'NOT_FOUND' || badgeKey === 'UNCLEAR'
+      const divider   = i < items.length - 1
+        ? `<div style="height:1px;background:rgba(43,25,46,0.08);margin:12px 0;"></div>`
+        : ''
+      const itemNum   = String(i + 1).padStart(2, '0')
+      const new2026   = item.new_2026
+        ? `<span style="font-size:10px;font-weight:700;color:#1D4ED8;background:#DBEAFE;padding:1px 6px;border-radius:20px;margin-left:6px;vertical-align:middle;">2026</span>`
+        : ''
+
+      html += `<div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;">
+            <span style="font-size:13px;color:#6B5A6D;font-family:monospace;flex-shrink:0;padding-top:2px;">${itemNum}</span>
+            <div style="flex:1;min-width:0;">
+              <p style="font-size:14px;color:#2B192E;margin:0;line-height:1.5;">${item.title}${new2026}</p>
+              ${item.rcw ? `<p style="font-size:11px;font-family:monospace;color:#9CA3AF;margin:3px 0 0;">RCW ${item.rcw}</p>` : ''}
+              ${needsAction && item.action_required ? `<p style="font-size:13px;color:#6B5A6D;margin:5px 0 0;line-height:1.5;">${item.action_required}</p>` : ''}
+              ${needsAction && item.notes && !item.action_required ? `<p style="font-size:13px;color:#6B5A6D;margin:5px 0 0;line-height:1.5;">${item.notes}</p>` : ''}
+              ${badgeKey === 'FOUND' && item.source ? `<span style="font-size:11px;font-family:monospace;color:#A67388;display:block;margin-top:3px;">📄 ${item.source}</span>` : ''}
+            </div>
+          </div>
+          ${renderBadge(badgeKey)}
+        </div>
+      </div>${divider}`
+    })
+
+    html += `</div>`
+    return html
   }
 
   function mountTabs() {

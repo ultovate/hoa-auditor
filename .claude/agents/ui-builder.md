@@ -42,6 +42,16 @@ VERIFIED card:  border-left:4px solid #16A34A; background:#F0FDF4; border-radius
 Cards use white background only — no colored card backgrounds.
 Outlined badges, no fill — left border signals severity, badge confirms it.
 
+## Compliance tab badge keys — do not substitute severity keys
+The Compliance tab uses its own badge keys that map directly to `compliance_check.items[].status` field values.
+Do NOT use HIGH / MEDIUM / VERIFIED for compliance items — those are for risk findings only.
+```
+FOUND badge:     color:#15803D; border:1px solid #15803D  → item confirmed present (also used for N/A)
+UNCLEAR badge:   color:#D97706; border:1px solid #D97706  → item ambiguous
+NOT_FOUND badge: color:#DC2626; border:1px solid #DC2626  → item missing
+```
+Mapping: `status === 'FOUND' || 'N/A'` → `renderBadge('FOUND')` · `'UNCLEAR'` → `renderBadge('UNCLEAR')` · `'NOT_FOUND'` → `renderBadge('NOT_FOUND')`
+
 ## HTML patterns — use these exactly
 
 ### Section wrapper
