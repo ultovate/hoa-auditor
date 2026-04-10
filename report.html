@@ -863,6 +863,97 @@
     return html
   }
 
+  function renderTimelineContent() {
+    const tl = a.timeline
+    if (!tl) {
+      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No timeline data</p>
+        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No timeline information was found in the uploaded documents.</p>
+      </div>`
+    }
+
+    // Merge all event arrays, tagging each with its group
+    const allEvents = [
+      ...(tl.critical_events   || []).map(e => ({ ...e, _group: 'Critical'   })),
+      ...(tl.financial_events  || []).map(e => ({ ...e, _group: 'Financial'  })),
+      ...(tl.document_events   || []).map(e => ({ ...e, _group: 'Document'   })),
+      ...(tl.governance_events || []).map(e => ({ ...e, _group: 'Governance' })),
+    ].sort((x, y) => {
+      if (!x.date) return 1
+      if (!y.date) return -1
+      return new Date(x.date) - new Date(y.date)
+    })
+
+    if (!allEvents.length) {
+      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No timeline events found</p>
+        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No datable events were extracted from the uploaded documents.</p>
+      </div>`
+    }
+
+    // Urgency → left-border color (matches finding card pattern)
+    const BORDER = { CRITICAL: '#DC2626', HIGH: '#DC2626', MEDIUM: '#D97706', LOW: '#9CA3AF' }
+
+    // Group events by year
+    const byYear = {}
+    allEvents.forEach(ev => {
+      const year = ev.date ? new Date(ev.date).getFullYear() : 'Date Unknown'
+      if (!byYear[year]) byYear[year] = []
+      byYear[year].push(ev)
+    })
+    const sortedYears = Object.keys(byYear).sort((a, b) => {
+      if (a === 'Date Unknown') return 1
+      if (b === 'Date Unknown') return -1
+      return Number(a) - Number(b)
+    })
+
+    let html = `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">`
+
+    sortedYears.forEach((year, yi) => {
+      if (yi > 0) html += `<div style="height:1px;background:rgba(43,25,46,0.06);margin:16px 0;"></div>`
+
+      html += `<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">${year}</p>`
+
+      byYear[year].forEach((ev, i) => {
+        const borderColor = BORDER[ev.urgency] || '#9CA3AF'
+        const dateStr = ev.date
+          ? new Date(ev.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          : '—'
+        const isOverdue = ev.days_until_event != null
+          && ev.days_until_event < 0
+          && ev.status !== 'Completed'
+          && (ev._group === 'Critical' || ev._group === 'Financial')
+        const overdueTag = isOverdue
+          ? ` <span style="font-size:10px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:0.04em;">Overdue</span>`
+          : ''
+        const groupTag = `<span style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.04em;">${ev._group}</span>`
+        const src = ev.source_section
+          ? `<span style="font-size:11px;font-family:monospace;color:#A67388;display:block;margin-top:3px;">📄 ${ev.source_section}</span>`
+          : ''
+        const amount = ev.amount
+          ? `<span style="font-size:13px;color:#B45309;font-weight:500;"> · $${Number(ev.amount).toLocaleString()}</span>`
+          : ''
+        const status = ev.status
+          ? `<span style="font-size:12px;color:#6B5A6D;"> · ${ev.status}</span>`
+          : ''
+        const divider = i < byYear[year].length - 1
+          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          : ''
+
+        html += `<div style="border-left:3px solid ${borderColor};padding:6px 0 6px 14px;">
+          <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
+            <span style="font-size:13px;color:#6B5A6D;font-family:monospace;white-space:nowrap;flex-shrink:0;">${dateStr}${overdueTag}</span>
+            <p style="font-size:14px;color:#2B192E;margin:0;line-height:1.5;">${ev.label || ev.event_type_id || 'Event'}${amount}${status}</p>
+          </div>
+          <div style="padding-left:0;">${groupTag}${src}</div>
+        </div>${divider}`
+      })
+    })
+
+    html += `</div>`
+    return html
+  }
+
   function mountTabContent() {
     contentMount.innerHTML = ''
     if (activeTab === 'risks') {
@@ -871,6 +962,8 @@
       contentMount.innerHTML = `<div style="padding:24px;">${renderFinancialContent()}</div>`
     } else if (activeTab === 'restrictions') {
       contentMount.innerHTML = `<div style="padding:24px;">${renderRestrictionsContent()}</div>`
+    } else if (activeTab === 'timeline') {
+      contentMount.innerHTML = `<div style="padding:24px;">${renderTimelineContent()}</div>`
     }
     // Other tabs deferred — placeholder until each is implemented
   }
