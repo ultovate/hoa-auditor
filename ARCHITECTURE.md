@@ -306,7 +306,47 @@ Tabbed interface: Overview · Risks · Financial Outlook · Timeline · Restrict
 | `is_sample` RLS over separate table           | Simpler — one boolean, one policy, same audits table                                   |
 
 ---
+## Railway Deployment
 
+### Active Project
+| Field | Value |
+|---|---|
+| **Project name** | `hoa-auditor-ocr` |
+| **Service name** | `hoa-pdf-converter` |
+| **Environment** | `production` |
+| **Branch** | `main` |
+| **Public URL** | `web-production-486ad7.up.railway.app` |
+
+> ⚠️ **There must only ever be ONE Railway project for this service.**
+> In April 2026, duplicate projects (`profound-acceptance`, `friendly-spirit`) accumulated from accidental `railway init` calls and caused double billing. They have been deleted. Only `hoa-auditor-ocr` should exist.
+
+### Deploy Rules
+- **Always use `railway link`** to connect to an existing project — never `railway init` (creates a new project every time)
+- **Verify link before deploying:**
+  ```powershell
+  railway status
+  # Must show: Project: hoa-auditor-ocr | Environment: production
+  ```
+- **Deploy command:**
+  ```powershell
+  railway up
+  ```
+- **After adding any environment variable in Railway dashboard:** trigger a manual redeploy immediately — Railway does not auto-redeploy on variable changes alone
+
+### VS Code Setup
+To ensure Claude Code and terminal sessions always deploy to the correct project, keep a `.railway` link file in the `hoa-pdf-converter` repo root. This is created automatically by `railway link` and should never be deleted.
+
+If you open a new VS Code window or clone the repo fresh, run:
+```powershell
+cd path\to\hoa-pdf-converter
+railway link
+# Select: hoa-auditor-ocr → production
+```
+
+### Spending Limit
+Railway account spending limit is set to **$10/month** as a safety cap. Do not remove this limit. Current typical usage is ~$3/month for the OCR worker.
+
+---
 ## Pending / Not Yet Built
 
 - [ ] Email notification when audit complete
