@@ -1,5 +1,5 @@
 # Last GitHub Sync
-- **Timestamp:** 2026-04-07 21:33 UTC
-- **Commit:** `bdd8bec` — fix: correct asset import path
+- **Timestamp:** 2026-04-13 22:12 UTC
+- **Commit:** `6a2a97d` — docs: add branch strategy and Git rules
 - **Files changed:**
   - 
