@@ -219,7 +219,7 @@ export function renderPropertyBanner({ hoaName = '', address = '', submittedDate
 
 // ── renderCategoryTabs ────────────────────────────────────────────────────────
 // Tab bar — all roles. Sticky below property banner, above content area.
-// activeTab: one of CATEGORY_TABS id values (default 'risks')
+// activeTab: one of CATEGORY_TABS id values (default 'summary')
 //
 // Active tab:   background:#2B192E  color:#FFFFFF  no border
 // Inactive tab: background:#FFFFFF  color:#6B5A6D  border:1px solid rgba(43,25,46,0.1)
@@ -233,16 +233,16 @@ export function renderPropertyBanner({ hoaName = '', address = '', submittedDate
 // Content rendering on tab switch is deferred to the caller — this function
 // only manages active visual state.
 const CATEGORY_TABS = [
-  { id: 'risks',        label: 'Risks'        },
+  { id: 'summary',      label: 'Summary'      },
   { id: 'financial',    label: 'Financial'    },
+  { id: 'risks',        label: 'Risks'        },
   { id: 'restrictions', label: 'Restrictions' },
   { id: 'timeline',     label: 'Timeline'     },
-  { id: 'documents',    label: 'Documents'    },
   { id: 'compliance',   label: 'Compliance'   },
-  { id: 'summary',      label: 'Summary'      },
+  { id: 'documents',    label: 'Documents'    },
 ];
 
-export function renderCategoryTabs(activeTab = 'risks') {
+export function renderCategoryTabs(activeTab = 'summary') {
   const tabs = CATEGORY_TABS.map(({ id, label }) => {
     const isActive = id === activeTab;
     const style = isActive

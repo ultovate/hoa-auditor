@@ -1,0 +1,274 @@
+[1mdiff --git a/report.html b/report.html[m
+[1mindex 31df64d..0e138a8 100644[m
+[1m--- a/report.html[m
+[1m+++ b/report.html[m
+[36m@@ -476,7 +476,7 @@[m
+   )[m
+ [m
+   // 4. Category tabs + content[m
+[31m-  let activeTab = 'risks'[m
+[32m+[m[32m  let activeTab = 'summary'[m
+   const tabsMount   = document.getElementById('tabs-mount')[m
+   const contentMount = document.getElementById('content-mount')[m
+ [m
+[36m@@ -486,6 +486,36 @@[m
+   // Sort order for risk findings: CRITICAL + HIGH first, then MEDIUM, then LOW[m
+   const SORT_ORDER = { CRITICAL: 0, HIGH: 0, MEDIUM: 1, LOW: 2 }[m
+ [m
+[32m+[m[32m  // ── computeExposureItems(fo) ───────────────────────────────────────────────[m
+[32m+[m[32m  // Single source of truth for the Verified Financial Exposure figure.[m
+[32m+[m[32m  // Returns an array of { label, amount, note? } objects — the same set used[m
+[32m+[m[32m  // by the Financial tab's dark card AND the Summary tab's snapshot number.[m
+[32m+[m[32m  // Both tabs call this helper so they always agree.[m
+[32m+[m[32m  // Update the logic here ONLY — never inline it in individual tab functions.[m
+[32m+[m[32m  function computeExposureItems(fo) {[m
+[32m+[m[32m    const toArr = v => Array.isArray(v) ? v : (v?.items || [])[m
+[32m+[m[32m    const reserve    = fo.reserve_fund        || {}[m
+[32m+[m[32m    const specAssess = toArr(fo.special_assessments)[m
+[32m+[m[32m    const deferred   = toArr(fo.deferred_maintenance)[m
+[32m+[m[32m    const litigation = toArr(fo.litigation_costs)[m
+[32m+[m[32m    const items = [][m
+[32m+[m[32m    if (reserve.shortfall_amount)[m
+[32m+[m[32m      items.push({ label: 'Reserve fund shortfall', amount: reserve.shortfall_amount })[m
+[32m+[m[32m    specAssess.forEach(s => {[m
+[32m+[m[32m      if (s.estimated_amount_per_unit)[m
+[32m+[m[32m        items.push({ label: `Special assessment: ${s.description}`, amount: s.estimated_amount_per_unit, note: 'per unit' })[m
+[32m+[m[32m    })[m
+[32m+[m[32m    deferred.forEach(d => {[m
+[32m+[m[32m      if (d.estimated_cost)[m
+[32m+[m[32m        items.push({ label: d.item, amount: d.estimated_cost })[m
+[32m+[m[32m    })[m
+[32m+[m[32m    litigation.forEach(l => {[m
+[32m+[m[32m      const amt = l.estimated_total_exposure || l.costs_to_date[m
+[32m+[m[32m      if (amt) items.push({ label: `Legal: ${l.description}`, amount: amt })[m
+[32m+[m[32m    })[m
+[32m+[m[32m    return items[m
+[32m+[m[32m  }[m
+[32m+[m
+   function findingCards(items) {[m
+     return items.map(f => renderFindingCard({[m
+       severity: f.urgency    || 'LOW',[m
+[36m@@ -587,21 +617,7 @@[m
+     let html = ''[m
+ [m
+     // ── SECTION 1: Verified Financial Exposure — full-width dark card ──[m
+[31m-    const lineItems = [][m
+[31m-    if (reserve.shortfall_amount)[m
+[31m-      lineItems.push({ label: 'Reserve fund shortfall', amount: reserve.shortfall_amount })[m
+[31m-    specAssess.forEach(s => {[m
+[31m-      if (s.estimated_amount_per_unit)[m
+[31m-        lineItems.push({ label: `Special assessment: ${s.description}`, amount: s.estimated_amount_per_unit, note: 'per unit' })[m
+[31m-    })[m
+[31m-    deferred.forEach(d => {[m
+[31m-      if (d.estimated_cost)[m
+[31m-        lineItems.push({ label: d.item, amount: d.estimated_cost })[m
+[31m-    })[m
+[31m-    litigation.forEach(l => {[m
+[31m-      const amt = l.estimated_total_exposure || l.costs_to_date[m
+[31m-      if (amt) lineItems.push({ label: `Legal: ${l.description}`, amount: amt })[m
+[31m-    })[m
+[32m+[m[32m    const lineItems = computeExposureItems(fo)[m
+     if (lineItems.length) {[m
+       const total = lineItems.reduce((sum, i) => sum + Number(i.amount), 0)[m
+       html += `<div style="background:#2B192E;border-radius:8px;padding:20px 24px;margin-bottom:16px;">[m
+[36m@@ -1098,8 +1114,9 @@[m
+       contentMount.innerHTML = `<div style="padding:24px;">${renderDocumentsContent()}</div>`[m
+     } else if (activeTab === 'compliance') {[m
+       contentMount.innerHTML = `<div style="padding:24px;">${renderComplianceContent()}</div>`[m
+[32m+[m[32m    } else if (activeTab === 'summary') {[m
+[32m+[m[32m      contentMount.innerHTML = `<div style="padding:24px;">${renderSummaryContent()}</div>`[m
+     }[m
+[31m-    // Summary tab deferred — placeholder until implemented[m
+   }[m
+ [m
+   function renderComplianceContent() {[m
+[36m@@ -1171,6 +1188,155 @@[m
+     return html[m
+   }[m
+ [m
+[32m+[m[32m  function renderSummaryContent() {[m
+[32m+[m[32m    const all        = a.risks?.findings || [][m
+[32m+[m[32m    const high       = all.filter(f => f.urgency === 'CRITICAL' || f.urgency === 'HIGH')[m
+[32m+[m[32m    const fo         = a.financial_outlook || {}[m
+[32m+[m[32m    const mf         = fo.monthly_fees  || {}[m
+[32m+[m[32m    const reserve    = fo.reserve_fund  || {}[m
+[32m+[m[32m    const toArr      = v => Array.isArray(v) ? v : (v?.items || [])[m
+[32m+[m[32m    const specAssess = toArr(fo.special_assessments)[m
+[32m+[m[32m    const deferred   = toArr(fo.deferred_maintenance)[m
+[32m+[m[32m    const litigation = toArr(fo.litigation_costs)[m
+[32m+[m[32m    const fmt$       = n => (n != null && n !== '') ? '$' + Number(n).toLocaleString() : null[m
+[32m+[m[32m    const cc         = a.compliance_check || {}[m
+[32m+[m[32m    const ccItems    = cc.items || [][m
+[32m+[m[32m    const compVerified = ccItems.filter(i => i.status === 'FOUND' || i.status === 'N/A').length[m
+[32m+[m[32m    const compTotal    = ccItems.length || 0[m
+[32m+[m[32m    const profiles     = a.buyer_profile_verdicts?.verdicts || [][m
+[32m+[m[32m    const actionItems  = Array.isArray(a.action_items) ? a.action_items : (a.action_items?.items || [])[m
+[32m+[m
+[32m+[m[32m    // Total exposure — calls the shared helper so this always matches the Financial tab.[m
+[32m+[m[32m    const exposure = computeExposureItems(fo).reduce((sum, i) => sum + Number(i.amount), 0)[m
+[32m+[m
+[32m+[m[32m    const CARD  = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'[m
+[32m+[m[32m    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'[m
+[32m+[m
+[32m+[m[32m    let html = ''[m
+[32m+[m
+[32m+[m[32m    // ── SECTION 1: Financial Snapshot — 4 key numbers ─────────────────────[m
+[32m+[m[32m    const reservePct   = reserve.current_percent_funded[m
+[32m+[m[32m    const reserveColor = reservePct == null ? '#6B5A6D' : reservePct < 50 ? '#DC2626' : reservePct < 70 ? '#D97706' : '#15803D'[m
+[32m+[m[32m    html += `<div style="${CARD}">[m
+[32m+[m[32m      <p style="${LABEL}">Financial Snapshot</p>[m
+[32m+[m[32m      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">[m
+[32m+[m[32m        <div>[m
+[32m+[m[32m          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Monthly Fee</p>[m
+[32m+[m[32m          <p style="font-size:22px;font-weight:500;color:#2B192E;margin:0 0 2px;">${mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}</p>[m
+[32m+[m[32m          ${mf.upcoming_fee ? `<p style="font-size:11px;color:#D97706;margin:0;">↑ ${fmt$(mf.upcoming_fee)} upcoming</p>` : ''}[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div>[m
+[32m+[m[32m          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Reserve Fund</p>[m
+[32m+[m[32m          <p style="font-size:22px;font-weight:500;color:${reserveColor};margin:0 0 2px;">${reservePct != null ? reservePct + '%' : '—'}</p>[m
+[32m+[m[32m          ${reservePct != null ? `<p style="font-size:11px;color:${reserveColor};margin:0;">${reservePct < 50 ? 'Underfunded' : reservePct < 70 ? 'Below threshold' : 'Adequate'}</p>` : ''}[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div>[m
+[32m+[m[32m          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Special Assessments</p>[m
+[32m+[m[32m          <p style="font-size:22px;font-weight:500;color:${specAssess.length ? '#D97706' : '#15803D'};margin:0 0 2px;">${specAssess.length || '0'}</p>[m
+[32m+[m[32m          <p style="font-size:11px;color:#6B5A6D;margin:0;">${specAssess.length ? specAssess.length + ' identified' : 'None found'}</p>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div>[m
+[32m+[m[32m          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Total Exposure</p>[m
+[32m+[m[32m          <p style="font-size:22px;font-weight:500;color:${exposure > 0 ? '#DC2626' : '#15803D'};margin:0 0 2px;">${exposure > 0 ? fmt$(exposure) : '—'}</p>[m
+[32m+[m[32m          <p style="font-size:11px;color:#6B5A6D;margin:0;">${exposure > 0 ? 'verified line items' : 'None identified'}</p>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m      </div>[m
+[32m+[m[32m    </div>`[m
+[32m+[m
+[32m+[m[32m    // ── SECTION 2: Top Critical Findings ──────────────────────────────────[m
+[32m+[m[32m    if (high.length) {[m
+[32m+[m[32m      html += `<div style="${CARD}">[m
+[32m+[m[32m        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">[m
+[32m+[m[32m          <p style="${LABEL}margin-bottom:0;">Top Critical Findings</p>[m
+[32m+[m[32m          <button onclick="document.querySelector('[data-tab=risks]').click()" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#CE8CA5;cursor:pointer;padding:0;font-family:inherit;">View all →</button>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        ${high.slice(0, 3).map(f => renderFindingCard({[m
+[32m+[m[32m          severity: f.urgency   || 'HIGH',[m
+[32m+[m[32m          eyebrow:  f.category  || 'Finding',[m
+[32m+[m[32m          title:    f.label     || f.finding || '',[m
+[32m+[m[32m          detail:   f[noteField] || f.finding || '',[m
+[32m+[m[32m          source:   [f.source_document, f.source_section].filter(Boolean).join(' · ') || 'Document on file',[m
+[32m+[m[32m        })).join('')}[m
+[32m+[m[32m      </div>`[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      html += `<div style="${CARD}">[m
+[32m+[m[32m        <p style="${LABEL}">Top Critical Findings</p>[m
+[32m+[m[32m        <p style="font-size:14px;color:#15803D;margin:0;">No critical or high findings identified.</p>[m
+[32m+[m[32m      </div>`[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // ── SECTION 3: WUCIOA Compliance ──────────────────────────────────────[m
+[32m+[m[32m    if (compTotal) {[m
+[32m+[m[32m      const notFound = ccItems.filter(i => i.status === 'NOT_FOUND').length[m
+[32m+[m[32m      const unclear  = ccItems.filter(i => i.status === 'UNCLEAR').length[m
+[32m+[m[32m      const compColor = notFound > 3 ? '#DC2626' : notFound > 0 || unclear > 2 ? '#D97706' : '#15803D'[m
+[32m+[m[32m      html += `<div style="${CARD}">[m
+[32m+[m[32m        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">[m
+[32m+[m[32m          <p style="${LABEL}margin-bottom:0;">WUCIOA Compliance — RCW 64.90.640</p>[m
+[32m+[m[32m          <button onclick="document.querySelector('[data-tab=compliance]').click()" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#CE8CA5;cursor:pointer;padding:0;font-family:inherit;">View all →</button>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px;">[m
+[32m+[m[32m          <span style="font-size:28px;font-weight:600;color:${compColor};">${compVerified}</span>[m
+[32m+[m[32m          <span style="font-size:14px;color:#6B5A6D;">of ${compTotal} items verified</span>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div style="display:flex;gap:16px;">[m
+[32m+[m[32m          <span style="font-size:12px;color:#15803D;font-weight:600;">${compVerified} found</span>[m
+[32m+[m[32m          ${unclear  ? `<span style="font-size:12px;color:#D97706;font-weight:600;">${unclear} unclear</span>` : ''}[m
+[32m+[m[32m          ${notFound ? `<span style="font-size:12px;color:#DC2626;font-weight:600;">${notFound} not found</span>` : ''}[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m      </div>`[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // ── SECTION 4: Buyer Profile Restrictions ─────────────────────────────[m
+[32m+[m[32m    if (profiles.length) {[m
+[32m+[m[32m      const top3 = profiles.slice(0, 3)[m
+[32m+[m[32m      html += `<div style="${CARD}">[m
+[32m+[m[32m        <p style="${LABEL}">Buyer Profile Restrictions</p>[m
+[32m+[m[32m        <div style="display:grid;grid-template-columns:repeat(${Math.min(top3.length, 3)},1fr);gap:14px;">[m
+[32m+[m[32m          ${top3.map(v => {[m
+[32m+[m[32m            const bkey = v.verdict === 'DO NOT BUY' ? 'HIGH' : v.verdict === 'CAUTION' ? 'MEDIUM' : 'VERIFIED'[m
+[32m+[m[32m            return `<div style="background:#F2F3F6;border-radius:6px;padding:14px 16px;">[m
+[32m+[m[32m              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;">[m
+[32m+[m[32m                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">${v.buyer_type_label || 'Buyer Profile'}</p>[m
+[32m+[m[32m                ${renderBadge(bkey)}[m
+[32m+[m[32m              </div>[m
+[32m+[m[32m              ${v.verdict_reason ? `<p style="font-size:13px;color:#2B192E;line-height:1.5;margin:0;">${v.verdict_reason}</p>` : ''}[m
+[32m+[m[32m            </div>`[m
+[32m+[m[32m          }).join('')}[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m      </div>`[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // ── SECTION 5: Next Steps ──────────────────────────────────────────────[m
+[32m+[m[32m    if (actionItems.length) {[m
+[32m+[m[32m      html += `<div style="${CARD}">[m
+[32m+[m[32m        <p style="${LABEL}">Next Steps — What to ask before closing</p>[m
+[32m+[m[32m        ${actionItems.map((item, i) => {[m
+[32m+[m[32m          const isImmediate = item.priority === 'IMMEDIATE' || item.urgency === 'HIGH' || item.urgency === 'CRITICAL'[m
+[32m+[m[32m          const divider = i < actionItems.length - 1[m
+[32m+[m[32m            ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`[m
+[32m+[m[32m            : ''[m
+[32m+[m[32m          return `<div style="display:flex;gap:12px;align-items:flex-start;">[m
+[32m+[m[32m            <span style="font-size:14px;flex-shrink:0;line-height:1.5;">${isImmediate ? '⚡' : '→'}</span>[m
+[32m+[m[32m            <div style="flex:1;">[m
+[32m+[m[32m              <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 3px;">${item.action}</p>[m
+[32m+[m[32m              ${item.why ? `<p style="font-size:13px;color:#6B5A6D;margin:0;line-height:1.5;">${item.why}</p>` : ''}[m
+[32m+[m[32m              ${item.roles?.length ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">${item.roles.join(' · ')}</span>` : ''}[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m          </div>${divider}`[m
+[32m+[m[32m        }).join('')}[m
+[32m+[m[32m      </div>`[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    if (!html) {[m
+[32m+[m[32m      return `<div style="${CARD}">[m
+[32m+[m[32m        <p style="${LABEL}">No summary data available</p>[m
+[32m+[m[32m        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">Summary could not be generated from the available documents.</p>[m
+[32m+[m[32m      </div>`[m
+[32m+[m[32m    }[m
+[32m+[m[32m    return html[m
+[32m+[m[32m  }[m
+[32m+[m
+   function mountTabs() {[m
+     tabsMount.innerHTML = renderCategoryTabs(activeTab)[m
+   }[m
+[1mdiff --git a/src/components/shared.js b/src/components/shared.js[m
+[1mindex 30bce7c..b681a59 100644[m
+[1m--- a/src/components/shared.js[m
+[1m+++ b/src/components/shared.js[m
+[36m@@ -219,7 +219,7 @@[m [mexport function renderPropertyBanner({ hoaName = '', address = '', submittedDate[m
+ [m
+ // ── renderCategoryTabs ────────────────────────────────────────────────────────[m
+ // Tab bar — all roles. Sticky below property banner, above content area.[m
+[31m-// activeTab: one of CATEGORY_TABS id values (default 'risks')[m
+[32m+[m[32m// activeTab: one of CATEGORY_TABS id values (default 'summary')[m
+ //[m
+ // Active tab:   background:#2B192E  color:#FFFFFF  no border[m
+ // Inactive tab: background:#FFFFFF  color:#6B5A6D  border:1px solid rgba(43,25,46,0.1)[m
+[36m@@ -233,16 +233,16 @@[m [mexport function renderPropertyBanner({ hoaName = '', address = '', submittedDate[m
+ // Content rendering on tab switch is deferred to the caller — this function[m
+ // only manages active visual state.[m
+ const CATEGORY_TABS = [[m
+[31m-  { id: 'risks',        label: 'Risks'        },[m
+[32m+[m[32m  { id: 'summary',      label: 'Summary'      },[m
+   { id: 'financial',    label: 'Financial'    },[m
+[32m+[m[32m  { id: 'risks',        label: 'Risks'        },[m
+   { id: 'restrictions', label: 'Restrictions' },[m
+   { id: 'timeline',     label: 'Timeline'     },[m
+[31m-  { id: 'documents',    label: 'Documents'    },[m
+   { id: 'compliance',   label: 'Compliance'   },[m
+[31m-  { id: 'summary',      label: 'Summary'      },[m
+[32m+[m[32m  { id: 'documents',    label: 'Documents'    },[m
+ ];[m
+ [m
+[31m-export function renderCategoryTabs(activeTab = 'risks') {[m
+[32m+[m[32mexport function renderCategoryTabs(activeTab = 'summary') {[m
+   const tabs = CATEGORY_TABS.map(({ id, label }) => {[m
+     const isActive = id === activeTab;[m
+     const style = isActive[m
