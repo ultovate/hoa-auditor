@@ -271,7 +271,7 @@
 <!-- ── MODULE SCRIPT — components + data ────────────────────────────── -->
 <script type="module">
   import './src/styles/buyer.css'
-  import { renderPropertyBanner, renderCategoryTabs, renderRoleToggle, renderFindingCard, renderAccordionRow, renderBadge } from './src/components/shared.js'
+  import { renderPropertyBanner, renderCategoryTabs, renderRoleToggle, renderFindingCard, renderAccordionRow, renderBadge, renderStatCard } from './src/components/shared.js'
   import { renderPersistentHeader, renderSideNav, renderExportButton, renderComplianceCounter } from './src/components/agentShell.js'
   import { renderTopBar, renderStickyCTA, renderSaveToAccountStrip } from './src/components/buyerShell.js'
   import { getCurrentUser, signOut } from './src/services/authService.js'
@@ -476,7 +476,7 @@
   )
 
   // 4. Category tabs + content
-  let activeTab = 'summary'
+  let activeTab = 'risks'
   const tabsMount   = document.getElementById('tabs-mount')
   const contentMount = document.getElementById('content-mount')
 
@@ -485,36 +485,6 @@
 
   // Sort order for risk findings: CRITICAL + HIGH first, then MEDIUM, then LOW
   const SORT_ORDER = { CRITICAL: 0, HIGH: 0, MEDIUM: 1, LOW: 2 }
-
-  // ── computeExposureItems(fo) ───────────────────────────────────────────────
-  // Single source of truth for the Verified Financial Exposure figure.
-  // Returns an array of { label, amount, note? } objects — the same set used
-  // by the Financial tab's dark card AND the Summary tab's snapshot number.
-  // Both tabs call this helper so they always agree.
-  // Update the logic here ONLY — never inline it in individual tab functions.
-  function computeExposureItems(fo) {
-    const toArr = v => Array.isArray(v) ? v : (v?.items || [])
-    const reserve    = fo.reserve_fund        || {}
-    const specAssess = toArr(fo.special_assessments)
-    const deferred   = toArr(fo.deferred_maintenance)
-    const litigation = toArr(fo.litigation_costs)
-    const items = []
-    if (reserve.shortfall_amount)
-      items.push({ label: 'Reserve fund shortfall', amount: reserve.shortfall_amount })
-    specAssess.forEach(s => {
-      if (s.estimated_amount_per_unit)
-        items.push({ label: `Special assessment: ${s.description}`, amount: s.estimated_amount_per_unit, note: 'per unit' })
-    })
-    deferred.forEach(d => {
-      if (d.estimated_cost)
-        items.push({ label: d.item, amount: d.estimated_cost })
-    })
-    litigation.forEach(l => {
-      const amt = l.estimated_total_exposure || l.costs_to_date
-      if (amt) items.push({ label: `Legal: ${l.description}`, amount: amt })
-    })
-    return items
-  }
 
   function findingCards(items) {
     return items.map(f => renderFindingCard({
@@ -617,7 +587,21 @@
     let html = ''
 
     // ── SECTION 1: Verified Financial Exposure — full-width dark card ──
-    const lineItems = computeExposureItems(fo)
+    const lineItems = []
+    if (reserve.shortfall_amount)
+      lineItems.push({ label: 'Reserve fund shortfall', amount: reserve.shortfall_amount })
+    specAssess.forEach(s => {
+      if (s.estimated_amount_per_unit)
+        lineItems.push({ label: `Special assessment: ${s.description}`, amount: s.estimated_amount_per_unit, note: 'per unit' })
+    })
+    deferred.forEach(d => {
+      if (d.estimated_cost)
+        lineItems.push({ label: d.item, amount: d.estimated_cost })
+    })
+    litigation.forEach(l => {
+      const amt = l.estimated_total_exposure || l.costs_to_date
+      if (amt) lineItems.push({ label: `Legal: ${l.description}`, amount: amt })
+    })
     if (lineItems.length) {
       const total = lineItems.reduce((sum, i) => sum + Number(i.amount), 0)
       html += `<div style="background:#2B192E;border-radius:8px;padding:20px 24px;margin-bottom:16px;">
@@ -1206,44 +1190,31 @@
     const profiles     = a.buyer_profile_verdicts?.verdicts || []
     const actionItems  = Array.isArray(a.action_items) ? a.action_items : (a.action_items?.items || [])
 
-    // Total exposure — calls the shared helper so this always matches the Financial tab.
-    const exposure = computeExposureItems(fo).reduce((sum, i) => sum + Number(i.amount), 0)
-
     const CARD  = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
     const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'
 
+    // Total financial exposure — use schema-computed value from overall_verdict (authoritative).
+    // Falls back to summing financial_outlook line items for analyses missing the field.
+    const exposure = a.overall_verdict?.total_financial_exposure
+      || (() => {
+          const items = []
+          if (reserve.shortfall_amount) items.push(Number(reserve.shortfall_amount))
+          specAssess.forEach(s => { if (s.estimated_amount_per_unit) items.push(Number(s.estimated_amount_per_unit)) })
+          deferred.forEach(d => { if (d.estimated_cost) items.push(Number(d.estimated_cost)) })
+          litigation.forEach(l => { const amt = l.estimated_total_exposure || l.costs_to_date; if (amt) items.push(Number(amt)) })
+          return items.reduce((sum, n) => sum + n, 0)
+        })()
+
     let html = ''
 
-    // ── SECTION 1: Financial Snapshot — 4 key numbers ─────────────────────
-    const reservePct   = reserve.current_percent_funded
-    const reserveColor = reservePct == null ? '#6B5A6D' : reservePct < 50 ? '#DC2626' : reservePct < 70 ? '#D97706' : '#15803D'
-    html += `<div style="${CARD}">
-      <p style="${LABEL}">Financial Snapshot</p>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
-        <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Monthly Fee</p>
-          <p style="font-size:22px;font-weight:500;color:#2B192E;margin:0 0 2px;">${mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}</p>
-          ${mf.upcoming_fee ? `<p style="font-size:11px;color:#D97706;margin:0;">↑ ${fmt$(mf.upcoming_fee)} upcoming</p>` : ''}
-        </div>
-        <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Reserve Fund</p>
-          <p style="font-size:22px;font-weight:500;color:${reserveColor};margin:0 0 2px;">${reservePct != null ? reservePct + '%' : '—'}</p>
-          ${reservePct != null ? `<p style="font-size:11px;color:${reserveColor};margin:0;">${reservePct < 50 ? 'Underfunded' : reservePct < 70 ? 'Below threshold' : 'Adequate'}</p>` : ''}
-        </div>
-        <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Special Assessments</p>
-          <p style="font-size:22px;font-weight:500;color:${specAssess.length ? '#D97706' : '#15803D'};margin:0 0 2px;">${specAssess.length || '0'}</p>
-          <p style="font-size:11px;color:#6B5A6D;margin:0;">${specAssess.length ? specAssess.length + ' identified' : 'None found'}</p>
-        </div>
-        <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Total Exposure</p>
-          <p style="font-size:22px;font-weight:500;color:${exposure > 0 ? '#DC2626' : '#15803D'};margin:0 0 2px;">${exposure > 0 ? fmt$(exposure) : '—'}</p>
-          <p style="font-size:11px;color:#6B5A6D;margin:0;">${exposure > 0 ? 'verified line items' : 'None identified'}</p>
-        </div>
-      </div>
+    // ── SECTION 1: At a Glance — 3 stat cards ─────────────────────────────
+    html += `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+      ${renderStatCard({ label: 'Total Findings', value: all.length, sub: high.length > 0 ? `${high.length} need attention` : 'No critical issues' })}
+      ${renderStatCard({ label: 'High Severity', value: high.length, sub: high.length > 0 ? 'Review before closing' : 'None identified' })}
+      ${renderStatCard({ label: 'WUCIOA Compliance', value: compTotal ? `${compVerified} / ${compTotal}` : '—', sub: compTotal ? 'items verified' : 'Not applicable' })}
     </div>`
 
-    // ── SECTION 2: Top Critical Findings ──────────────────────────────────
+    // ── SECTION 2: Top 3 Critical Findings ────────────────────────────────
     if (high.length) {
       html += `<div style="${CARD}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1258,83 +1229,82 @@
           source:   [f.source_document, f.source_section].filter(Boolean).join(' · ') || 'Document on file',
         })).join('')}
       </div>`
-    } else {
-      html += `<div style="${CARD}">
-        <p style="${LABEL}">Top Critical Findings</p>
-        <p style="font-size:14px;color:#15803D;margin:0;">No critical or high findings identified.</p>
-      </div>`
     }
 
-    // ── SECTION 3: WUCIOA Compliance ──────────────────────────────────────
-    if (compTotal) {
-      const notFound = ccItems.filter(i => i.status === 'NOT_FOUND').length
-      const unclear  = ccItems.filter(i => i.status === 'UNCLEAR').length
-      const compColor = notFound > 3 ? '#DC2626' : notFound > 0 || unclear > 2 ? '#D97706' : '#15803D'
-      html += `<div style="${CARD}">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <p style="${LABEL}margin-bottom:0;">WUCIOA Compliance — RCW 64.90.640</p>
-          <button onclick="document.querySelector('[data-tab=compliance]').click()" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#CE8CA5;cursor:pointer;padding:0;font-family:inherit;">View all →</button>
+    // ── SECTION 3: Financial Snapshot — 4 key numbers ─────────────────────
+    const reservePct   = reserve.current_percent_funded
+    const reserveColor = reservePct == null ? '#6B5A6D' : reservePct < 50 ? '#DC2626' : reservePct < 70 ? '#D97706' : '#15803D'
+    html += `<div style="${CARD}">
+      <p style="${LABEL}">Financial Snapshot</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+        <div>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Monthly Fee</p>
+          <p style="font-size:22px;font-weight:500;color:#2B192E;margin:0;">${mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}</p>
         </div>
-        <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:12px;">
-          <span style="font-size:28px;font-weight:600;color:${compColor};">${compVerified}</span>
-          <span style="font-size:14px;color:#6B5A6D;">of ${compTotal} items verified</span>
+        <div>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Reserve Fund</p>
+          <p style="font-size:22px;font-weight:500;color:${reserveColor};margin:0;">${reservePct != null ? reservePct + '%' : '—'}</p>
         </div>
-        <div style="display:flex;gap:16px;">
-          <span style="font-size:12px;color:#15803D;font-weight:600;">${compVerified} found</span>
-          ${unclear  ? `<span style="font-size:12px;color:#D97706;font-weight:600;">${unclear} unclear</span>` : ''}
-          ${notFound ? `<span style="font-size:12px;color:#DC2626;font-weight:600;">${notFound} not found</span>` : ''}
+        <div>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Assessments</p>
+          <p style="font-size:22px;font-weight:500;color:${specAssess.length ? '#D97706' : '#15803D'};margin:0;">${specAssess.length || 'None'}</p>
         </div>
-      </div>`
-    }
+        <div>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Total Exposure</p>
+          <p style="font-size:22px;font-weight:500;color:${exposure > 0 ? '#DC2626' : '#15803D'};margin:0;">${exposure > 0 ? fmt$(exposure) : 'None'}</p>
+        </div>
+      </div>
+    </div>`
 
-    // ── SECTION 4: Buyer Profile Restrictions ─────────────────────────────
+    // ── SECTION 4: Key Restrictions — top 3 buyer profiles ────────────────
     if (profiles.length) {
+      function verdictKey(verdict) {
+        if (verdict === 'DO NOT BUY') return 'HIGH'
+        if (verdict === 'CAUTION')    return 'MEDIUM'
+        return 'VERIFIED'
+      }
       const top3 = profiles.slice(0, 3)
       html += `<div style="${CARD}">
         <p style="${LABEL}">Buyer Profile Restrictions</p>
         <div style="display:grid;grid-template-columns:repeat(${Math.min(top3.length, 3)},1fr);gap:14px;">
-          ${top3.map(v => {
-            const bkey = v.verdict === 'DO NOT BUY' ? 'HIGH' : v.verdict === 'CAUTION' ? 'MEDIUM' : 'VERIFIED'
-            return `<div style="background:#F2F3F6;border-radius:6px;padding:14px 16px;">
+          ${top3.map(v => `
+            <div style="background:#F2F3F6;border-radius:6px;padding:14px 16px;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;">
                 <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">${v.buyer_type_label || 'Buyer Profile'}</p>
-                ${renderBadge(bkey)}
+                ${renderBadge(verdictKey(v.verdict))}
               </div>
               ${v.verdict_reason ? `<p style="font-size:13px;color:#2B192E;line-height:1.5;margin:0;">${v.verdict_reason}</p>` : ''}
-            </div>`
-          }).join('')}
+            </div>`).join('')}
         </div>
       </div>`
     }
 
     // ── SECTION 5: Next Steps ──────────────────────────────────────────────
     if (actionItems.length) {
+      const rows = actionItems.map((item, i) => {
+        const isImmediate = item.priority === 'IMMEDIATE' || item.urgency === 'HIGH' || item.urgency === 'CRITICAL'
+        const divider = i < actionItems.length - 1
+          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          : ''
+        return `<div style="display:flex;gap:12px;align-items:flex-start;">
+          <span style="font-size:14px;flex-shrink:0;line-height:1.5;">${isImmediate ? '⚡' : '→'}</span>
+          <div style="flex:1;">
+            <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 3px;">${item.action}</p>
+            ${item.why ? `<p style="font-size:13px;color:#6B5A6D;margin:0;line-height:1.5;">${item.why}</p>` : ''}
+            ${item.roles?.length ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">${item.roles.join(' · ')}</span>` : ''}
+          </div>
+        </div>${divider}`
+      }).join('')
       html += `<div style="${CARD}">
         <p style="${LABEL}">Next Steps — What to ask before closing</p>
-        ${actionItems.map((item, i) => {
-          const isImmediate = item.priority === 'IMMEDIATE' || item.urgency === 'HIGH' || item.urgency === 'CRITICAL'
-          const divider = i < actionItems.length - 1
-            ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
-            : ''
-          return `<div style="display:flex;gap:12px;align-items:flex-start;">
-            <span style="font-size:14px;flex-shrink:0;line-height:1.5;">${isImmediate ? '⚡' : '→'}</span>
-            <div style="flex:1;">
-              <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 3px;">${item.action}</p>
-              ${item.why ? `<p style="font-size:13px;color:#6B5A6D;margin:0;line-height:1.5;">${item.why}</p>` : ''}
-              ${item.roles?.length ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">${item.roles.join(' · ')}</span>` : ''}
-            </div>
-          </div>${divider}`
-        }).join('')}
+        ${rows}
       </div>`
     }
 
-    if (!html) {
-      return `<div style="${CARD}">
-        <p style="${LABEL}">No summary data available</p>
-        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">Summary could not be generated from the available documents.</p>
-      </div>`
-    }
-    return html
+    return html || `<div style="${CARD}">
+      <p style="${LABEL}">No summary data available</p>
+      <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">Summary could not be generated from the available documents.</p>
+    </div>`
   }
 
   function mountTabs() {
