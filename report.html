@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #F2F3F6; min-height: 100vh; display: flex; flex-direction: column; }
+    body { font-family: 'DM Sans', sans-serif; background: #F8F9FB; min-height: 100vh; display: flex; flex-direction: column; }
 
     /* ── PERSISTENT HEADER — full width, all roles, never re-renders ─ */
     #header-mount { flex-shrink: 0; }
@@ -36,8 +36,8 @@
 
     /* ── STATE CARD (loading / error) ────────────────────────── */
     .state-card {
-      background: #FFFFFF; border-radius: 12px; border: 1px solid #E5E7EB;
-      padding: 3rem; text-align: center; color: #9CA3AF; font-size: .9rem;
+      background: #FFFFFF; border-radius: 12px; border: 1px solid #E2E8F0;
+      padding: 3rem; text-align: center; color: #64748B; font-size: .9rem;
       margin: 16px;
     }
 
@@ -45,7 +45,7 @@
     #ai-bubble {
       position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 900;
       width: 52px; height: 52px; border-radius: 50%;
-      background: linear-gradient(135deg, #1D4ED8, #7C3AED);
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
       border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(29,78,216,.4);
       display: flex; align-items: center; justify-content: center;
       transition: transform .2s, box-shadow .2s;
@@ -66,7 +66,7 @@
     #ai-panel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: all; }
 
     .ai-panel-header {
-      background: linear-gradient(135deg, #1D4ED8, #7C3AED);
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
       padding: .9rem 1.1rem; display: flex; align-items: center; gap: .6rem;
     }
     .ai-panel-header .ai-avatar {
@@ -90,11 +90,11 @@
       max-width: 80%; padding: .55rem .8rem; border-radius: 12px;
       font-size: .82rem; line-height: 1.5; color: #1F2937; background: #F3F4F6;
     }
-    .ai-msg.user .ai-msg-bubble { background: #1D4ED8; color: #fff; border-radius: 12px 12px 2px 12px; }
+    .ai-msg.user .ai-msg-bubble { background: #2563EB; color: #fff; border-radius: 12px 12px 2px 12px; }
     .ai-msg.bot  .ai-msg-bubble { border-radius: 12px 12px 12px 2px; }
     .ai-typing span {
       display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-      background: #9CA3AF; margin: 0 1px; animation: ai-bounce .9s infinite;
+      background: #64748B; margin: 0 1px; animation: ai-bounce .9s infinite;
     }
     .ai-typing span:nth-child(2) { animation-delay: .15s; }
     .ai-typing span:nth-child(3) { animation-delay: .3s; }
@@ -105,33 +105,33 @@
       border-top: 1px solid #F3F4F6;
     }
     .ai-chip {
-      padding: .3rem .7rem; border-radius: 20px; border: 1px solid #BFDBFE;
-      background: #EFF6FF; color: #1D4ED8; font-size: .75rem; cursor: pointer;
+      padding: .3rem .7rem; border-radius: 20px; border: 1px solid rgba(31,18,36,0.1);
+      background: #FFFFFF; color: #2563EB; font-size: .75rem; cursor: pointer;
       font-family: 'DM Sans', sans-serif; font-weight: 500; white-space: nowrap;
       transition: background .15s;
     }
-    .ai-chip:hover { background: #DBEAFE; }
+    .ai-chip:hover { background: #94A3B8; }
 
     .ai-input-row {
-      padding: .7rem 1rem; border-top: 1px solid #E5E7EB;
+      padding: .7rem 1rem; border-top: 1px solid #E2E8F0;
       display: flex; gap: .5rem; align-items: center;
     }
     .ai-input-row input {
-      flex: 1; border: 1px solid #E5E7EB; border-radius: 8px;
+      flex: 1; border: 1px solid #E2E8F0; border-radius: 8px;
       padding: .45rem .75rem; font-size: .82rem; font-family: 'DM Sans', sans-serif;
       outline: none; color: #1F2937;
     }
     .ai-input-row input:focus { border-color: #93C5FD; }
     .ai-input-row button {
       width: 34px; height: 34px; border-radius: 8px; border: none;
-      background: #1D4ED8; color: #fff; cursor: pointer; display: flex;
+      background: #2563EB; color: #fff; cursor: pointer; display: flex;
       align-items: center; justify-content: center; flex-shrink: 0;
       transition: background .15s;
     }
     .ai-input-row button:hover { background: #1e40af; }
 
     .ai-coming-soon-note {
-      text-align: center; font-size: .72rem; color: #9CA3AF;
+      text-align: center; font-size: .72rem; color: #64748B;
       padding: 0 1rem .6rem; font-style: italic;
     }
   </style>
@@ -357,7 +357,7 @@
     // noteField: 'agent_note' for agent view, 'buyer_note' for buyer view.
     // Falls back to finding text if the role-specific note is absent.
     if (!findings.length) {
-      return '<p style="font-size:14px;color:#6B5A6D;padding:16px 0;">No findings recorded for this property.</p>'
+      return '<p style="font-size:14px;color:#64748B;padding:16px 0;">No findings recorded for this property.</p>'
     }
     return findings.map(f => renderFindingCard({
       severity: f.urgency   || 'LOW',
@@ -401,15 +401,15 @@
 
     // Action header: back link | compliance counter | export button
     const pill = renderComplianceCounter('WUCIOA', compliance.verified ?? 0, compliance.total ?? 26)
-    const pillBg    = pill.type === 'ok' ? '#DCFCE7' : '#FEF3C7'
-    const pillColor = pill.type === 'ok' ? '#15803D' : '#92400E'
+    const pillBg    = pill.type === 'ok' ? '#D1FAE5' : '#FEF3C7'
+    const pillColor = pill.type === 'ok' ? '#10B981' : '#92400E'
 
     document.getElementById('agent-action-header').innerHTML =
-      `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(43,25,46,0.1);background:#FFFFFF;">
+      `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid rgba(31,18,36,0.1);background:#FFFFFF;">
         <div style="display:flex;align-items:center;gap:8px;">
-          <button onclick="history.back()" style="background:none;border:none;font-size:13px;color:#6B5A6D;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;">← Back</button>
-          <span style="color:#E5E7EB;">|</span>
-          <span style="font-size:12px;color:#6B5A6D;">WUCIOA</span>
+          <button onclick="history.back()" style="background:none;border:none;font-size:13px;color:#64748B;cursor:pointer;font-family:'DM Sans',sans-serif;padding:0;">← Back</button>
+          <span style="color:#E2E8F0;">|</span>
+          <span style="font-size:12px;color:#64748B;">WUCIOA</span>
           <span style="background:${pillBg};color:${pillColor};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">${pill.text}</span>
         </div>
         ${renderExportButton()}
@@ -508,25 +508,25 @@
     const low    = all.filter(f => f.urgency === 'LOW')
 
     if (!all.length) {
-      return `<div style="background:#FFFFFF;border-radius:8px;border:1px solid rgba(43,25,46,0.08);padding:20px 24px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No risks identified</p>
-        <p style="font-size:14px;font-weight:400;color:#2B192E;line-height:1.6;margin:0;">No significant risks were found in the uploaded documents.</p>
+      return `<div style="background:#FFFFFF;border-radius:8px;border:1px solid rgba(31,18,36,0.08);padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">No risks identified</p>
+        <p style="font-size:14px;font-weight:400;color:#1F1224;line-height:1.6;margin:0;">No significant risks were found in the uploaded documents.</p>
       </div>`
     }
 
-    // Inline accordion builder — exact spec: bg #FFFFFF, border rgba(43,25,46,0.08),
+    // Inline accordion builder — exact spec: bg #FFFFFF, border rgba(31,18,36,0.08),
     // border-radius 8px, header padding 14px 20px. DOM structure matches toggle handler:
     // wrapper (2 children, border-radius:8px) → children[0] header (cursor:pointer)
     //                                         → children[1] body  (display:none)
     function riskAccordion({ label, count, pillColor, pillBorder, bodyHtml }) {
-      const chevron = `<div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:5px solid rgba(43,25,46,0.25);flex-shrink:0;"></div>`
+      const chevron = `<div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:5px solid rgba(31,18,36,0.25);flex-shrink:0;"></div>`
       const pill    = `<span style="color:${pillColor};background:transparent;border:1px solid ${pillBorder};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0;">${count}</span>`
-      return `<div data-risk-acc="1" style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;overflow:hidden;margin-bottom:8px;">
+      return `<div data-risk-acc="1" style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;overflow:hidden;margin-bottom:8px;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;">
-    <p style="font-size:13px;font-weight:600;color:#2B192E;margin:0;">${label}</p>
+    <p style="font-size:13px;font-weight:600;color:#1F1224;margin:0;">${label}</p>
     <div style="display:flex;align-items:center;gap:8px;">${pill}${chevron}</div>
   </div>
-  <div style="display:none;padding:14px 20px 20px;border-top:1px solid rgba(43,25,46,0.08);">
+  <div style="display:none;padding:14px 20px 20px;border-top:1px solid rgba(31,18,36,0.08);">
     ${bodyHtml}
   </div>
 </div>`
@@ -542,7 +542,7 @@
     // Expand All button — only when there are collapsed sections
     if (medium.length || low.length) {
       html += `<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
-        <button id="risks-expand-all" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6B5A6D;cursor:pointer;padding:0;font-family:inherit;">Expand All</button>
+        <button id="risks-expand-all" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;cursor:pointer;padding:0;font-family:inherit;">Expand All</button>
       </div>`
     }
 
@@ -551,8 +551,8 @@
       html += riskAccordion({
         label:       `Show ${medium.length} medium finding${medium.length > 1 ? 's' : ''}`,
         count:       medium.length,
-        pillColor:   '#D97706',
-        pillBorder:  '#D97706',
+        pillColor:   '#F59E0B',
+        pillBorder:  '#F59E0B',
         bodyHtml:    gridWrap(findingCards(medium), medium.length),
       })
     }
@@ -562,8 +562,8 @@
       html += riskAccordion({
         label:       `Show ${low.length} low finding${low.length > 1 ? 's' : ''}`,
         count:       low.length,
-        pillColor:   '#9CA3AF',
-        pillBorder:  '#9CA3AF',
+        pillColor:   '#64748B',
+        pillBorder:  '#64748B',
         bodyHtml:    gridWrap(findingCards(low), low.length),
       })
     }
@@ -581,8 +581,8 @@
     const deferred   = toArr(fo.deferred_maintenance)
     const litigation = toArr(fo.litigation_costs)
     const fmt$       = n => (n != null && n !== '') ? '$' + Number(n).toLocaleString() : null
-    const CARD       = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
-    const LABEL      = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'
+    const CARD       = 'background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
+    const LABEL      = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;'
 
     let html = ''
 
@@ -604,8 +604,8 @@
     })
     if (lineItems.length) {
       const total = lineItems.reduce((sum, i) => sum + Number(i.amount), 0)
-      html += `<div style="background:#2B192E;border-radius:8px;padding:20px 24px;margin-bottom:16px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(245,232,218,0.6);margin:0 0 12px;">Verified Financial Exposure</p>
+      html += `<div style="background:#1F1224;border-radius:8px;padding:20px 24px;margin-bottom:16px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(148,163,184,0.6);margin:0 0 12px;">Verified Financial Exposure</p>
         ${lineItems.map(i => `
           <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08);">
             <span style="font-size:14px;color:rgba(255,255,255,0.7);">${i.label}${i.note ? ` <span style="font-size:11px;color:rgba(255,255,255,0.35);">(${i.note})</span>` : ''}</span>
@@ -620,11 +620,11 @@
 
     // ── SECTION 2: Monthly Fees ───────────────────────────────────────
     if (mf.current_monthly_fee) {
-      const feeLines = [`<p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 4px;">Current monthly fee: ${fmt$(mf.current_monthly_fee)}</p>`]
+      const feeLines = [`<p style="font-size:14px;font-weight:500;color:#1F1224;margin:0 0 4px;">Current monthly fee: ${fmt$(mf.current_monthly_fee)}</p>`]
       if (mf.upcoming_fee)
         feeLines.push(`<p style="font-size:14px;color:#B45309;margin:0 0 4px;">Upcoming fee: ${fmt$(mf.upcoming_fee)}${mf.upcoming_fee_date ? ` effective ${mf.upcoming_fee_date}` : ''}${mf.upcoming_fee_percent_change ? ` (+${mf.upcoming_fee_percent_change}%)` : ''}</p>`)
       if (mf.transfer_fees_due_at_closing)
-        feeLines.push(`<p style="font-size:14px;color:#6B5A6D;margin:0;">Transfer fees at closing: ${fmt$(mf.transfer_fees_due_at_closing)}</p>`)
+        feeLines.push(`<p style="font-size:14px;color:#64748B;margin:0;">Transfer fees at closing: ${fmt$(mf.transfer_fees_due_at_closing)}</p>`)
       html += `<div style="${CARD}">
         <p style="${LABEL}">Monthly Fees</p>
         ${feeLines.join('')}
@@ -635,9 +635,9 @@
     if (Object.keys(reserve).length) {
       const pct      = reserve.current_percent_funded
       const barFill  = pct != null ? Math.min(pct, 100) : 0
-      const barColor = pct == null ? '#9CA3AF' : pct < 50 ? '#DC2626' : pct < 70 ? '#D97706' : '#15803D'
+      const barColor = pct == null ? '#64748B' : pct < 50 ? '#EF4444' : pct < 70 ? '#F59E0B' : '#10B981'
       const progressBar = pct != null
-        ? `<div style="background:#E5E7EB;border-radius:999px;height:8px;margin:8px 0 10px;overflow:hidden;">
+        ? `<div style="background:#E2E8F0;border-radius:999px;height:8px;margin:8px 0 10px;overflow:hidden;">
             <div style="background:${barColor};width:${barFill}%;height:100%;border-radius:999px;"></div>
            </div>`
         : ''
@@ -645,13 +645,13 @@
       if (!reserve.has_reserve_study)
         reserveLines.push(`<p style="font-size:14px;color:#B91C1C;font-weight:600;margin:0 0 4px;">No reserve study found</p>`)
       if (pct != null)
-        reserveLines.push(`<p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 2px;">${pct}% funded</p>${progressBar}`)
+        reserveLines.push(`<p style="font-size:14px;font-weight:500;color:#1F1224;margin:0 0 2px;">${pct}% funded</p>${progressBar}`)
       if (reserve.shortfall_amount)
         reserveLines.push(`<p style="font-size:14px;color:#B91C1C;margin:0 0 4px;">Shortfall: <strong>${fmt$(reserve.shortfall_amount)}</strong></p>`)
       if (reserve.projected_funding_year)
-        reserveLines.push(`<p style="font-size:14px;color:#6B5A6D;margin:0 0 4px;">Projected fully funded: ${reserve.projected_funding_year}</p>`)
+        reserveLines.push(`<p style="font-size:14px;color:#64748B;margin:0 0 4px;">Projected fully funded: ${reserve.projected_funding_year}</p>`)
       if (reserve.board_action_discussed)
-        reserveLines.push(`<p style="font-size:14px;color:#6B5A6D;margin:0;line-height:1.6;">${reserve.board_action_discussed}</p>`)
+        reserveLines.push(`<p style="font-size:14px;color:#64748B;margin:0;line-height:1.6;">${reserve.board_action_discussed}</p>`)
       html += `<div style="${CARD}">
         <p style="${LABEL}">Reserve Fund</p>
         ${reserveLines.join('')}
@@ -662,14 +662,14 @@
     if (specAssess.length) {
       const rows = specAssess.map(s => {
         const saStatus = ['APPROVED','VOTED','LEVIED'].includes(s.status) ? 'ACTIVE' : 'PROPOSED'
-        return `<div style="padding:10px 0;border-bottom:1px solid rgba(43,25,46,0.06);">
+        return `<div style="padding:10px 0;border-bottom:1px solid rgba(31,18,36,0.06);">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;">
-            <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;flex:1;">${s.description}</p>
+            <p style="font-size:14px;font-weight:500;color:#1F1224;margin:0;flex:1;">${s.description}</p>
             ${renderBadge(saStatus)}
           </div>
           ${s.estimated_amount_per_unit ? `<p style="font-size:14px;color:#B91C1C;font-weight:500;margin:0 0 3px;">Est. per unit: ${fmt$(s.estimated_amount_per_unit)}</p>` : ''}
-          ${s.likely_timeline           ? `<p style="font-size:13px;color:#6B5A6D;margin:0 0 3px;">Timeline: ${s.likely_timeline}</p>` : ''}
-          ${s.source_meeting            ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">📅 ${s.source_meeting}</span>` : ''}
+          ${s.likely_timeline           ? `<p style="font-size:13px;color:#64748B;margin:0 0 3px;">Timeline: ${s.likely_timeline}</p>` : ''}
+          ${s.source_meeting            ? `<span style="font-size:11px;font-family:monospace;color:#64748B;">📅 ${s.source_meeting}</span>` : ''}
         </div>`
       }).join('')
       html += `<div style="${CARD}">
@@ -681,12 +681,12 @@
     // ── SECTION 5: Deferred Maintenance — show 2, expand toggle ──────
     if (deferred.length) {
       const makeRow = d => `
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(43,25,46,0.06);gap:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(31,18,36,0.06);gap:12px;">
           <div style="flex:1;">
-            <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 3px;">${d.item}</p>
-            ${d.timeline       ? `<p style="font-size:13px;color:#6B5A6D;margin:0 0 3px;">Timeline: ${d.timeline}</p>` : ''}
-            ${d.source_meeting ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">📅 ${d.source_meeting}</span>`
-              : d.source_document ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">📄 ${d.source_document}</span>` : ''}
+            <p style="font-size:14px;font-weight:500;color:#1F1224;margin:0 0 3px;">${d.item}</p>
+            ${d.timeline       ? `<p style="font-size:13px;color:#64748B;margin:0 0 3px;">Timeline: ${d.timeline}</p>` : ''}
+            ${d.source_meeting ? `<span style="font-size:11px;font-family:monospace;color:#64748B;">📅 ${d.source_meeting}</span>`
+              : d.source_document ? `<span style="font-size:11px;font-family:monospace;color:#64748B;">📄 ${d.source_document}</span>` : ''}
           </div>
           ${d.estimated_cost ? `<p style="font-size:14px;color:#B45309;font-weight:500;white-space:nowrap;margin:0;">${fmt$(d.estimated_cost)}</p>` : ''}
         </div>`
@@ -694,7 +694,7 @@
       const hidden   = deferred.slice(2).map(makeRow).join('')
       const showMore = deferred.length > 2
         ? `<div id="deferred-hidden" style="display:none;">${hidden}</div>
-           <button id="deferred-toggle" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6B5A6D;cursor:pointer;padding:10px 0 0;font-family:inherit;">Show ${deferred.length - 2} more</button>`
+           <button id="deferred-toggle" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;cursor:pointer;padding:10px 0 0;font-family:inherit;">Show ${deferred.length - 2} more</button>`
         : ''
       html += `<div style="${CARD}">
         <p style="${LABEL}">Deferred Maintenance</p>
@@ -707,12 +707,12 @@
       const insStatus = insurance.coverage_status === 'CURRENT' ? 'CURRENT' : 'LAPSED'
       const insLines  = []
       if (insurance.policy_expiration_date)
-        insLines.push(`<p style="font-size:14px;color:#6B5A6D;margin:0 0 4px;">Policy expires: ${insurance.policy_expiration_date}</p>`)
+        insLines.push(`<p style="font-size:14px;color:#64748B;margin:0 0 4px;">Policy expires: ${insurance.policy_expiration_date}</p>`)
       ;(insurance.coverage_gaps || []).forEach(g =>
         insLines.push(`<p style="font-size:14px;color:#B91C1C;margin:0 0 3px;">⚠ ${g}</p>`)
       )
       if (insurance.deductible_owner_responsibility)
-        insLines.push(`<p style="font-size:14px;color:#6B5A6D;margin:0;">Owner deductible: ${insurance.deductible_owner_responsibility}</p>`)
+        insLines.push(`<p style="font-size:14px;color:#64748B;margin:0;">Owner deductible: ${insurance.deductible_owner_responsibility}</p>`)
       html += `<div style="${CARD}">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <p style="${LABEL}margin-bottom:0;">Insurance</p>
@@ -727,14 +727,14 @@
       const litRows = litigation.map(l => {
         const litStatus = l.resolution_status === 'SETTLED' ? 'SETTLED' : 'ONGOING'
         const src       = l.source_meeting || l.source_document
-        return `<div style="padding:10px 0;border-bottom:1px solid rgba(43,25,46,0.06);">
+        return `<div style="padding:10px 0;border-bottom:1px solid rgba(31,18,36,0.06);">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;">
-            <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;flex:1;">${l.description}</p>
+            <p style="font-size:14px;font-weight:500;color:#1F1224;margin:0;flex:1;">${l.description}</p>
             ${renderBadge(litStatus)}
           </div>
-          ${l.costs_to_date            ? `<p style="font-size:14px;color:#6B5A6D;margin:0 0 3px;">Costs to date: ${fmt$(l.costs_to_date)}</p>` : ''}
+          ${l.costs_to_date            ? `<p style="font-size:14px;color:#64748B;margin:0 0 3px;">Costs to date: ${fmt$(l.costs_to_date)}</p>` : ''}
           ${l.estimated_total_exposure ? `<p style="font-size:14px;color:#B91C1C;font-weight:500;margin:0 0 3px;">Total exposure: ${fmt$(l.estimated_total_exposure)}</p>` : ''}
-          ${src ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">${l.source_meeting ? '📅' : '📄'} ${src}</span>` : ''}
+          ${src ? `<span style="font-size:11px;font-family:monospace;color:#64748B;">${l.source_meeting ? '📅' : '📄'} ${src}</span>` : ''}
         </div>`
       }).join('')
       html += `<div style="${CARD}">
@@ -745,7 +745,7 @@
 
     return html || `<div style="${CARD}">
       <p style="${LABEL}">No financial data available</p>
-      <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No financial information was found in the uploaded documents.</p>
+      <p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;">No financial information was found in the uploaded documents.</p>
     </div>`
   }
 
@@ -754,9 +754,9 @@
     const profiles = a.buyer_profile_verdicts?.verdicts || []
 
     if (!found.length && !profiles.length) {
-      return `<div style="background:#FFFFFF;border-radius:8px;border:1px solid rgba(43,25,46,0.08);padding:20px 24px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No restrictions data available</p>
-        <p style="font-size:14px;font-weight:400;color:#2B192E;line-height:1.6;margin:0;">No restriction information was found in the uploaded documents.</p>
+      return `<div style="background:#FFFFFF;border-radius:8px;border:1px solid rgba(31,18,36,0.08);padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">No restrictions data available</p>
+        <p style="font-size:14px;font-weight:400;color:#1F1224;line-height:1.6;margin:0;">No restriction information was found in the uploaded documents.</p>
       </div>`
     }
 
@@ -770,16 +770,16 @@
     // Inline accordion — same DOM structure as riskAccordion so toggle handler fires
     // wrapper: border-radius:8px + 2 children (header cursor:pointer + body display:none)
     function restAccordion({ title, count, pillSeverity, bodyHtml }) {
-      const s       = { HIGH: '#DC2626', MEDIUM: '#D97706', LOW: '#9CA3AF' }
-      const color   = s[pillSeverity] || '#9CA3AF'
+      const s       = { HIGH: '#EF4444', MEDIUM: '#F59E0B', LOW: '#64748B' }
+      const color   = s[pillSeverity] || '#64748B'
       const pill    = `<span style="color:${color};background:transparent;border:1px solid ${color};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;flex-shrink:0;">${count}</span>`
-      const chevron = `<div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:5px solid rgba(43,25,46,0.25);flex-shrink:0;"></div>`
-      return `<div data-rest-acc="1" style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;overflow:hidden;margin-bottom:8px;">
+      const chevron = `<div style="width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:5px solid rgba(31,18,36,0.25);flex-shrink:0;"></div>`
+      return `<div data-rest-acc="1" style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;overflow:hidden;margin-bottom:8px;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;">
-    <p style="font-size:13px;font-weight:600;color:#2B192E;margin:0;">${title}</p>
+    <p style="font-size:13px;font-weight:600;color:#1F1224;margin:0;">${title}</p>
     <div style="display:flex;align-items:center;gap:8px;">${pill}${chevron}</div>
   </div>
-  <div style="display:none;padding:14px 20px 20px;border-top:1px solid rgba(43,25,46,0.08);">
+  <div style="display:none;padding:14px 20px 20px;border-top:1px solid rgba(31,18,36,0.08);">
     ${bodyHtml}
   </div>
 </div>`
@@ -792,16 +792,16 @@
       const cards = profiles.map(v => {
         const { key, label } = verdictBadge(v.verdict)
         const badge = renderBadge(key)
-        return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
+        return `<div style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">${v.buyer_type_label || 'Buyer Profile'}</p>
+            <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0;">${v.buyer_type_label || 'Buyer Profile'}</p>
             ${badge}
           </div>
-          ${v.verdict_reason ? `<p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">${v.verdict_reason}</p>` : ''}
+          ${v.verdict_reason ? `<p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;">${v.verdict_reason}</p>` : ''}
         </div>`
       }).join('')
       html += `<div style="margin-bottom:24px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">Buyer Profile Verdicts</p>
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">Buyer Profile Verdicts</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">${cards}</div>
       </div>`
     }
@@ -825,8 +825,8 @@
 
       // Expand All header row
       html += `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">Rules by Category</p>
-        <button id="restrict-expand-all" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6B5A6D;cursor:pointer;padding:0;font-family:inherit;">Expand All</button>
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0;">Rules by Category</p>
+        <button id="restrict-expand-all" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#64748B;cursor:pointer;padding:0;font-family:inherit;">Expand All</button>
       </div>`
 
       sortedCats.forEach(cat => {
@@ -837,14 +837,14 @@
 
         const bodyRows = items.map(res => {
           const src = res.source_document
-            ? `<span style="font-size:11px;font-family:monospace;color:#A67388;display:block;margin-top:4px;">${res.source_document}${res.source_section ? ' · ' + res.source_section : ''}</span>`
+            ? `<span style="font-size:11px;font-family:monospace;color:#64748B;display:block;margin-top:4px;">${res.source_document}${res.source_section ? ' · ' + res.source_section : ''}</span>`
             : ''
           const dealbreakerNote = res.dealbreaker_for
             ? `<p style="font-size:12px;color:#B91C1C;font-weight:600;margin:4px 0 0;">Dealbreaker for: ${res.dealbreaker_for}</p>`
             : ''
-          return `<div style="padding:10px 0;border-bottom:1px solid rgba(43,25,46,0.06);">
+          return `<div style="padding:10px 0;border-bottom:1px solid rgba(31,18,36,0.06);">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-              <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;flex:1;">${res.rule}</p>
+              <p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;flex:1;">${res.rule}</p>
               ${renderBadge(res.buyer_impact || 'LOW')}
             </div>
             ${dealbreakerNote}${src}
@@ -866,9 +866,9 @@
   function renderTimelineContent() {
     const tl = a.timeline
     if (!tl) {
-      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No timeline data</p>
-        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No timeline information was found in the uploaded documents.</p>
+      return `<div style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">No timeline data</p>
+        <p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;">No timeline information was found in the uploaded documents.</p>
       </div>`
     }
 
@@ -885,14 +885,14 @@
     })
 
     if (!allEvents.length) {
-      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No timeline events found</p>
-        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No datable events were extracted from the uploaded documents.</p>
+      return `<div style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">No timeline events found</p>
+        <p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;">No datable events were extracted from the uploaded documents.</p>
       </div>`
     }
 
     // Urgency → left-border color (matches finding card pattern)
-    const BORDER = { CRITICAL: '#DC2626', HIGH: '#DC2626', MEDIUM: '#D97706', LOW: '#9CA3AF' }
+    const BORDER = { CRITICAL: '#EF4444', HIGH: '#EF4444', MEDIUM: '#F59E0B', LOW: '#64748B' }
 
     // Group events by year
     const byYear = {}
@@ -907,15 +907,15 @@
       return Number(a) - Number(b)
     })
 
-    let html = `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">`
+    let html = `<div style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;">`
 
     sortedYears.forEach((year, yi) => {
-      if (yi > 0) html += `<div style="height:1px;background:rgba(43,25,46,0.06);margin:16px 0;"></div>`
+      if (yi > 0) html += `<div style="height:1px;background:rgba(31,18,36,0.06);margin:16px 0;"></div>`
 
-      html += `<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">${year}</p>`
+      html += `<p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">${year}</p>`
 
       byYear[year].forEach((ev, i) => {
-        const borderColor = BORDER[ev.urgency] || '#9CA3AF'
+        const borderColor = BORDER[ev.urgency] || '#64748B'
         const dateStr = ev.date
           ? new Date(ev.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
           : '—'
@@ -924,26 +924,26 @@
           && ev.status !== 'Completed'
           && (ev._group === 'Critical' || ev._group === 'Financial')
         const overdueTag = isOverdue
-          ? ` <span style="font-size:10px;font-weight:700;color:#DC2626;text-transform:uppercase;letter-spacing:0.04em;">Overdue</span>`
+          ? ` <span style="font-size:10px;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:0.04em;">Overdue</span>`
           : ''
-        const groupTag = `<span style="font-size:10px;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.04em;">${ev._group}</span>`
+        const groupTag = `<span style="font-size:10px;color:#64748B;text-transform:uppercase;letter-spacing:0.04em;">${ev._group}</span>`
         const src = ev.source_section
-          ? `<span style="font-size:11px;font-family:monospace;color:#A67388;display:block;margin-top:3px;">📄 ${ev.source_section}</span>`
+          ? `<span style="font-size:11px;font-family:monospace;color:#64748B;display:block;margin-top:3px;">📄 ${ev.source_section}</span>`
           : ''
         const amount = ev.amount
           ? `<span style="font-size:13px;color:#B45309;font-weight:500;"> · $${Number(ev.amount).toLocaleString()}</span>`
           : ''
         const status = ev.status
-          ? `<span style="font-size:12px;color:#6B5A6D;"> · ${ev.status}</span>`
+          ? `<span style="font-size:12px;color:#64748B;"> · ${ev.status}</span>`
           : ''
         const divider = i < byYear[year].length - 1
-          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          ? `<div style="height:1px;background:rgba(31,18,36,0.06);margin:10px 0;"></div>`
           : ''
 
         html += `<div style="border-left:3px solid ${borderColor};padding:6px 0 6px 14px;">
           <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
-            <span style="font-size:13px;color:#6B5A6D;font-family:monospace;white-space:nowrap;flex-shrink:0;">${dateStr}${overdueTag}</span>
-            <p style="font-size:14px;color:#2B192E;margin:0;line-height:1.5;">${ev.label || ev.event_type_id || 'Event'}${amount}${status}</p>
+            <span style="font-size:13px;color:#64748B;font-family:monospace;white-space:nowrap;flex-shrink:0;">${dateStr}${overdueTag}</span>
+            <p style="font-size:14px;color:#1F1224;margin:0;line-height:1.5;">${ev.label || ev.event_type_id || 'Event'}${amount}${status}</p>
           </div>
           <div style="padding-left:0;">${groupTag}${src}</div>
         </div>${divider}`
@@ -961,14 +961,14 @@
     const recMissing  = md.recommended_missing || []
 
     if (!docs.length && !critMissing.length && !recMissing.length) {
-      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No documents found</p>
-        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No document inventory was found in the analysis.</p>
+      return `<div style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">No documents found</p>
+        <p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;">No document inventory was found in the analysis.</p>
       </div>`
     }
 
-    const CARD  = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
-    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'
+    const CARD  = 'background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
+    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;'
 
     // Group label map — document_type_id → display group
     const GROUP_MAP = {
@@ -1002,7 +1002,7 @@
       html += `<div style="${CARD}">`
 
       sortedGroups.forEach((group, gi) => {
-        if (gi > 0) html += `<div style="height:1px;background:rgba(43,25,46,0.06);margin:16px 0;"></div>`
+        if (gi > 0) html += `<div style="height:1px;background:rgba(31,18,36,0.06);margin:16px 0;"></div>`
         html += `<p style="${LABEL}">${group}</p>`
 
         byGroup[group].forEach((d, i) => {
@@ -1010,22 +1010,22 @@
             ? new Date(d.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
             : null
           const statusBadge = d.is_stale
-            ? `<span style="color:#D97706;background:transparent;border:1px solid #D97706;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">Verify</span>`
-            : `<span style="color:#15803D;background:transparent;border:1px solid #15803D;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">Current</span>`
+            ? `<span style="color:#F59E0B;background:transparent;border:1px solid #F59E0B;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">Verify</span>`
+            : `<span style="color:#10B981;background:transparent;border:1px solid #10B981;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0;">Current</span>`
           const divider = i < byGroup[group].length - 1
-            ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+            ? `<div style="height:1px;background:rgba(31,18,36,0.06);margin:10px 0;"></div>`
             : ''
 
           html += `<div style="display:flex;align-items:flex-start;gap:12px;">
             <span style="font-size:18px;flex-shrink:0;line-height:1.4;">📄</span>
             <div style="flex:1;min-width:0;">
               <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-                <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;">${d.document_label}</p>
+                <p style="font-size:14px;font-weight:500;color:#1F1224;margin:0;">${d.document_label}</p>
                 ${statusBadge}
               </div>
-              ${d.filename    ? `<p style="font-size:13px;color:#6B5A6D;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.filename}</p>` : ''}
-              ${d.page_count  ? `<p style="font-size:13px;color:#6B5A6D;margin:3px 0 0;">${d.page_count} pages${dateStr ? ' · ' + dateStr : ''}</p>` : (dateStr ? `<p style="font-size:13px;color:#6B5A6D;margin:3px 0 0;">${dateStr}</p>` : '')}
-              ${d.notes       ? `<p style="font-size:11px;font-family:monospace;color:#A67388;margin:4px 0 0;">${d.notes}</p>` : ''}
+              ${d.filename    ? `<p style="font-size:13px;color:#64748B;margin:3px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.filename}</p>` : ''}
+              ${d.page_count  ? `<p style="font-size:13px;color:#64748B;margin:3px 0 0;">${d.page_count} pages${dateStr ? ' · ' + dateStr : ''}</p>` : (dateStr ? `<p style="font-size:13px;color:#64748B;margin:3px 0 0;">${dateStr}</p>` : '')}
+              ${d.notes       ? `<p style="font-size:11px;font-family:monospace;color:#64748B;margin:4px 0 0;">${d.notes}</p>` : ''}
             </div>
           </div>${divider}`
         })
@@ -1038,17 +1038,17 @@
     if (critMissing.length) {
       const rows = critMissing.map((d, i) => {
         const divider = i < critMissing.length - 1
-          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          ? `<div style="height:1px;background:rgba(31,18,36,0.06);margin:10px 0;"></div>`
           : ''
         return `<div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="font-size:18px;flex-shrink:0;line-height:1.4;">❌</span>
           <div style="flex:1;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-              <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;">${d.label}</p>
+              <p style="font-size:14px;font-weight:500;color:#1F1224;margin:0;">${d.label}</p>
               ${renderBadge('HIGH')}
             </div>
-            ${d.why_critical  ? `<p style="font-size:14px;color:#6B5A6D;line-height:1.6;margin:4px 0 0;">${d.why_critical}</p>`  : ''}
-            ${d.how_to_obtain ? `<p style="font-size:11px;font-family:monospace;color:#A67388;margin:4px 0 0;">→ ${d.how_to_obtain}</p>` : ''}
+            ${d.why_critical  ? `<p style="font-size:14px;color:#64748B;line-height:1.6;margin:4px 0 0;">${d.why_critical}</p>`  : ''}
+            ${d.how_to_obtain ? `<p style="font-size:11px;font-family:monospace;color:#64748B;margin:4px 0 0;">→ ${d.how_to_obtain}</p>` : ''}
           </div>
         </div>${divider}`
       }).join('')
@@ -1062,16 +1062,16 @@
     if (recMissing.length) {
       const rows = recMissing.map((d, i) => {
         const divider = i < recMissing.length - 1
-          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          ? `<div style="height:1px;background:rgba(31,18,36,0.06);margin:10px 0;"></div>`
           : ''
         return `<div style="display:flex;align-items:flex-start;gap:12px;">
           <span style="font-size:18px;flex-shrink:0;line-height:1.4;">📋</span>
           <div style="flex:1;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-              <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0;">${d.label}</p>
+              <p style="font-size:14px;font-weight:500;color:#1F1224;margin:0;">${d.label}</p>
               ${renderBadge('MEDIUM')}
             </div>
-            ${d.why_recommended ? `<p style="font-size:14px;color:#6B5A6D;line-height:1.6;margin:4px 0 0;">${d.why_recommended}</p>` : ''}
+            ${d.why_recommended ? `<p style="font-size:14px;color:#64748B;line-height:1.6;margin:4px 0 0;">${d.why_recommended}</p>` : ''}
           </div>
         </div>${divider}`
       }).join('')
@@ -1106,9 +1106,9 @@
   function renderComplianceContent() {
     const cc = a.compliance_check
     if (!cc?.items?.length) {
-      return `<div style="background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;">No compliance data</p>
-        <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">No WUCIOA compliance check was performed. This report may not be for a Washington state property.</p>
+      return `<div style="background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;">
+        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;">No compliance data</p>
+        <p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;">No WUCIOA compliance check was performed. This report may not be for a Washington state property.</p>
       </div>`
     }
 
@@ -1123,17 +1123,17 @@
       return 'NOT_FOUND'
     }
 
-    const CARD  = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
-    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'
+    const CARD  = 'background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
+    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;'
 
     // Header card
     let html = `<div style="${CARD}">
       <p style="${LABEL}">WUCIOA Compliance Check — RCW 64.90.640</p>
       <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px;">
-        <span style="font-size:28px;font-weight:600;color:#2B192E;">${verified}</span>
-        <span style="font-size:14px;color:#6B5A6D;">of ${total} items verified</span>
+        <span style="font-size:28px;font-weight:600;color:#1F1224;">${verified}</span>
+        <span style="font-size:14px;color:#64748B;">of ${total} items verified</span>
       </div>
-      ${cc.state ? `<p style="font-size:13px;color:#6B5A6D;margin:0;">State: ${cc.state}${cc.overall_status ? ' · ' + cc.overall_status : ''}</p>` : ''}
+      ${cc.state ? `<p style="font-size:13px;color:#64748B;margin:0;">State: ${cc.state}${cc.overall_status ? ' · ' + cc.overall_status : ''}</p>` : ''}
     </div>`
 
     // Full checklist card
@@ -1144,23 +1144,23 @@
       const badgeKey  = itemBadge(item.status)
       const needsAction = badgeKey === 'NOT_FOUND' || badgeKey === 'UNCLEAR'
       const divider   = i < items.length - 1
-        ? `<div style="height:1px;background:rgba(43,25,46,0.08);margin:12px 0;"></div>`
+        ? `<div style="height:1px;background:rgba(31,18,36,0.08);margin:12px 0;"></div>`
         : ''
       const itemNum   = String(i + 1).padStart(2, '0')
       const new2026   = item.new_2026
-        ? `<span style="font-size:10px;font-weight:700;color:#1D4ED8;background:#DBEAFE;padding:1px 6px;border-radius:20px;margin-left:6px;vertical-align:middle;">2026</span>`
+        ? `<span style="font-size:10px;font-weight:700;color:#2563EB;background:#DBEAFE;padding:1px 6px;border-radius:20px;margin-left:6px;vertical-align:middle;">2026</span>`
         : ''
 
       html += `<div>
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
           <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;">
-            <span style="font-size:13px;color:#6B5A6D;font-family:monospace;flex-shrink:0;padding-top:2px;">${itemNum}</span>
+            <span style="font-size:13px;color:#64748B;font-family:monospace;flex-shrink:0;padding-top:2px;">${itemNum}</span>
             <div style="flex:1;min-width:0;">
-              <p style="font-size:14px;color:#2B192E;margin:0;line-height:1.5;">${item.title}${new2026}</p>
-              ${item.rcw ? `<p style="font-size:11px;font-family:monospace;color:#9CA3AF;margin:3px 0 0;">RCW ${item.rcw}</p>` : ''}
-              ${needsAction && item.action_required ? `<p style="font-size:13px;color:#6B5A6D;margin:5px 0 0;line-height:1.5;">${item.action_required}</p>` : ''}
-              ${needsAction && item.notes && !item.action_required ? `<p style="font-size:13px;color:#6B5A6D;margin:5px 0 0;line-height:1.5;">${item.notes}</p>` : ''}
-              ${badgeKey === 'FOUND' && item.source ? `<span style="font-size:11px;font-family:monospace;color:#A67388;display:block;margin-top:3px;">📄 ${item.source}</span>` : ''}
+              <p style="font-size:14px;color:#1F1224;margin:0;line-height:1.5;">${item.title}${new2026}</p>
+              ${item.rcw ? `<p style="font-size:11px;font-family:monospace;color:#64748B;margin:3px 0 0;">RCW ${item.rcw}</p>` : ''}
+              ${needsAction && item.action_required ? `<p style="font-size:13px;color:#64748B;margin:5px 0 0;line-height:1.5;">${item.action_required}</p>` : ''}
+              ${needsAction && item.notes && !item.action_required ? `<p style="font-size:13px;color:#64748B;margin:5px 0 0;line-height:1.5;">${item.notes}</p>` : ''}
+              ${badgeKey === 'FOUND' && item.source ? `<span style="font-size:11px;font-family:monospace;color:#64748B;display:block;margin-top:3px;">📄 ${item.source}</span>` : ''}
             </div>
           </div>
           ${renderBadge(badgeKey)}
@@ -1190,8 +1190,8 @@
     const profiles     = a.buyer_profile_verdicts?.verdicts || []
     const actionItems  = Array.isArray(a.action_items) ? a.action_items : (a.action_items?.items || [])
 
-    const CARD  = 'background:#FFFFFF;border:1px solid rgba(43,25,46,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
-    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 8px;'
+    const CARD  = 'background:#FFFFFF;border:1px solid rgba(31,18,36,0.08);border-radius:8px;padding:20px 24px;margin-bottom:16px;'
+    const LABEL = 'font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 8px;'
 
     // Total financial exposure — use schema-computed value from overall_verdict (authoritative).
     // Falls back to summing financial_outlook line items for analyses missing the field.
@@ -1219,7 +1219,7 @@
       html += `<div style="${CARD}">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <p style="${LABEL}margin-bottom:0;">Top Critical Findings</p>
-          <button onclick="document.querySelector('[data-tab=risks]').click()" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#CE8CA5;cursor:pointer;padding:0;font-family:inherit;">View all →</button>
+          <button onclick="document.querySelector('[data-tab=risks]').click()" style="background:none;border:none;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#9333EA;cursor:pointer;padding:0;font-family:inherit;">View all →</button>
         </div>
         ${high.slice(0, 3).map(f => renderFindingCard({
           severity: f.urgency   || 'HIGH',
@@ -1233,25 +1233,25 @@
 
     // ── SECTION 3: Financial Snapshot — 4 key numbers ─────────────────────
     const reservePct   = reserve.current_percent_funded
-    const reserveColor = reservePct == null ? '#6B5A6D' : reservePct < 50 ? '#DC2626' : reservePct < 70 ? '#D97706' : '#15803D'
+    const reserveColor = reservePct == null ? '#64748B' : reservePct < 50 ? '#EF4444' : reservePct < 70 ? '#F59E0B' : '#10B981'
     html += `<div style="${CARD}">
       <p style="${LABEL}">Financial Snapshot</p>
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
         <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Monthly Fee</p>
-          <p style="font-size:22px;font-weight:500;color:#2B192E;margin:0;">${mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}</p>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 4px;">Monthly Fee</p>
+          <p style="font-size:22px;font-weight:500;color:#1F1224;margin:0;">${mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}</p>
         </div>
         <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Reserve Fund</p>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 4px;">Reserve Fund</p>
           <p style="font-size:22px;font-weight:500;color:${reserveColor};margin:0;">${reservePct != null ? reservePct + '%' : '—'}</p>
         </div>
         <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Assessments</p>
-          <p style="font-size:22px;font-weight:500;color:${specAssess.length ? '#D97706' : '#15803D'};margin:0;">${specAssess.length || 'None'}</p>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 4px;">Assessments</p>
+          <p style="font-size:22px;font-weight:500;color:${specAssess.length ? '#F59E0B' : '#10B981'};margin:0;">${specAssess.length || 'None'}</p>
         </div>
         <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0 0 4px;">Total Exposure</p>
-          <p style="font-size:22px;font-weight:500;color:${exposure > 0 ? '#DC2626' : '#15803D'};margin:0;">${exposure > 0 ? fmt$(exposure) : 'None'}</p>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0 0 4px;">Total Exposure</p>
+          <p style="font-size:22px;font-weight:500;color:${exposure > 0 ? '#EF4444' : '#10B981'};margin:0;">${exposure > 0 ? fmt$(exposure) : 'None'}</p>
         </div>
       </div>
     </div>`
@@ -1268,12 +1268,12 @@
         <p style="${LABEL}">Buyer Profile Restrictions</p>
         <div style="display:grid;grid-template-columns:repeat(${Math.min(top3.length, 3)},1fr);gap:14px;">
           ${top3.map(v => `
-            <div style="background:#F2F3F6;border-radius:6px;padding:14px 16px;">
+            <div style="background:#F8F9FB;border-radius:6px;padding:14px 16px;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;">
-                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B5A6D;margin:0;">${v.buyer_type_label || 'Buyer Profile'}</p>
+                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;margin:0;">${v.buyer_type_label || 'Buyer Profile'}</p>
                 ${renderBadge(verdictKey(v.verdict))}
               </div>
-              ${v.verdict_reason ? `<p style="font-size:13px;color:#2B192E;line-height:1.5;margin:0;">${v.verdict_reason}</p>` : ''}
+              ${v.verdict_reason ? `<p style="font-size:13px;color:#1F1224;line-height:1.5;margin:0;">${v.verdict_reason}</p>` : ''}
             </div>`).join('')}
         </div>
       </div>`
@@ -1284,14 +1284,14 @@
       const rows = actionItems.map((item, i) => {
         const isImmediate = item.priority === 'IMMEDIATE' || item.urgency === 'HIGH' || item.urgency === 'CRITICAL'
         const divider = i < actionItems.length - 1
-          ? `<div style="height:1px;background:rgba(43,25,46,0.06);margin:10px 0;"></div>`
+          ? `<div style="height:1px;background:rgba(31,18,36,0.06);margin:10px 0;"></div>`
           : ''
         return `<div style="display:flex;gap:12px;align-items:flex-start;">
           <span style="font-size:14px;flex-shrink:0;line-height:1.5;">${isImmediate ? '⚡' : '→'}</span>
           <div style="flex:1;">
-            <p style="font-size:14px;font-weight:500;color:#2B192E;margin:0 0 3px;">${item.action}</p>
-            ${item.why ? `<p style="font-size:13px;color:#6B5A6D;margin:0;line-height:1.5;">${item.why}</p>` : ''}
-            ${item.roles?.length ? `<span style="font-size:11px;font-family:monospace;color:#A67388;">${item.roles.join(' · ')}</span>` : ''}
+            <p style="font-size:14px;font-weight:500;color:#1F1224;margin:0 0 3px;">${item.action}</p>
+            ${item.why ? `<p style="font-size:13px;color:#64748B;margin:0;line-height:1.5;">${item.why}</p>` : ''}
+            ${item.roles?.length ? `<span style="font-size:11px;font-family:monospace;color:#64748B;">${item.roles.join(' · ')}</span>` : ''}
           </div>
         </div>${divider}`
       }).join('')
@@ -1303,7 +1303,7 @@
 
     return html || `<div style="${CARD}">
       <p style="${LABEL}">No summary data available</p>
-      <p style="font-size:14px;color:#2B192E;line-height:1.6;margin:0;">Summary could not be generated from the available documents.</p>
+      <p style="font-size:14px;color:#1F1224;line-height:1.6;margin:0;">Summary could not be generated from the available documents.</p>
     </div>`
   }
 
