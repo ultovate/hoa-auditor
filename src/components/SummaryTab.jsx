@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AlertCircle, Shield, DollarSign, CheckSquare } from 'lucide-react'
 
 const MOCK_REPORT = {
   risks: {
@@ -217,18 +218,8 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
   const CARD  = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '20px 24px', marginBottom: 16 }
   const LABEL = { fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, margin: '0 0 12px' }
 
-  const prop = report.property ?? {}
-
   return (
     <div style={{ background: C.pageBg, minHeight: '100%' }}>
-
-      {/* ── Property header ── */}
-      <div style={{ background: '#1F1224', padding: '24px 32px' }}>
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: '#94A3B8', margin: 0 }}>{prop.associationName}</p>
-        <p style={{ fontSize: 28, fontWeight: 700, color: '#FFFFFF', margin: '6px 0' }}>{prop.propertyAddress}</p>
-        <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>{prop.auditDate} · 6 documents</p>
-      </div>
-
       <div style={{ padding: 24 }}>
 
       {/* ── Section 1: Stat cards ── */}
@@ -254,7 +245,10 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
       {high.length > 0 && (
         <div style={CARD}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <p style={{ ...LABEL, margin: 0 }}>Top Critical Findings</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <AlertCircle size={16} color='#EF4444' />
+              <p style={{ ...LABEL, margin: 0 }}>Top Critical Findings</p>
+            </div>
             <button style={{ background: 'none', border: 'none', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.accent, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>
               View all →
             </button>
@@ -264,26 +258,33 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
       )}
 
       {/* ── Section 2b: Common Restrictions ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
-        {[
-          { title: 'Pets',         body: 'Your pet may not be allowed — 40 lb weight limit applies',    badge: 'Restricted', badgeColor: '#92400E', badgeBg: '#FEF3C7', source: 'CC&Rs §4.3 — Pet Restrictions'           },
-          { title: 'Airbnb / VRBO', body: 'Short-term rentals are banned — no Airbnb or VRBO',          badge: 'Banned',     badgeColor: '#B91C1C', badgeBg: '#FEE2E2', source: 'House Rules §2.1 — Short-Term Rentals'    },
-          { title: 'Rental Cap',   body: 'Only 20% of units can be rented — affects resale liquidity',  badge: 'Restricted', badgeColor: '#92400E', badgeBg: '#FEF3C7', source: 'Bylaws §8.4 — Rental Cap Policy'          },
-        ].map(({ title, body, badge, badgeColor, badgeBg, source }) => (
-          <div key={title} style={{ background: '#FFFFFF', borderRadius: 12, border: '1px solid rgba(31,18,36,0.08)', padding: '20px 24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: badgeColor, background: badgeBg, padding: '3px 10px', borderRadius: 20 }}>{badge}</span>
+      <div style={CARD}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <Shield size={16} color='#9333EA' />
+          <p style={{ ...LABEL, margin: 0 }}>Common Restrictions</p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          {[
+            { title: 'Pets',          body: 'Your pet may not be allowed — 40 lb weight limit applies',   badge: 'Restricted', badgeColor: '#92400E', badgeBg: '#FEF3C7', source: 'CC&Rs §4.3 — Pet Restrictions'        },
+            { title: 'Airbnb / VRBO', body: 'Short-term rentals are banned — no Airbnb or VRBO',          badge: 'Banned',     badgeColor: '#B91C1C', badgeBg: '#FEE2E2', source: 'House Rules §2.1 — Short-Term Rentals' },
+            { title: 'Rental Cap',    body: 'Only 20% of units can be rented — affects resale liquidity', badge: 'Restricted', badgeColor: '#92400E', badgeBg: '#FEF3C7', source: 'Bylaws §8.4 — Rental Cap Policy'       },
+          ].map(({ title, body, badge, badgeColor, badgeBg, source }) => (
+            <div key={title}>
+              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', margin: '0 0 6px' }}>{title}</p>
+              <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, color: badgeColor, background: badgeBg, padding: '3px 10px', borderRadius: 20, marginBottom: 8 }}>{badge}</span>
+              <p style={{ fontSize: 14, color: '#1F1224', lineHeight: 1.6, margin: '0 0 6px' }}>{body}</p>
+              <p style={{ fontSize: 11, fontFamily: 'monospace', color: '#64748B', margin: 0 }}>{source}</p>
             </div>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', margin: '0 0 6px' }}>{title}</p>
-            <p style={{ fontSize: 13, color: '#1F1224', lineHeight: 1.6, margin: '0 0 8px' }}>{body}</p>
-            <p style={{ fontSize: 11, fontFamily: 'monospace', color: '#64748B', margin: 0 }}>{source}</p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* ── Section 3: Financial snapshot ── */}
       <div style={CARD}>
-        <p style={LABEL}>Financial Snapshot</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <DollarSign size={16} color='#10B981' />
+          <p style={{ ...LABEL, margin: 0 }}>Financial Snapshot</p>
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           <FinancialStat
             label="Monthly Fee"
@@ -310,7 +311,10 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
       {/* ── Section 4: Buyer Investigation Checklist ── */}
       <div style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.border}`, marginBottom: 16 }}>
         <div style={{ background: '#1F1224', padding: 24 }}>
-          <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: '0 0 4px' }}>Buyer's Investigation Checklist</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+            <CheckSquare size={16} color='#FFFFFF' />
+            <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>Buyer's Investigation Checklist</p>
+          </div>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', margin: 0 }}>Collaborate with your team before closing</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: C.card }}>
@@ -339,7 +343,7 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
         </div>
       </div>
 
-      </div>{/* /padding wrapper */}
+      </div>
     </div>
   )
 }
