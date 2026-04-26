@@ -307,42 +307,42 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
           </motion.div>
         )}
 
-        {/* ── Section 2b: Common Restrictions ── */}
-        <motion.div
-          className="card"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.20 }}
-        >
-          <div className="card__header">
+        {/* ── Section 2b: Lifestyle Impact Restrictions ── */}
+        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid #F1F5F9' }}>
             <h2 className="section-header">
               <Shield size={16} color={tokens.COLOR_BRAND} />
-              Common Restrictions
+              LIFESTYLE IMPACT RESTRICTIONS
             </h2>
+            <button className="link-btn">VIEW ALL RESTRICTIONS →</button>
           </div>
-          <div className="card__body">
-            <div className={styles.restrictionsGrid}>
+          <div style={{ padding: '20px 24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
               {[
-                { title: 'Pets',          body: 'Your pet may not be allowed — 40 lb weight limit applies',   badge: 'Restricted', badgeClass: 'badge badge-restricted', source: 'CC&Rs §4.3 — Pet Restrictions'        },
-                { title: 'Airbnb / VRBO', body: 'Short-term rentals are banned — no Airbnb or VRBO',          badge: 'Banned',     badgeClass: 'badge badge-high',        source: 'House Rules §2.1 — Short-Term Rentals' },
-                { title: 'Rental Cap',    body: 'Only 20% of units can be rented — affects resale liquidity', badge: 'Restricted', badgeClass: 'badge badge-caution',     source: 'Bylaws §8.4 — Rental Cap Policy'       },
-              ].map(({ title, body, badge, badgeClass, source }, i) => (
+                { title: 'Pets',          body: 'Your pet may not be allowed — 40 lb weight limit applies',   badge: 'Restricted', badgeClass: 'badge badge-restricted', accentClass: 'restriction-card-high',   source: 'CC&Rs §4.3 — Pet Restrictions'        },
+                { title: 'Airbnb / VRBO', body: 'Short-term rentals are banned — no Airbnb or VRBO',          badge: 'Banned',     badgeClass: 'badge badge-high',        accentClass: 'restriction-card-high',   source: 'House Rules §2.1 — Short-Term Rentals' },
+                { title: 'Rental Cap',    body: 'Only 20% of units can be rented — affects resale liquidity', badge: 'Restricted', badgeClass: 'badge badge-caution',     accentClass: 'restriction-card-medium', source: 'Bylaws §8.4 — Rental Cap Policy'       },
+              ].map(({ title, body, badge, badgeClass, accentClass, source }, i) => (
                 <motion.div
                   key={title}
-                  className={styles.restrictionItem}
+                  className={`${styles.restrictionCard} ${accentClass}`}
+                  style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: 24 }}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25, delay: 0.25 + i * 0.05 }}
+                  whileHover={{ y: -3, boxShadow: '0 6px 24px rgba(0,0,0,0.08)' }}
                 >
-                  <p className={styles.restrictionTitle}>{title}</p>
-                  <span className={badgeClass}>{badge}</span>
-                  <p className={styles.restrictionBody}>{body}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', color: tokens.COLOR_TEXT_MUTED, margin: 0 }}>{title}</p>
+                    <span className={`${badgeClass} ${styles.restrictionBadge}`}>{badge}</span>
+                  </div>
+                  <p style={{ fontSize: 14, color: tokens.COLOR_TEXT_MAIN, lineHeight: 1.6, margin: '8px 0 6px' }}>{body}</p>
                   <p className="source-citation">{source}</p>
                 </motion.div>
               ))}
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* ── Section 3: Financial snapshot ── */}
         <motion.div
