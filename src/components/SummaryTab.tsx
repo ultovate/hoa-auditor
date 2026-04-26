@@ -1,5 +1,9 @@
 import { useState } from 'react'
+import { motion } from 'motion/react'
 import { AlertCircle, Shield, DollarSign, CheckSquare } from 'lucide-react'
+import * as tokens from '../styles/tokens'
+import '../styles/components.css'
+import styles from './SummaryTab.module.css'
 
 const MOCK_REPORT = {
   risks: {
@@ -109,75 +113,104 @@ const MOCK_REPORT = {
   },
 }
 
-// ── Color tokens ──────────────────────────────────────────────────────────────
-const C = {
-  pageBg:   '#F8F9FB',
-  card:     '#FFFFFF',
-  border:   'rgba(31,18,36,0.08)',
-  text:     '#1F1224',
-  muted:    '#64748B',
-  accent:   '#9333EA',
-  danger:   '#EF4444',
-  warning:  '#F59E0B',
-  success:  '#10B981',
+// ── Helper: severity badge class ──────────────────────────────────────────────
+function sevBadgeClass(sev: string): string {
+  if (sev === 'HIGH' || sev === 'CRITICAL') return 'badge badge-high'
+  if (sev === 'MEDIUM') return 'badge badge-medium'
+  return 'badge badge-low'
 }
 
-const SEV_COLOR = {
-  HIGH:     C.danger,
-  CRITICAL: C.danger,
-  MEDIUM:   C.warning,
-  LOW:      C.muted,
+// ── Helper: severity left-border class ───────────────────────────────────────
+function sevBorderClass(sev: string): string {
+  if (sev === 'HIGH' || sev === 'CRITICAL') return 'finding-card finding-card-high'
+  if (sev === 'MEDIUM') return 'finding-card finding-card-medium'
+  return 'finding-card finding-card-low'
 }
 
-const STATUS_COLOR = {
-  FOUND:     C.success,
-  'N/A':     C.success,
-  UNCLEAR:   C.warning,
-  NOT_FOUND: C.danger,
+// ── Helper: severity accent color (for inline left bar) ───────────────────────
+function sevColor(sev: string): string {
+  if (sev === 'HIGH' || sev === 'CRITICAL') return tokens.COLOR_DANGER
+  if (sev === 'MEDIUM') return tokens.COLOR_WARNING
+  return tokens.COLOR_TEXT_MUTED
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, sub }) {
+interface StatCardProps {
+  label: string
+  value: React.ReactNode
+  sub?: string
+  index?: number
+}
+
+function StatCard({ label, value, sub, index = 0 }: StatCardProps) {
   return (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '20px 24px', flex: 1 }}>
-      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, margin: '0 0 8px' }}>{label}</p>
-      <p style={{ fontSize: 28, fontWeight: 600, color: C.text, margin: '0 0 4px', lineHeight: 1.1 }}>{value}</p>
-      {sub && <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>{sub}</p>}
-    </div>
+    <motion.div
+      className="stat-card"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileHover={{ y: -2, boxShadow: tokens.SHADOW_CARD_HOVER }}
+    >
+      <span className="stat-card__label">{label}</span>
+      <p className="stat-card__value">{value}</p>
+      {sub && <p className="stat-card__sub">{sub}</p>}
+    </motion.div>
   )
 }
 
-function FindingCard({ finding }) {
+interface FindingCardProps {
+  finding: {
+    urgency: string
+    category: string
+    label: string
+    agent_note: string
+    source_document: string | null
+    source_section: string | null
+  }
+  index?: number
+}
+
+function FindingCard({ finding, index = 0 }: FindingCardProps) {
   const sev = finding.urgency === 'CRITICAL' ? 'HIGH' : finding.urgency
-  const color = SEV_COLOR[sev] ?? C.muted
+  const color = sevColor(sev)
   const source = [finding.source_document, finding.source_section].filter(Boolean).join(' · ')
 
   return (
-    <div style={{ borderLeft: `4px solid ${color}`, background: C.card, borderRadius: '0 4px 4px 0', padding: '14px 18px', marginBottom: 8 }}>
+    <motion.div
+      className={sevBorderClass(sev)}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileHover={{ y: -2, boxShadow: tokens.SHADOW_CARD_HOVER }}
+    >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, margin: 0 }}>{finding.category}</p>
-        <span style={{ color, border: `1px solid ${color}`, background: 'transparent', padding: '2px 8px', borderRadius: 20, fontSize: 11, fontWeight: 500, flexShrink: 0 }}>
-          {sev}
-        </span>
+        <p className={styles.eyebrow}>{finding.category}</p>
+        <span className={sevBadgeClass(sev)} style={{ color, borderColor: color }}>{sev}</span>
       </div>
-      <p style={{ fontSize: 14, fontWeight: 500, color: C.text, margin: '0 0 4px' }}>{finding.label}</p>
-      <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 6px', lineHeight: 1.6 }}>{finding.agent_note}</p>
-      {source && <p style={{ fontSize: 11, fontFamily: 'monospace', color: C.muted, margin: 0 }}>Source: {source}</p>}
-    </div>
+      <p className={styles.findingTitle}>{finding.label}</p>
+      <p className={styles.findingDetail}>{finding.agent_note}</p>
+      {source && <p className="source-citation">Source: {source}</p>}
+    </motion.div>
   )
 }
 
-function FinancialStat({ label, value, valueColor }) {
+interface FinancialStatProps {
+  label: string
+  value: React.ReactNode
+  valueColor?: string
+}
+
+function FinancialStat({ label, value, valueColor }: FinancialStatProps) {
   return (
-    <div>
-      <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, margin: '0 0 4px' }}>{label}</p>
-      <p style={{ fontSize: 22, fontWeight: 500, color: valueColor ?? C.text, margin: 0 }}>{value}</p>
+    <div className={styles.financialStat}>
+      <p className={styles.financialLabel}>{label}</p>
+      <p className={styles.financialValue} style={{ color: valueColor ?? tokens.COLOR_TEXT_MAIN }}>{value}</p>
     </div>
   )
 }
 
-// ── SummaryTab ────────────────────────────────────────────────────────────────
+// ── SummaryTab ─────────────────────────────────────────────────────────────────
 
 export default function SummaryTab({ report = MOCK_REPORT }) {
   const findings    = report.risks?.findings ?? []
@@ -185,10 +218,10 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
   const fo          = report.financial_outlook ?? {}
   const mf          = fo.monthly_fees ?? {}
   const reserve     = fo.reserve_fund ?? {}
-  const toArr       = v => Array.isArray(v) ? v : (v?.items ?? [])
-  const specAssess  = toArr(fo.special_assessments)
-  const deferred    = toArr(fo.deferred_maintenance)
-  const litigation  = toArr(fo.litigation_costs)
+  const toArr       = (v: unknown) => Array.isArray(v) ? v : ((v as { items?: unknown[] })?.items ?? [])
+  const specAssess  = toArr(fo.special_assessments) as { estimated_amount_per_unit?: number }[]
+  const deferred    = toArr(fo.deferred_maintenance) as { estimated_cost?: number }[]
+  const litigation  = toArr(fo.litigation_costs) as { estimated_total_exposure?: number; costs_to_date?: number }[]
   const ccItems     = report.compliance_check?.items ?? []
   const verified    = ccItems.filter(i => i.status === 'FOUND' || i.status === 'N/A').length
 
@@ -201,10 +234,10 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
   const [lenderChecked, setLenderChecked] = useState(() => lenderItems.map(() => false))
   const [yourChecked,   setYourChecked]   = useState(() => yourItems.map(() => false))
 
-  const fmt$ = n => n != null ? '$' + Number(n).toLocaleString() : '—'
+  const fmt$ = (n: number | undefined | null) => n != null ? '$' + Number(n).toLocaleString() : '—'
 
   const exposure = (() => {
-    const nums = []
+    const nums: number[] = []
     if (reserve.shortfall_amount) nums.push(Number(reserve.shortfall_amount))
     specAssess.forEach(s => s.estimated_amount_per_unit && nums.push(Number(s.estimated_amount_per_unit)))
     deferred.forEach(d => d.estimated_cost && nums.push(Number(d.estimated_cost)))
@@ -213,135 +246,181 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
   })()
 
   const reservePct   = reserve.current_percent_funded
-  const reserveColor = reservePct == null ? C.muted : reservePct < 50 ? C.danger : reservePct < 70 ? C.warning : C.success
-
-  const CARD  = { background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: '20px 24px', marginBottom: 16 }
-  const LABEL = { fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, margin: '0 0 12px' }
+  const reserveColor = reservePct == null
+    ? tokens.COLOR_TEXT_MUTED
+    : reservePct < 50
+      ? tokens.COLOR_DANGER
+      : reservePct < 70
+        ? tokens.COLOR_WARNING
+        : tokens.COLOR_SUCCESS
 
   return (
-    <div style={{ background: C.pageBg, minHeight: '100%' }}>
-      <div style={{ padding: 24 }}>
+    <div className={styles.root}>
+      <div className={styles.inner}>
 
-      {/* ── Section 1: Stat cards ── */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-        <StatCard
-          label="Total Findings"
-          value={findings.length}
-          sub={high.length > 0 ? `${high.length} need attention` : 'No critical issues'}
-        />
-        <StatCard
-          label="High Severity"
-          value={high.length}
-          sub={high.length > 0 ? 'Review before closing' : 'None identified'}
-        />
-        <StatCard
-          label="WUCIOA Compliance"
-          value={ccItems.length ? `${verified} / ${ccItems.length}` : '—'}
-          sub={ccItems.length ? 'items verified' : 'Not applicable'}
-        />
-      </div>
+        {/* ── Section 1: Stat cards ── */}
+        <div className={styles.statsRow}>
+          <StatCard
+            index={0}
+            label="Total Findings"
+            value={findings.length}
+            sub={high.length > 0 ? `${high.length} need attention` : 'No critical issues'}
+          />
+          <StatCard
+            index={1}
+            label="High Severity"
+            value={<span style={{ color: high.length > 0 ? tokens.COLOR_DANGER : tokens.COLOR_SUCCESS }}>{high.length}</span>}
+            sub={high.length > 0 ? 'Review before closing' : 'None identified'}
+          />
+          <StatCard
+            index={2}
+            label="WUCIOA Compliance"
+            value={
+              ccItems.length
+                ? <span style={{ color: tokens.COLOR_SUCCESS }}>{verified} <span style={{ color: tokens.COLOR_BORDER, fontSize: 18 }}>/ {ccItems.length}</span></span>
+                : '—'
+            }
+            sub={ccItems.length ? 'items verified' : 'Not applicable'}
+          />
+        </div>
 
-      {/* ── Section 2: HIGH findings ── */}
-      {high.length > 0 && (
-        <div style={CARD}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <AlertCircle size={16} color='#EF4444' />
-              <p style={{ ...LABEL, margin: 0 }}>Top Critical Findings</p>
+        {/* ── Section 2: HIGH findings ── */}
+        {high.length > 0 && (
+          <motion.div
+            className="card"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.15 }}
+          >
+            <div className="card__header">
+              <h2 className="section-header">
+                <AlertCircle size={16} color={tokens.COLOR_DANGER} />
+                Top Critical Findings
+              </h2>
+              <button className="link-btn">View all →</button>
             </div>
-            <button style={{ background: 'none', border: 'none', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: C.accent, cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>
-              View all →
-            </button>
-          </div>
-          {high.slice(0, 3).map((f, i) => <FindingCard key={i} finding={f} />)}
-        </div>
-      )}
-
-      {/* ── Section 2b: Common Restrictions ── */}
-      <div style={CARD}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <Shield size={16} color='#9333EA' />
-          <p style={{ ...LABEL, margin: 0 }}>Common Restrictions</p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-          {[
-            { title: 'Pets',          body: 'Your pet may not be allowed — 40 lb weight limit applies',   badge: 'Restricted', badgeColor: '#92400E', badgeBg: '#FEF3C7', source: 'CC&Rs §4.3 — Pet Restrictions'        },
-            { title: 'Airbnb / VRBO', body: 'Short-term rentals are banned — no Airbnb or VRBO',          badge: 'Banned',     badgeColor: '#B91C1C', badgeBg: '#FEE2E2', source: 'House Rules §2.1 — Short-Term Rentals' },
-            { title: 'Rental Cap',    body: 'Only 20% of units can be rented — affects resale liquidity', badge: 'Restricted', badgeColor: '#92400E', badgeBg: '#FEF3C7', source: 'Bylaws §8.4 — Rental Cap Policy'       },
-          ].map(({ title, body, badge, badgeColor, badgeBg, source }) => (
-            <div key={title}>
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748B', margin: '0 0 6px' }}>{title}</p>
-              <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, color: badgeColor, background: badgeBg, padding: '3px 10px', borderRadius: 20, marginBottom: 8 }}>{badge}</span>
-              <p style={{ fontSize: 14, color: '#1F1224', lineHeight: 1.6, margin: '0 0 6px' }}>{body}</p>
-              <p style={{ fontSize: 11, fontFamily: 'monospace', color: '#64748B', margin: 0 }}>{source}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Section 3: Financial snapshot ── */}
-      <div style={CARD}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <DollarSign size={16} color='#10B981' />
-          <p style={{ ...LABEL, margin: 0 }}>Financial Snapshot</p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-          <FinancialStat
-            label="Monthly Fee"
-            value={mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}
-          />
-          <FinancialStat
-            label="Reserve Fund"
-            value={reservePct != null ? `${reservePct}%` : '—'}
-            valueColor={reserveColor}
-          />
-          <FinancialStat
-            label="Assessments"
-            value={specAssess.length || 'None'}
-            valueColor={specAssess.length ? C.warning : C.success}
-          />
-          <FinancialStat
-            label="Total Exposure"
-            value={exposure > 0 ? fmt$(exposure) : 'None'}
-            valueColor={exposure > 0 ? C.danger : C.success}
-          />
-        </div>
-      </div>
-
-      {/* ── Section 4: Buyer Investigation Checklist ── */}
-      <div style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid ${C.border}`, marginBottom: 16 }}>
-        <div style={{ background: '#1F1224', padding: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <CheckSquare size={16} color='#FFFFFF' />
-            <p style={{ fontSize: 15, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>Buyer's Investigation Checklist</p>
-          </div>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', margin: 0 }}>Collaborate with your team before closing</p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', background: C.card }}>
-          {[
-            { title: 'Tasks for Agent',    items: agentItems,  checked: agentChecked,  setChecked: setAgentChecked  },
-            { title: 'Lender Check',       items: lenderItems, checked: lenderChecked, setChecked: setLenderChecked },
-            { title: 'Your Investigation', items: yourItems,   checked: yourChecked,   setChecked: setYourChecked   },
-          ].map((col, ci) => (
-            <div key={ci} style={{ padding: 20, borderRight: ci < 2 ? `1px solid rgba(31,18,36,0.08)` : 'none' }}>
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, margin: '0 0 14px' }}>{col.title}</p>
-              {col.items.map((item, ii) => (
-                <label key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 12, cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={col.checked[ii] ?? false}
-                    onChange={() => col.setChecked(prev => prev.map((v, idx) => idx === ii ? !v : v))}
-                    style={{ marginTop: 2, accentColor: C.accent, width: 15, height: 15, flexShrink: 0, cursor: 'pointer' }}
-                  />
-                  <span style={{ fontSize: 13, color: col.checked[ii] ? C.muted : C.text, lineHeight: 1.5, textDecoration: col.checked[ii] ? 'line-through' : 'none' }}>
-                    {item.label}
-                  </span>
-                </label>
+            <div className="card__body" style={{ paddingTop: 12 }}>
+              {high.slice(0, 3).map((f, i) => (
+                <FindingCard key={i} finding={f} index={i} />
               ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </motion.div>
+        )}
+
+        {/* ── Section 2b: Common Restrictions ── */}
+        <motion.div
+          className="card"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.20 }}
+        >
+          <div className="card__header">
+            <h2 className="section-header">
+              <Shield size={16} color={tokens.COLOR_BRAND} />
+              Common Restrictions
+            </h2>
+          </div>
+          <div className="card__body">
+            <div className={styles.restrictionsGrid}>
+              {[
+                { title: 'Pets',          body: 'Your pet may not be allowed — 40 lb weight limit applies',   badge: 'Restricted', badgeClass: 'badge badge-restricted', source: 'CC&Rs §4.3 — Pet Restrictions'        },
+                { title: 'Airbnb / VRBO', body: 'Short-term rentals are banned — no Airbnb or VRBO',          badge: 'Banned',     badgeClass: 'badge badge-high',        source: 'House Rules §2.1 — Short-Term Rentals' },
+                { title: 'Rental Cap',    body: 'Only 20% of units can be rented — affects resale liquidity', badge: 'Restricted', badgeClass: 'badge badge-caution',     source: 'Bylaws §8.4 — Rental Cap Policy'       },
+              ].map(({ title, body, badge, badgeClass, source }, i) => (
+                <motion.div
+                  key={title}
+                  className={styles.restrictionItem}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.25, delay: 0.25 + i * 0.05 }}
+                >
+                  <p className={styles.restrictionTitle}>{title}</p>
+                  <span className={badgeClass}>{badge}</span>
+                  <p className={styles.restrictionBody}>{body}</p>
+                  <p className="source-citation">{source}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Section 3: Financial snapshot ── */}
+        <motion.div
+          className="card"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.25 }}
+        >
+          <div className="card__header">
+            <h2 className="section-header">
+              <DollarSign size={16} color={tokens.COLOR_SUCCESS} />
+              Financial Snapshot
+            </h2>
+          </div>
+          <div className="card__body">
+            <div className={styles.financialGrid}>
+              <FinancialStat
+                label="Monthly Fee"
+                value={mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}
+              />
+              <FinancialStat
+                label="Reserve Fund"
+                value={reservePct != null ? `${reservePct}%` : '—'}
+                valueColor={reserveColor}
+              />
+              <FinancialStat
+                label="Assessments"
+                value={specAssess.length || 'None'}
+                valueColor={specAssess.length ? tokens.COLOR_WARNING : tokens.COLOR_SUCCESS}
+              />
+              <FinancialStat
+                label="Total Exposure"
+                value={exposure > 0 ? fmt$(exposure) : 'None'}
+                valueColor={exposure > 0 ? tokens.COLOR_DANGER : tokens.COLOR_SUCCESS}
+              />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Section 4: Buyer Investigation Checklist ── */}
+        <motion.div
+          className={styles.checklistCard}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.30 }}
+        >
+          <div className={styles.checklistHeader}>
+            <p className={styles.checklistHeaderTitle}>
+              <CheckSquare size={16} color="#FFFFFF" />
+              Buyer's Investigation Checklist
+            </p>
+            <p className={styles.checklistHeaderSub}>Collaborate with your team before closing</p>
+          </div>
+
+          <div className={styles.checklistGrid}>
+            {[
+              { title: 'Tasks for Agent',    items: agentItems,  checked: agentChecked,  setChecked: setAgentChecked  },
+              { title: 'Lender Check',       items: lenderItems, checked: lenderChecked, setChecked: setLenderChecked },
+              { title: 'Your Investigation', items: yourItems,   checked: yourChecked,   setChecked: setYourChecked   },
+            ].map((col, ci) => (
+              <div key={ci} className={styles.checklistCol}>
+                <p className={styles.checklistColLabel}>{col.title}</p>
+                {col.items.map((item, ii) => (
+                  <label key={item.id} className="checklist-item">
+                    <input
+                      type="checkbox"
+                      checked={col.checked[ii] ?? false}
+                      onChange={() => col.setChecked((prev: boolean[]) => prev.map((v: boolean, idx: number) => idx === ii ? !v : v))}
+                    />
+                    <span className={`checklist-item__label${col.checked[ii] ? ' checklist-item__label--checked' : ''}`}>
+                      {item.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ))}
+          </div>
+        </motion.div>
 
       </div>
     </div>

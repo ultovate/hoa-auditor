@@ -1,0 +1,225 @@
+/**
+ * HOA Auditor — SummaryTab layout styles
+ * Scoped to SummaryTab only. Grid arrangements, column layouts,
+ * and summary-specific spacing that do not belong in components.css.
+ */
+
+/* ── Root container ───────────────────────────────────────────────────────── */
+
+.root {
+  background-color: #F8F9FB;
+  min-height: 100%;
+}
+
+.inner {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Section 1: Stat cards row ────────────────────────────────────────────── */
+
+.statsRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.statsRow > * {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+/* ── Section 2: Finding card left-border override for HIGH ────────────────── */
+
+.criticalSection {
+  /* Full-width section card for top critical findings */
+}
+
+.findingslist {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Section 2b: Common Restrictions 3-col grid ───────────────────────────── */
+
+.restrictionsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .restrictionsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .restrictionsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.restrictionItem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.restrictionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748B;
+  margin: 0 0 6px;
+}
+
+.restrictionBody {
+  font-size: 14px;
+  color: #1E293B;
+  line-height: 1.6;
+  margin: 0 0 6px;
+}
+
+/* ── Section 3: Financial snapshot 4-col grid ─────────────────────────────── */
+
+.financialGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .financialGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .financialGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.financialStat {
+  display: flex;
+  flex-direction: column;
+}
+
+.financialLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748B;
+  margin: 0 0 4px;
+}
+
+.financialValue {
+  font-size: 22px;
+  font-weight: 500;
+  color: #1E293B;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ── Section 4: Investigation checklist dark header ──────────────────────── */
+
+.checklistHeader {
+  background-color: #1F1224;
+  padding: 24px;
+}
+
+.checklistHeaderTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checklistHeaderSub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+}
+
+/* 3-col checklist grid */
+.checklistGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background-color: #FFFFFF;
+}
+
+@media (max-width: 700px) {
+  .checklistGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checklistCol {
+  padding: 20px;
+}
+
+/* Right border on all but last column */
+.checklistCol:not(:last-child) {
+  border-right: 1px solid rgba(31, 18, 36, 0.08);
+}
+
+@media (max-width: 700px) {
+  .checklistCol:not(:last-child) {
+    border-right: none;
+    border-bottom: 1px solid rgba(31, 18, 36, 0.08);
+  }
+}
+
+.checklistColLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748B;
+  margin: 0 0 14px;
+}
+
+/* ── Wrapper for the full checklist card ─────────────────────────────────── */
+
+.checklistCard {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(31, 18, 36, 0.08);
+}
+
+/* ── Eyebrow text (category label above finding title) ───────────────────── */
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748B;
+  margin: 0;
+}
+
+/* ── Finding title ────────────────────────────────────────────────────────── */
+
+.findingTitle {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1E293B;
+  margin: 0 0 4px;
+}
+
+/* ── Finding detail ───────────────────────────────────────────────────────── */
+
+.findingDetail {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0 0 6px;
+  line-height: 1.6;
+}

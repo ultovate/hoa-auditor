@@ -1,0 +1,230 @@
+/**
+ * HOA Auditor — Shared component styles
+ * Used across multiple tabs. Single source for reusable visual patterns.
+ * Exact colors from gemini-reference.tsx theme object.
+ */
+
+/* ── Finding card ─────────────────────────────────────────────────────────── */
+
+.finding-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.finding-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Left severity accent bar — apply alongside finding-card */
+.finding-card-high   { border-left: 4px solid #EF4444; }
+.finding-card-medium { border-left: 4px solid #F59E0B; }
+.finding-card-low    { border-left: 4px solid #CBD5E1; }
+
+/* ── Severity badges ──────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 10px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  line-height: 1.6;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-high {
+  color: #B91C1C;
+  background-color: #FEE2E2;
+  border-color: #EF4444;
+}
+
+.badge-medium {
+  color: #92400E;
+  background-color: #FEF3C7;
+  border-color: #F59E0B;
+}
+
+.badge-low {
+  color: #64748B;
+  background-color: #E2E8F0;
+  border-color: #CBD5E1;
+}
+
+.badge-verified {
+  color: #10B981;
+  background-color: #D1FAE5;
+  border-color: #10B981;
+}
+
+.badge-restricted {
+  color: #B91C1C;
+  background-color: #FEE2E2;
+  border-color: #EF4444;
+}
+
+.badge-caution {
+  color: #92400E;
+  background-color: #FEF3C7;
+  border-color: #F59E0B;
+}
+
+.badge-standard {
+  color: #64748B;
+  background-color: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
+/* ── Stat card ───────────────────────────────────────────────────────────── */
+
+.stat-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 20px 24px;
+  flex: 1;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.stat-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748B;
+  margin: 0 0 8px;
+  display: block;
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1E293B;
+  margin: 0 0 4px;
+  line-height: 1.1;
+}
+
+.stat-card__sub {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+}
+
+/* ── Section header ──────────────────────────────────────────────────────── */
+
+.section-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+/* ── Section divider ─────────────────────────────────────────────────────── */
+
+.section-divider {
+  height: 1px;
+  background-color: #E2E8F0;
+  border: none;
+  margin: 0;
+}
+
+/* ── Card container (generic white card with shadow) ─────────────────────── */
+
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #F1F5F9;
+  background-color: rgba(248, 250, 252, 0.5);
+}
+
+.card__body {
+  padding: 20px 24px;
+}
+
+/* ── Link button (text-only action link) ─────────────────────────────────── */
+
+.link-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9333EA;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: opacity 0.15s ease;
+}
+
+.link-btn:hover {
+  opacity: 0.75;
+}
+
+/* ── Source citation ─────────────────────────────────────────────────────── */
+
+.source-citation {
+  font-size: 11px;
+  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+  color: #64748B;
+  margin: 0;
+}
+
+/* ── Checklist item ──────────────────────────────────────────────────────── */
+
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.checklist-item input[type='checkbox'] {
+  margin-top: 2px;
+  accent-color: #9333EA;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.checklist-item__label {
+  font-size: 13px;
+  color: #1E293B;
+  line-height: 1.5;
+}
+
+.checklist-item__label--checked {
+  color: #64748B;
+  text-decoration: line-through;
+}
