@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'motion/react'
-import { AlertCircle, Shield, DollarSign, CheckSquare } from 'lucide-react'
+import { AlertCircle, Shield, DollarSign, CheckSquare, LayoutDashboard, Users, User, FileText, ShieldCheck } from 'lucide-react'
 import * as tokens from '../styles/tokens'
 import '../styles/components.css'
 import styles from './SummaryTab.module.css'
@@ -344,11 +344,16 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
                 transition={{ duration: 0.25, delay: 0.38 }}
                 whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
               >
-                <p className={styles.restrictionCardTitle}>Airbnb / STR</p>
+                <div className={styles.restrictionCardHeader}>
+                  <div className={styles.restrictionCardTitleRow}>
+                    <LayoutDashboard size={16} color="#94A3B8" />
+                    <p className={styles.restrictionCardTitle}>Airbnb / STR</p>
+                  </div>
+                  <span className={`${styles.microBadge} ${styles.microBadgeRed}`}>Restricted</span>
+                </div>
                 <p className={styles.restrictionCardBody}>
                   Short-term rentals explicitly prohibited in bylaws. High enforcement history in board minutes.
                 </p>
-                <span className={`${styles.microBadge} ${styles.microBadgeRed}`}>Restricted</span>
               </motion.div>
 
               {/* Pet Weight — amber */}
@@ -359,11 +364,16 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
                 transition={{ duration: 0.25, delay: 0.43 }}
                 whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
               >
-                <p className={styles.restrictionCardTitle}>Pet Weight</p>
+                <div className={styles.restrictionCardHeader}>
+                  <div className={styles.restrictionCardTitleRow}>
+                    <Users size={16} color="#94A3B8" />
+                    <p className={styles.restrictionCardTitle}>Pet Weight</p>
+                  </div>
+                  <span className={`${styles.microBadge} ${styles.microBadgeAmber}`}>Limits</span>
+                </div>
                 <p className={styles.restrictionCardBody}>
                   40lb weight limit strictly enforced. One variance was denied in 2024 for a 50lb Golden Retriever.
                 </p>
-                <span className={`${styles.microBadge} ${styles.microBadgeAmber}`}>Limits</span>
               </motion.div>
 
               {/* House Rules — slate */}
@@ -374,11 +384,16 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
                 transition={{ duration: 0.25, delay: 0.48 }}
                 whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
               >
-                <p className={styles.restrictionCardTitle}>House Rules</p>
+                <div className={styles.restrictionCardHeader}>
+                  <div className={styles.restrictionCardTitleRow}>
+                    <FileText size={16} color="#94A3B8" />
+                    <p className={styles.restrictionCardTitle}>House Rules</p>
+                  </div>
+                  <span className={`${styles.microBadge} ${styles.microBadgeSlate}`}>Standard</span>
+                </div>
                 <p className={styles.restrictionCardBody}>
                   Standard quiet hours (10 PM) and balcony decor rules are maintained. No major red flags.
                 </p>
-                <span className={`${styles.microBadge} ${styles.microBadgeSlate}`}>Standard</span>
               </motion.div>
 
             </div>
@@ -417,12 +432,12 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
           {/* Three-column body */}
           <div className={styles.checklistBody}>
             {[
-              { title: 'Tasks for Agent',    items: agentItems,  checked: agentChecked,  setChecked: setAgentChecked  },
-              { title: 'Your Investigation', items: yourItems,   checked: yourChecked,   setChecked: setYourChecked   },
-              { title: 'Lender Check',       items: lenderItems, checked: lenderChecked, setChecked: setLenderChecked },
+              { title: 'Tasks for Agent',    icon: <Users size={14} color="#9234EA" />,      items: agentItems,  checked: agentChecked,  setChecked: setAgentChecked  },
+              { title: 'Your Investigation', icon: <User size={14} color="#9234EA" />,       items: yourItems,   checked: yourChecked,   setChecked: setYourChecked   },
+              { title: 'Lender Check',       icon: <ShieldCheck size={14} color="#9234EA" />, items: lenderItems, checked: lenderChecked, setChecked: setLenderChecked },
             ].map((col, ci) => (
               <div key={ci}>
-                <p className={styles.checklistColHead}>{col.title}</p>
+                <p className={styles.checklistColHead}>{col.icon}{col.title}</p>
                 {col.items.map((item, ii) => (
                   <label key={item.id} className="checklist-item">
                     <input

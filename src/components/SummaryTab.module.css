@@ -298,20 +298,33 @@
   border-color: #E2E8F0;
 }
 
+.restrictionCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.restrictionCardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .restrictionCardTitle {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #64748B;
-  margin: 0 0 6px;
+  margin: 0;
 }
 
 .restrictionCardBody {
   font-size: 13px;
-  color: #334155;
+  color: #7F8999;
   line-height: 1.5;
-  margin: 0 0 8px;
+  margin: 0;
 }
 
 .microBadge {
