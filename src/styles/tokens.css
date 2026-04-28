@@ -16,7 +16,7 @@
 
   /* ── Primary Action ─────────────────────────────────────────
      Buttons, links, active states, focus rings               */
-  --primary:           #CE8CA5;
+  --primary:           #7C3AED;
   --primary-hover:     #B87A93;
   --primary-subtle:    #F5E8DA;   /* soft bg for badges/chips  */
   --primary-text:      #7A4E62;   /* text on primary-subtle    */

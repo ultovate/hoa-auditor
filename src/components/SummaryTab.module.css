@@ -1,10 +1,10 @@
 /**
- * HOA Auditor — SummaryTab layout styles
- * Scoped to SummaryTab only. Grid arrangements, column layouts,
- * and summary-specific spacing that do not belong in components.css.
+ * HOA Auditor — SummaryTab layout styles (rebuilt)
+ * Scoped to SummaryTab only. No Tailwind. No shared classes.
+ * All shared primitives (badge, card, finding-card, etc.) live in components.css.
  */
 
-/* ── Root container ───────────────────────────────────────────────────────── */
+/* ── Root / inner wrapper ─────────────────────────────────────────────────── */
 
 .root {
   background-color: #F8F9FB;
@@ -18,100 +18,196 @@
   gap: 16px;
 }
 
-/* ── Section 1: Stat cards row ────────────────────────────────────────────── */
+/* ── Section 1: Metrics row (Big Three) ───────────────────────────────────── */
 
-.statsRow {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.statsRow > * {
-  flex: 1 1 180px;
-  min-width: 0;
-}
-
-/* ── Section 2: Finding card left-border override for HIGH ────────────────── */
-
-.criticalSection {
-  /* Full-width section card for top critical findings */
-}
-
-.findingslist {
-  display: flex;
-  flex-direction: column;
-}
-
-/* ── Section 2b: Common Restrictions 3-col grid ───────────────────────────── */
-
-.restrictionsSection {
-  /* wrapper for the section header + 3-col grid */
-}
-
-.restrictionsGrid {
+.metricsRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 24px;
+  margin-bottom: 32px;
 }
 
-@media (max-width: 900px) {
-  .restrictionsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 580px) {
-  .restrictionsGrid {
+@media (max-width: 700px) {
+  .metricsRow {
     grid-template-columns: 1fr;
   }
 }
 
-.restrictionItem {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.metricCard {
+  background: #FFFFFF;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E2E8F0;
 }
 
-.restrictionTitle {
+.metricLabel {
+  display: block;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #64748B;
-  margin: 0 0 6px;
+  letter-spacing: 0.05em; /* tracking-wider */
+  color: #94A3B8;
+  margin-bottom: 8px;
 }
 
-.restrictionBadge {
-  display: inline-block;
+.metricNumRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.metricValue {
+  font-size: 36px; /* text-4xl */
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.025em; /* tracking-tight */
+}
+
+.metricSub {
+  font-size: 14px; /* text-sm */
+  font-weight: 500;
+  color: #64748B; /* slate-500 */
+}
+
+/* ── Section 2: Standard section card ────────────────────────────────────── */
+
+.sectionCard {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.sectionHeader {
+  max-height: 15px;
+  padding: 16px 24px;
+  border-bottom: 1px solid #F1F5F9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(248, 250, 252, 0.5);
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #1E293B;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionBody {
+  padding: 24px;
+}
+
+/* ── Section 2: Top Priority card variant ─────────────────────────────────── */
+
+.priorityCard {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.priorityBody {
+  position: relative;
+  padding: 24px; /* p-6 */
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* gap-4 */
+}
+
+.priorityAccent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px; /* w-1 */
+  background: #EF4444;
+}
+
+.priorityHeadlineRow {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* gap-3 */
+  flex-wrap: wrap;
+}
+
+.findingTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1E293B; /* slate-800 */
+  margin: 0;
+}
+
+.findingDesc {
+  font-size: 14px; /* text-sm */
+  color: #475569; /* slate-600 */
+  line-height: 1.625; /* leading-relaxed */
+  margin: 0 0 8px; /* mb-2 */
+  opacity: 0.9;
+}
+
+.sourceLabel {
+  font-size: 11px; /* text-[11px] */
+  font-family: ui-monospace, 'Cascadia Code', monospace; /* font-mono */
+  color: #94A3B8; /* slate-400 */
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px; /* gap-1 */
+}
+
+.actionBadge {
+  display: inline-flex;
+  align-items: center;
+  background: #FEE2E2;
+  color: #B91C1C;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  border: 1px solid #FECACA;
+  letter-spacing: 0.05em;
   width: fit-content;
 }
 
-.restrictionBody {
-  font-size: 14px;
-  color: #1E293B;
-  line-height: 1.6;
-  margin: 0 0 6px;
+.linkBtn {
+  background: none;
+  border: none;
+  font-size: 12px; /* text-xs */
+  font-weight: 700;
+  color: #9333EA; /* brand */
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
 }
 
-.restrictionCard {
-  background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  padding: 24px;
-  cursor: default;
+.linkBtn:hover {
+  text-decoration: underline;
 }
 
-/* ── Section 3: Financial snapshot 4-col grid ─────────────────────────────── */
+/* ── Section 3: Financial snapshot ───────────────────────────────────────── */
 
 .financialGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 48px;
 }
 
 @media (max-width: 900px) {
   .financialGrid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
   }
 }
 
@@ -121,98 +217,236 @@
   }
 }
 
-.financialStat {
-  display: flex;
-  flex-direction: column;
+.financialLabel {
+  display: block;
+  font-size: 12px; /* text-xs */
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: -0.025em; /* tracking-tight */
+  color: #64748B; /* slate-500 */
+  margin-bottom: 4px;
 }
 
-.financialLabel {
+.financialValue {
+  font-size: 24px; /* text-2xl */
+  font-weight: 700;
+  color: #1E293B; /* slate-800 */
+  letter-spacing: -0.025em; /* tracking-tight */
+  margin: 0 0 8px;
+}
+
+.progressTrack {
+  background: #E2E8F0;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: #10B981;
+}
+
+.financialSub {
+  font-size: 10px; /* text-[10px] */
+  font-style: italic;
+  color: #94A3B8; /* slate-400 */
+  margin: 4px 0 0;
+}
+
+/* ── Section 4: Restriction cards ────────────────────────────────────────── */
+
+.restrictionGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .restrictionGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .restrictionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.restrictionCard {
+  border-radius: 10px;
+  padding: 18px;
+  border: 1px solid;
+}
+
+.restrictionCardRed {
+  background: rgba(254, 242, 242, 0.5);
+  border-color: #FECACA;
+}
+
+.restrictionCardAmber {
+  background: rgba(255, 251, 235, 0.5);
+  border-color: #FDE68A;
+}
+
+.restrictionCardSlate {
+  background: #FFFFFF;
+  border-color: #E2E8F0;
+}
+
+.restrictionCardTitle {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #64748B;
-  margin: 0 0 4px;
+  margin: 0 0 6px;
 }
 
-.financialValue {
-  font-size: 22px;
-  font-weight: 500;
-  color: #1E293B;
-  margin: 0;
-  line-height: 1.2;
+.restrictionCardBody {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0 0 8px;
 }
 
-/* ── Section 4: Investigation checklist dark header ──────────────────────── */
+.microBadge {
+  display: inline-flex;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  border: 1px solid;
+  letter-spacing: 0.05em;
+}
+
+.microBadgeRed {
+  background: #FEE2E2;
+  color: #B91C1C;
+  border-color: #FECACA;
+}
+
+.microBadgeAmber {
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #FDE68A;
+}
+
+.microBadgeSlate {
+  background: #F1F5F9;
+  color: #64748B;
+  border-color: #E2E8F0;
+}
+
+/* ── Section 5: Checklist card ────────────────────────────────────────────── */
+
+.checklistCard {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #E2E8F0;
+  margin-bottom: 16px;
+}
 
 .checklistHeader {
-  background-color: #1F1224;
-  padding: 24px;
+  background: #1F1224;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.checklistHeaderTitle {
+.checklistHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checklistCircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #10B981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.checklistTitle {
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #FFFFFF;
-  margin: 0 0 4px;
+  margin: 0 0 2px;
+}
+
+.checklistSub {
+  font-size: 12px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.checklistBody {
+  background: #FFFFFF;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+@media (max-width: 700px) {
+  .checklistBody {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+.checklistColHead {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #94A3B8;
+  margin: 0 0 16px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.checklistHeaderSub {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.55);
-  margin: 0;
-}
-
-/* 3-col checklist grid */
-.checklistGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  background-color: #FFFFFF;
-}
-
-@media (max-width: 700px) {
-  .checklistGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.checklistCol {
-  padding: 20px;
-}
-
-/* Right border on all but last column */
-.checklistCol:not(:last-child) {
-  border-right: 1px solid rgba(31, 18, 36, 0.08);
-}
-
-@media (max-width: 700px) {
-  .checklistCol:not(:last-child) {
-    border-right: none;
-    border-bottom: 1px solid rgba(31, 18, 36, 0.08);
-  }
-}
-
-.checklistColLabel {
-  font-size: 11px;
+.checklistItemTitle {
+  font-size: 12px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  color: #1E293B;
+  line-height: 1.3;
+}
+
+.checklistItemSub {
+  font-size: 10px;
   color: #64748B;
-  margin: 0 0 14px;
+  margin-top: 2px;
+  line-height: 1.5;
 }
 
-/* ── Wrapper for the full checklist card ─────────────────────────────────── */
-
-.checklistCard {
+.sendBtn {
+  background: #9333EA;
+  color: #FFFFFF;
+  border: none;
   border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(31, 18, 36, 0.08);
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
 }
 
-/* ── Eyebrow text (category label above finding title) ───────────────────── */
+/* ── Eyebrow / detail — used in TopPriority finding ──────────────────────── */
 
 .eyebrow {
   font-size: 11px;
@@ -223,20 +457,16 @@
   margin: 0;
 }
 
-/* ── Finding title ────────────────────────────────────────────────────────── */
-
-.findingTitle {
-  font-size: 14px;
-  font-weight: 500;
-  color: #1E293B;
-  margin: 0 0 4px;
-}
-
-/* ── Finding detail ───────────────────────────────────────────────────────── */
-
 .findingDetail {
   font-size: 13px;
   color: #64748B;
   margin: 0 0 6px;
   line-height: 1.6;
+}
+
+/* ── Restriction badge (shared, inline-block) ─────────────────────────────── */
+
+.restrictionBadge {
+  display: inline-block;
+  width: fit-content;
 }

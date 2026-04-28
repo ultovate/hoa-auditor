@@ -31,7 +31,7 @@ export function renderTopBar({ authenticated = false } = {}) {
     ? `<div style="display:flex;align-items:center;gap:6px;border:1px solid rgba(245,232,218,0.25);border-radius:5px;padding:4px 10px;cursor:pointer;"><span style="font-size:12px;color:#F5E8DA;font-weight:400;white-space:nowrap;">My Account</span><div style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid rgba(245,232,218,0.45);"></div></div>`
     : '';
 
-  return `<div style="background:#2B192E;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;"><div style="height:8px;width:80px;background:rgba(255,255,255,0.22);border-radius:3px;"></div><div style="display:flex;align-items:center;gap:8px;"><button style="height:28px;padding:0 14px;background:#CE8CA5;border:none;border-radius:5px;font-size:12px;font-weight:700;color:#FFFFFF;cursor:pointer;white-space:nowrap;">Full Report →</button>${userDropdown}</div></div>`;
+  return `<div style="background:#2B192E;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;"><div style="height:8px;width:80px;background:rgba(255,255,255,0.22);border-radius:3px;"></div><div style="display:flex;align-items:center;gap:8px;"><button style="height:28px;padding:0 14px;background:#7C3AED;border:none;border-radius:5px;font-size:12px;font-weight:700;color:#FFFFFF;cursor:pointer;white-space:nowrap;">Full Report →</button>${userDropdown}</div></div>`;
 }
 
 // ── renderStickyCTA ───────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ export function renderTopBar({ authenticated = false } = {}) {
 //
 // Returns a plain HTML string.
 export function renderStickyCTA(label) {
-  return `<div style="position:sticky;bottom:0;background:#CE8CA5;padding:10px 16px;border-top:1px solid rgba(255,255,255,0.15);"><button style="width:100%;height:36px;background:transparent;border:none;color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.01em;">${label}</button></div>`;
+  return `<div style="position:sticky;bottom:0;background:#7C3AED;padding:10px 16px;border-top:1px solid rgba(255,255,255,0.15);"><button style="width:100%;height:36px;background:transparent;border:none;color:#FFFFFF;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.01em;">${label}</button></div>`;
 }
 
 // ── renderSaveToAccountStrip ──────────────────────────────────────────────────

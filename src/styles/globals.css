@@ -8,13 +8,13 @@
   --card-foreground: #2B192E;
   --popover: #FFFFFF;
   --popover-foreground: #2B192E;
-  --primary: #CE8CA5;
+  --primary: #7C3AED;
   --primary-foreground: #FFFFFF;
   --secondary: #F5E8DA;
   --secondary-foreground: #2B192E;
   --muted: #F2F3F6;
   --muted-foreground: #6B5A6D;
-  --accent: #CE8CA5;
+  --accent: #7C3AED;
   --accent-foreground: #FFFFFF;
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
@@ -24,8 +24,8 @@
   --switch-background: #cbced4;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #CE8CA5;
-  --chart-1: #CE8CA5;
+  --ring: #7C3AED;
+  --chart-1: #7C3AED;
   --chart-2: #2B192E;
   --chart-3: #F5E8DA;
   --chart-4: #A67388;
@@ -33,12 +33,12 @@
   --radius: 0.625rem;
   --sidebar: #2B192E;
   --sidebar-foreground: #F5E8DA;
-  --sidebar-primary: #CE8CA5;
+  --sidebar-primary: #7C3AED;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #3D2A40;
   --sidebar-accent-foreground: #F5E8DA;
   --sidebar-border: #3D2A40;
-  --sidebar-ring: #CE8CA5;
+  --sidebar-ring: #7C3AED;
 
   /* HOA Auditor design tokens */
   --hoa-brand:       #9333EA;

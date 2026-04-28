@@ -49,7 +49,7 @@ const SETTINGS_ITEM = { id: 'settings', label: 'Settings' };
 
 function iconDiv(isActive) {
   // Wireframe .wsnav-icon: 10×10px box, active = Primary mauve, default = white/25%
-  const bg = isActive ? '#CE8CA5' : 'rgba(255,255,255,0.25)';
+  const bg = isActive ? '#7C3AED' : 'rgba(255,255,255,0.25)';
   return `<div style="width:10px;height:10px;border-radius:2px;background:${bg};flex-shrink:0;"></div>`;
 }
 

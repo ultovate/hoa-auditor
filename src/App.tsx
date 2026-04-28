@@ -42,50 +42,75 @@ export default function App() {
 
       {/* HERO */}
       <div style={{ background: '#2D1B33' }}>
-        <div style={{ padding: '32px 32px 24px' }}>
+        <div style={{ padding: '32px 32px 0' }}>
           <p style={{
-            fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
-            letterSpacing: '0.12em', color: '#94A3B8', margin: '0 0 8px'
+            fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+            letterSpacing: '0.12em', color: '#C084FC', margin: '0 0 8px'
           }}>Chiavari Owners Association</p>
           <h1 style={{
             fontSize: 32, fontWeight: 700, color: 'white',
-            margin: '0 0 8px', lineHeight: 1.2
+            margin: '0 0 8px', lineHeight: 1.2, letterSpacing: '-0.025em'
           }}>10398 NE 17th St. #302, Bellevue WA 98004</h1>
-          <p style={{ fontSize: 13, color: '#94A3B8', margin: 0 }}>
+          <p style={{ fontSize: 13, color: '#94A3B8', margin: '0 0 24px', display: 'flex', alignItems: 'center', gap: 8 }}>
             April 8, 2026 · 6 documents analyzed
           </p>
         </div>
 
         {/* TAB BAR */}
-       <div style={{
-        background: 'white',
-        borderRadius: '12px 12px 0 0',
-        display: 'flex',
-        marginLeft: '24px',
-        marginRight: '24px',
-        paddingLeft: '8px',
-        overflow: 'hidden',
-      }}>
-          {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                padding: '16px 20px',
-                fontSize: 15,
-                fontWeight: 500,
-                fontFamily: 'inherit',
-                background: 'none',
-                border: 'none',
-                borderBottom: activeTab === tab ? '3px solid #9333EA' : '3px solid transparent',
-                color: activeTab === tab ? '#9333EA' : '#64748B',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tab}
-            </button>
-          ))}
+        <div style={{
+          background: 'white',
+          borderRadius: '12px 12px 0 0',
+          border: '1px solid #E2E8F0',
+          borderBottom: 'none',
+          boxShadow: '0 -1px 4px rgba(0,0,0,0.06)',
+          display: 'flex',
+          marginLeft: '24px',
+          marginRight: '24px',
+          overflow: 'hidden',
+        }}>
+          {tabs.map(tab => {
+            const isActive = activeTab === tab
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  position: 'relative',
+                  padding: '16px 32px',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  fontFamily: 'inherit',
+                  background: isActive ? '#F8FAFC' : 'transparent',
+                  border: 'none',
+                  color: isActive ? '#9333EA' : '#94A3B8',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  minWidth: 120,
+                  transition: 'color 0.15s, background 0.15s',
+                }}
+                onMouseEnter={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLButtonElement).style.color = '#7C3AED'
+                    ;(e.currentTarget as HTMLButtonElement).style.background = '#F8FAFC'
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLButtonElement).style.color = '#94A3B8'
+                    ;(e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+                  }
+                }}
+              >
+                {tab}
+                {isActive && (
+                  <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                    height: 3, background: '#9333EA'
+                  }} />
+                )}
+              </button>
+            )
+          })}
         </div>
       </div>
 

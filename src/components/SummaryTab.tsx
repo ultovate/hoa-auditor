@@ -113,103 +113,6 @@ const MOCK_REPORT = {
   },
 }
 
-// ── Helper: severity badge class ──────────────────────────────────────────────
-function sevBadgeClass(sev: string): string {
-  if (sev === 'HIGH' || sev === 'CRITICAL') return 'badge badge-high'
-  if (sev === 'MEDIUM') return 'badge badge-medium'
-  return 'badge badge-low'
-}
-
-// ── Helper: severity left-border class ───────────────────────────────────────
-function sevBorderClass(sev: string): string {
-  if (sev === 'HIGH' || sev === 'CRITICAL') return 'finding-card finding-card-high'
-  if (sev === 'MEDIUM') return 'finding-card finding-card-medium'
-  return 'finding-card finding-card-low'
-}
-
-// ── Helper: severity accent color (for inline left bar) ───────────────────────
-function sevColor(sev: string): string {
-  if (sev === 'HIGH' || sev === 'CRITICAL') return tokens.COLOR_DANGER
-  if (sev === 'MEDIUM') return tokens.COLOR_WARNING
-  return tokens.COLOR_TEXT_MUTED
-}
-
-// ── Sub-components ─────────────────────────────────────────────────────────────
-
-interface StatCardProps {
-  label: string
-  value: React.ReactNode
-  sub?: string
-  index?: number
-}
-
-function StatCard({ label, value, sub, index = 0 }: StatCardProps) {
-  return (
-    <motion.div
-      className="stat-card"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      whileHover={{ y: -2, boxShadow: tokens.SHADOW_CARD_HOVER }}
-    >
-      <span className="stat-card__label">{label}</span>
-      <p className="stat-card__value">{value}</p>
-      {sub && <p className="stat-card__sub">{sub}</p>}
-    </motion.div>
-  )
-}
-
-interface FindingCardProps {
-  finding: {
-    urgency: string
-    category: string
-    label: string
-    agent_note: string
-    source_document: string | null
-    source_section: string | null
-  }
-  index?: number
-}
-
-function FindingCard({ finding, index = 0 }: FindingCardProps) {
-  const sev = finding.urgency === 'CRITICAL' ? 'HIGH' : finding.urgency
-  const color = sevColor(sev)
-  const source = [finding.source_document, finding.source_section].filter(Boolean).join(' · ')
-
-  return (
-    <motion.div
-      className={sevBorderClass(sev)}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.05 }}
-      whileHover={{ y: -2, boxShadow: tokens.SHADOW_CARD_HOVER }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-        <p className={styles.eyebrow}>{finding.category}</p>
-        <span className={sevBadgeClass(sev)} style={{ color, borderColor: color }}>{sev}</span>
-      </div>
-      <p className={styles.findingTitle}>{finding.label}</p>
-      <p className={styles.findingDetail}>{finding.agent_note}</p>
-      {source && <p className="source-citation">Source: {source}</p>}
-    </motion.div>
-  )
-}
-
-interface FinancialStatProps {
-  label: string
-  value: React.ReactNode
-  valueColor?: string
-}
-
-function FinancialStat({ label, value, valueColor }: FinancialStatProps) {
-  return (
-    <div className={styles.financialStat}>
-      <p className={styles.financialLabel}>{label}</p>
-      <p className={styles.financialValue} style={{ color: valueColor ?? tokens.COLOR_TEXT_MAIN }}>{value}</p>
-    </div>
-  )
-}
-
 // ── SummaryTab ─────────────────────────────────────────────────────────────────
 
 export default function SummaryTab({ report = MOCK_REPORT }) {
@@ -254,165 +157,286 @@ export default function SummaryTab({ report = MOCK_REPORT }) {
         ? tokens.COLOR_WARNING
         : tokens.COLOR_SUCCESS
 
+  // Top priority finding
+  const topFinding = high[0] ?? null
+  const topSource = topFinding
+    ? [topFinding.source_document, topFinding.source_section].filter(Boolean).join(' · ')
+    : null
+
   return (
     <div className={styles.root}>
       <div className={styles.inner}>
 
-        {/* ── Section 1: Stat cards ── */}
-        <div className={styles.statsRow}>
-          <StatCard
-            index={0}
-            label="Total Findings"
-            value={findings.length}
-            sub={high.length > 0 ? `${high.length} need attention` : 'No critical issues'}
-          />
-          <StatCard
-            index={1}
-            label="High Severity"
-            value={<span style={{ color: high.length > 0 ? tokens.COLOR_DANGER : tokens.COLOR_SUCCESS }}>{high.length}</span>}
-            sub={high.length > 0 ? 'Review before closing' : 'None identified'}
-          />
-          <StatCard
-            index={2}
-            label="WUCIOA Compliance"
-            value={
-              ccItems.length
-                ? <span style={{ color: tokens.COLOR_SUCCESS }}>{verified} <span style={{ color: tokens.COLOR_BORDER, fontSize: 18 }}>/ {ccItems.length}</span></span>
-                : '—'
-            }
-            sub={ccItems.length ? 'items verified' : 'Not applicable'}
-          />
-        </div>
-
-        {/* ── Section 2: HIGH findings ── */}
-        {high.length > 0 && (
+        {/* ── Section 1: Big Three Metric Cards ──────────────────────────────── */}
+        <div className={styles.metricsRow}>
+          {/* Card 1: Total Findings */}
           <motion.div
-            className="card"
+            className={styles.metricCard}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
+            transition={{ duration: 0.3, delay: 0 * 0.07 }}
+            whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
           >
-            <div className="card__header">
-              <h2 className="section-header">
-                <AlertCircle size={16} color={tokens.COLOR_DANGER} />
-                Top Critical Findings
-              </h2>
-              <button className="link-btn">View all →</button>
+            <span className={styles.metricLabel}>Total Findings</span>
+            <div className={styles.metricNumRow}>
+              <span className={styles.metricValue} style={{ color: '#1E293B' }}>{findings.length}</span>
+              <span className={styles.metricSub}>
+                {high.length > 0 ? `${high.length} need attention` : 'No critical issues'}
+              </span>
             </div>
-            <div className="card__body" style={{ paddingTop: 12 }}>
-              {high.slice(0, 3).map((f, i) => (
-                <FindingCard key={i} finding={f} index={i} />
-              ))}
+          </motion.div>
+
+          {/* Card 2: Verification Needed */}
+          <motion.div
+            className={styles.metricCard}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 1 * 0.07 }}
+            whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+          >
+            <span className={styles.metricLabel}>Verification Needed</span>
+            <div className={styles.metricNumRow}>
+              <span className={styles.metricValue} style={{ color: '#EF4444' }}>{high.length}</span>
+              <span className={styles.metricSub}>Review before closing</span>
+            </div>
+          </motion.div>
+
+          {/* Card 3: WUCIOA Compliance */}
+          <motion.div
+            className={styles.metricCard}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 2 * 0.07 }}
+            whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+          >
+            <span className={styles.metricLabel}>WUCIOA Compliance</span>
+            <div className={styles.metricNumRow}>
+              <span className={styles.metricValue} style={{ color: '#10B981' }}>
+                {verified}
+                <span style={{ color: '#CBD5E1', fontSize: 20, fontWeight: 400 }}> / {ccItems.length}</span>
+              </span>
+              <span className={styles.metricSub}>Verified</span>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ── Section 2: Top Priority Verification ───────────────────────────── */}
+        {topFinding && (
+          <motion.div
+            className={styles.priorityCard}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 3 * 0.07 }}
+          >
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <AlertCircle size={14} color={tokens.COLOR_DANGER} />
+                Top Priority Verification
+              </h2>
+              <button className={styles.linkBtn}>View All Findings →</button>
+            </div>
+
+            <div className={styles.priorityBody}>
+              <div className={styles.priorityAccent} />
+              <div className={styles.priorityHeadlineRow}>
+                <p className={styles.findingTitle}>{topFinding.label}</p>
+                <span className={styles.actionBadge}>Action Needed</span>
+              </div>
+              <p className={styles.findingDesc}>{topFinding.agent_note}</p>
+              {topSource && (
+                <p className={styles.sourceLabel}>Source: {topSource}</p>
+              )}
             </div>
           </motion.div>
         )}
 
-        {/* ── Section 2b: Lifestyle Impact Restrictions ── */}
-        <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, overflow: 'hidden' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid #F1F5F9' }}>
-            <h2 className="section-header">
-              <Shield size={16} color={tokens.COLOR_BRAND} />
-              LIFESTYLE IMPACT RESTRICTIONS
-            </h2>
-            <button className="link-btn">VIEW ALL RESTRICTIONS →</button>
-          </div>
-          <div style={{ padding: '20px 24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
-              {[
-                { title: 'Pets',          body: 'Your pet may not be allowed — 40 lb weight limit applies',   badge: 'Restricted', badgeClass: 'badge badge-restricted', accentClass: 'restriction-card-high',   source: 'CC&Rs §4.3 — Pet Restrictions'        },
-                { title: 'Airbnb / VRBO', body: 'Short-term rentals are banned — no Airbnb or VRBO',          badge: 'Banned',     badgeClass: 'badge badge-high',        accentClass: 'restriction-card-high',   source: 'House Rules §2.1 — Short-Term Rentals' },
-                { title: 'Rental Cap',    body: 'Only 20% of units can be rented — affects resale liquidity', badge: 'Restricted', badgeClass: 'badge badge-caution',     accentClass: 'restriction-card-medium', source: 'Bylaws §8.4 — Rental Cap Policy'       },
-              ].map(({ title, body, badge, badgeClass, accentClass, source }, i) => (
-                <motion.div
-                  key={title}
-                  className={`${styles.restrictionCard} ${accentClass}`}
-                  style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: 24 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, delay: 0.25 + i * 0.05 }}
-                  whileHover={{ y: -3, boxShadow: '0 6px 24px rgba(0,0,0,0.08)' }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', color: tokens.COLOR_TEXT_MUTED, margin: 0 }}>{title}</p>
-                    <span className={`${badgeClass} ${styles.restrictionBadge}`}>{badge}</span>
-                  </div>
-                  <p style={{ fontSize: 14, color: tokens.COLOR_TEXT_MAIN, lineHeight: 1.6, margin: '8px 0 6px' }}>{body}</p>
-                  <p className="source-citation">{source}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Section 3: Financial snapshot ── */}
+        {/* ── Section 3: Financial Snapshot ──────────────────────────────────── */}
         <motion.div
-          className="card"
+          className={styles.sectionCard}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.25 }}
+          transition={{ duration: 0.3, delay: 4 * 0.07 }}
         >
-          <div className="card__header">
-            <h2 className="section-header">
-              <DollarSign size={16} color={tokens.COLOR_SUCCESS} />
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <DollarSign size={14} color={tokens.COLOR_SUCCESS} />
               Financial Snapshot
             </h2>
+            <button className={styles.linkBtn}>View Full Financial →</button>
           </div>
-          <div className="card__body">
+
+          <div className={styles.sectionBody}>
             <div className={styles.financialGrid}>
-              <FinancialStat
-                label="Monthly Fee"
-                value={mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}
-              />
-              <FinancialStat
-                label="Reserve Fund"
-                value={reservePct != null ? `${reservePct}%` : '—'}
-                valueColor={reserveColor}
-              />
-              <FinancialStat
-                label="Assessments"
-                value={specAssess.length || 'None'}
-                valueColor={specAssess.length ? tokens.COLOR_WARNING : tokens.COLOR_SUCCESS}
-              />
-              <FinancialStat
-                label="Total Exposure"
-                value={exposure > 0 ? fmt$(exposure) : 'None'}
-                valueColor={exposure > 0 ? tokens.COLOR_DANGER : tokens.COLOR_SUCCESS}
-              />
+
+              {/* Monthly Fee */}
+              <div>
+                <span className={styles.financialLabel}>Monthly Fee</span>
+                <p className={styles.financialValue}>
+                  {mf.current_monthly_fee ? fmt$(mf.current_monthly_fee) : '—'}
+                </p>
+                <div className={styles.progressTrack}>
+                  <div className={styles.progressFill} style={{ width: '65%' }} />
+                </div>
+              </div>
+
+              {/* HOA Savings % */}
+              <div>
+                <span className={styles.financialLabel}>HOA Savings %</span>
+                <p className={styles.financialValue} style={{ color: reserveColor }}>
+                  {reservePct != null ? `${reservePct}%` : '—'}
+                </p>
+                <p className={styles.financialSub}>Current funding status.</p>
+              </div>
+
+              {/* Assessments */}
+              <div>
+                <span className={styles.financialLabel}>Assessments</span>
+                <p
+                  className={styles.financialValue}
+                  style={{ color: specAssess.length > 0 ? tokens.COLOR_WARNING : tokens.COLOR_SUCCESS }}
+                >
+                  {specAssess.length || 'None'}
+                </p>
+                <p className={styles.financialSub}>Pending verification.</p>
+              </div>
+
+              {/* Total Exposure */}
+              <div>
+                <span className={styles.financialLabel}>Total Exposure</span>
+                <p
+                  className={styles.financialValue}
+                  style={{ color: exposure > 0 ? tokens.COLOR_DANGER : tokens.COLOR_SUCCESS }}
+                >
+                  {exposure > 0 ? fmt$(exposure) : 'None'}
+                </p>
+                {exposure > 0 && (
+                  <p className={styles.financialSub}>Combined risk estimate</p>
+                )}
+              </div>
+
             </div>
           </div>
         </motion.div>
 
-        {/* ── Section 4: Buyer Investigation Checklist ── */}
+        {/* ── Section 4: Lifestyle Impact Restrictions ────────────────────────── */}
+        <motion.div
+          className={styles.sectionCard}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 5 * 0.07 }}
+        >
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <Shield size={14} color={tokens.COLOR_BRAND} />
+              Lifestyle Impact Restrictions
+            </h2>
+            <button className={styles.linkBtn}>View All Restrictions →</button>
+          </div>
+
+          <div className={styles.sectionBody}>
+            <div className={styles.restrictionGrid}>
+
+              {/* Airbnb / STR — red */}
+              <motion.div
+                className={`${styles.restrictionCard} ${styles.restrictionCardRed}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.38 }}
+                whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+              >
+                <p className={styles.restrictionCardTitle}>Airbnb / STR</p>
+                <p className={styles.restrictionCardBody}>
+                  Short-term rentals explicitly prohibited in bylaws. High enforcement history in board minutes.
+                </p>
+                <span className={`${styles.microBadge} ${styles.microBadgeRed}`}>Restricted</span>
+              </motion.div>
+
+              {/* Pet Weight — amber */}
+              <motion.div
+                className={`${styles.restrictionCard} ${styles.restrictionCardAmber}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.43 }}
+                whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+              >
+                <p className={styles.restrictionCardTitle}>Pet Weight</p>
+                <p className={styles.restrictionCardBody}>
+                  40lb weight limit strictly enforced. One variance was denied in 2024 for a 50lb Golden Retriever.
+                </p>
+                <span className={`${styles.microBadge} ${styles.microBadgeAmber}`}>Limits</span>
+              </motion.div>
+
+              {/* House Rules — slate */}
+              <motion.div
+                className={`${styles.restrictionCard} ${styles.restrictionCardSlate}`}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.48 }}
+                whileHover={{ y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+              >
+                <p className={styles.restrictionCardTitle}>House Rules</p>
+                <p className={styles.restrictionCardBody}>
+                  Standard quiet hours (10 PM) and balcony decor rules are maintained. No major red flags.
+                </p>
+                <span className={`${styles.microBadge} ${styles.microBadgeSlate}`}>Standard</span>
+              </motion.div>
+
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ── Section 5: Buyer's Investigation Checklist ──────────────────────── */}
         <motion.div
           className={styles.checklistCard}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.30 }}
+          transition={{ duration: 0.3, delay: 6 * 0.07 }}
         >
+          {/* Dark header */}
           <div className={styles.checklistHeader}>
-            <p className={styles.checklistHeaderTitle}>
-              <CheckSquare size={16} color="#FFFFFF" />
-              Buyer's Investigation Checklist
-            </p>
-            <p className={styles.checklistHeaderSub}>Collaborate with your team before closing</p>
+            <div className={styles.checklistHeaderLeft}>
+              <div className={styles.checklistCircle}>
+                <CheckSquare size={14} color="#10B981" />
+              </div>
+              <div>
+                <p className={styles.checklistTitle}>Buyer's Investigation Checklist</p>
+                <p className={styles.checklistSub}>
+                  Collaborate with your team to clear these items before closing.
+                </p>
+              </div>
+            </div>
+            <motion.button
+              className={styles.sendBtn}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Send Checklist
+            </motion.button>
           </div>
 
-          <div className={styles.checklistGrid}>
+          {/* Three-column body */}
+          <div className={styles.checklistBody}>
             {[
               { title: 'Tasks for Agent',    items: agentItems,  checked: agentChecked,  setChecked: setAgentChecked  },
-              { title: 'Lender Check',       items: lenderItems, checked: lenderChecked, setChecked: setLenderChecked },
               { title: 'Your Investigation', items: yourItems,   checked: yourChecked,   setChecked: setYourChecked   },
+              { title: 'Lender Check',       items: lenderItems, checked: lenderChecked, setChecked: setLenderChecked },
             ].map((col, ci) => (
-              <div key={ci} className={styles.checklistCol}>
-                <p className={styles.checklistColLabel}>{col.title}</p>
+              <div key={ci}>
+                <p className={styles.checklistColHead}>{col.title}</p>
                 {col.items.map((item, ii) => (
                   <label key={item.id} className="checklist-item">
                     <input
                       type="checkbox"
                       checked={col.checked[ii] ?? false}
-                      onChange={() => col.setChecked((prev: boolean[]) => prev.map((v: boolean, idx: number) => idx === ii ? !v : v))}
+                      onChange={() =>
+                        col.setChecked((prev: boolean[]) =>
+                          prev.map((v: boolean, idx: number) => (idx === ii ? !v : v))
+                        )
+                      }
                     />
-                    <span className={`checklist-item__label${col.checked[ii] ? ' checklist-item__label--checked' : ''}`}>
+                    <span
+                      className={`checklist-item__label${col.checked[ii] ? ' checklist-item__label--checked' : ''}`}
+                    >
                       {item.label}
                     </span>
                   </label>
