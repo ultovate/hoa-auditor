@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-dark: #1F1224;
+  --color-bg-surface: #ffffff;
+  --color-bg-canvas: #f8f9fb;
+  --color-border-dim: #e2e8f0;
+  --color-text-main: #1e293b;
+  --color-text-dim: #64748b;
+  --color-accent: #9333ea;
+  --color-accent-dim: #7e22ce;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-dark text-text-main antialiased font-sans;
+  }
+}
+
+.canvas-grid {
+  background-image: radial-gradient(#2d3139 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

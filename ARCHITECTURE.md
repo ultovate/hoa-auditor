@@ -1,6 +1,6 @@
 # HOA Auditor — Architecture & Decision Log
 
-*Last updated: March 24, 2026*
+*Last updated: July 2, 2026*
 
 ---
 
@@ -26,7 +26,7 @@
 
 | Layer            | Technology                             | Notes                                                 |
 | ---------------- | -------------------------------------- | ----------------------------------------------------- |
-| Frontend         | Vite + vanilla JS                      | Multi-page app (MPA)                                  |
+| Frontend         | Vite + React 18 + TypeScript           | Migrated from vanilla JS MPA (2026-07-02); legacy `.html` pages coexist during incremental port |
 | Auth             | Supabase Auth                          | Email/password                                        |
 | Database         | Supabase Postgres                      | `audits`, `jobs`, `analysis_cache` tables       |
 | File Storage     | Supabase Storage                       | `hoa_documents` bucket                              |
@@ -58,15 +58,35 @@ hoa-auditor/
 ├── summary.html            ← Audit summary view (protected)
 ├── report.html             ← Full tabbed report (protected)
 ├── sample.html             ← Public sample report (no login required)
-├── vite.config.js          ← All HTML entry points registered here
+├── vite.config.js          ← Legacy HTML entry points + React root registered here
 ├── supabase/
 │   └── sample_audit_setup.sql  ← RLS policy + is_sample column setup
 ├── src/
-│   ├── services/
+│   ├── App.tsx              ← React root component (new tabbed report shell)
+│   ├── main.tsx             ← React DOM entry point
+│   ├── domain.ts            ← Shared TS types (Tab, FindingId, TABS, etc.)
+│   ├── theme.ts             ← ThemeContext + theme tokens
+│   ├── index.css
+│   ├── components/
+│   │   ├── Header.tsx
+│   │   ├── PropertyHero.tsx ← Accepts `coverImage` prop (condo imagery)
+│   │   ├── SidebarChat.tsx
+│   │   ├── TabNavigation.tsx
+│   │   ├── ErrorBoundary.tsx
+│   │   └── tabs/
+│   │       ├── SummaryTab.tsx
+│   │       ├── FinancialTab.tsx
+│   │       ├── DocumentsTab.tsx
+│   │       └── PlaceholderTab.tsx
+│   ├── hooks/
+│   │   ├── useForensicChat.ts
+│   │   ├── useAiInsight.ts
+│   │   └── useGeminiClient.ts
+│   ├── services/            ← Legacy vanilla-JS services (still active, not yet ported)
 │   │   ├── supabase.js     ← Supabase client (single instance)
 │   │   ├── authService.js
 │   │   └── uploadService.js← Upload, job creation, audit CRUD
-│   ├── views/
+│   ├── views/               ← Legacy vanilla-JS renderers (pre-React, still active)
 │   │   ├── reportView.js   ← Full tabbed report renderer (v2.0 schema)
 │   │   └── summaryView.js  ← Summary card renderer (v2.0 schema)
 │   ├── data/
@@ -74,6 +94,8 @@ hoa-auditor/
 │   └── styles/
 │       └── report.css
 ```
+
+> **Migration note:** The React port (`App.tsx` + `src/components/`) currently renders the report UI. Upload/auth/dashboard flows (`dashboard.html`, `uploadService.js`, `authService.js`) are still vanilla JS and have not been ported yet. Treat these as two coexisting systems until the migration completes.
 
 ### OCR Backend (`hoa-pdf-converter/`)
 
@@ -116,10 +138,11 @@ hoa-pdf-converter/
         ↓
 2. User uploads PDFs on dashboard.html
         ↓
-3. uploadService.js:
-   - Saves files to Supabase Storage: hoa_documents/{user_id}/{audit_id}/original/
-   - Creates row in `audits` table (status: uploaded)
-   - Creates one row per file in `jobs` table (status: pending)
+3. Backend data ingestion contract (uploadService.js), 4 steps:
+   1. Client validation & extraction — accepts `.pdf`/`.zip` only; ZIPs unpacked via JSZip, macOS junk files (`._*`) filtered
+   2. Audit ID & dedupe — `audit_{timestamp}_{random}` pattern; `checkFileExists()` dedupes by filename per audit
+   3. Storage upload — `hoa_documents/{user_id}/{audit_id}/original/{file_name}` (no client-side hash)
+   4. Row creation — `audits` row (status: uploaded), then one `jobs` row per file (status: pending, retry_count: 0)
         ↓
 4. Railway worker polls `jobs` table every 30s for status=pending
         ↓
@@ -302,8 +325,9 @@ Tabbed interface: Overview · Risks · Financial Outlook · Timeline · Restrict
 | 11-step fill order in prompt                    | Ensures cross-references are valid (risks written before other sections reference them) |
 | No AI total for financial exposure              | AI self-reported totals were unverifiable — replaced with computed sum of line items   |
 | Supabase over Firebase                          | Better Postgres, easier file storage, generous free tier                                |
-| Vite MPA over React                             | Simpler for current scope; each page is an HTML entry point                             |
+| React + TypeScript over vanilla JS MPA (supersedes "Vite MPA over React", 2026-07-02) | Migration decided; incremental — legacy HTML pages coexist with `src/` React components until fully ported |
 | `is_sample` RLS over separate table           | Simpler — one boolean, one policy, same audits table                                   |
+| Condo imagery infrastructure                   | Implemented default property image placeholder structure (`public/condos/placeholder.jpg`) and updated `PropertyHero.tsx` component to allow custom covers while maintaining high text contrast with stacked `mix-blend-overlay` and a dark gradient overlay. |
 
 ---
 ## Railway Deployment

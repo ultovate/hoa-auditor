@@ -1,0 +1,2 @@
+- [User Profile](user_profile.md) — Lay Clough, solo founder at Ultovate, methodical MVP-first, Windows/PowerShell, Claude+Gemini split
+- [Project: HOA Auditor](project_hoa_auditor.md) — active beta, Vite+JS/Supabase/Railway/Gemini, v2.0 schema, B2B WA-first

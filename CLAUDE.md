@@ -7,19 +7,19 @@ HOA Auditor is an AI-powered tool that analyzes HOA documents for condo buyers a
 ## Stack
 
 ```
-Vanilla JavaScript — NO React, NO TypeScript, NO JSX
-Vite v5 (bundler only — no framework)
+React 18 + TypeScript (migrated from vanilla JS — decided 2026-07-02)
+Vite v5
 Tailwind CSS v4
 DaisyUI v5
 Supabase JS client (@supabase/supabase-js)
 JSZip
+lucide-react (icons)
 ```
 
-- NO `<Component />` syntax — everything is plain HTML elements
-- NO `import React from 'react'`
-- NO shadcn, NO Radix, NO CVA, NO Lucide, NO Sonner
-- NO TypeScript types or interfaces
-- HTML files with `<script type="module">` tags
+- Component tree lives under `src/` (`App.tsx`, `src/components/`, `src/hooks/`, `src/domain.ts`)
+- Functional components + hooks — no class components
+- TypeScript types/interfaces required for props and domain models (see `src/domain.ts`)
+- Legacy `.html` entry points (`dashboard.html`, `summary.html`, `report.html`, etc.) are being migrated incrementally — do not assume the whole app is ported yet; check whether a page has a `src/` equivalent before editing the old HTML/JS version
 - CSS classes are Tailwind utilities + DaisyUI component classes
 
 **Git workflow:** Always `git pull origin dev --rebase` before pushing.
@@ -32,6 +32,13 @@ A GitHub Action auto-commits to `dev` — the branch may already be ahead.
 Async two-stage pipeline:
 1. Per-file OCR → PyMuPDF + Tesseract, file hash cached in `analysis_cache`
 2. Combined text → PII redaction → Gemini structured analysis
+
+### Backend data ingestion contract (4 steps)
+
+1. **Client validation & extraction** — frontend accepts `.pdf`/`.zip` only; ZIPs are unpacked client-side via JSZip, filtering macOS junk files (`._*`)
+2. **Audit ID & dedupe** — `auditId` pattern is `audit_{timestamp}_{random}`; existing files are deduped per-audit via `checkFileExists()` (filename match, not content hash)
+3. **Storage upload** — each file is uploaded to Supabase Storage bucket `hoa_documents` at path `${userId}/${auditId}/original/${file.name}`; no hash is computed client-side
+4. **Row creation** — an `audits` row is created/updated with `status: 'uploaded'`, then one `jobs` row per file with `status: 'pending'`, `retry_count: 0`, which the Railway worker polls to begin OCR
 
 **Supabase tables:** `audits`, `jobs`, `analysis_cache`
 
@@ -56,6 +63,8 @@ Async two-stage pipeline:
 - **Async worker** (30s polling on `jobs` table) — sync OCR timed out on large PDFs
 - **File hash caching** — consistent Gemini results across identical documents
 - **Railway:** hardcode port 8000, not `$PORT`
+- **React + TypeScript over vanilla JS MPA** (2026-07-02) — supersedes the prior "Vite MPA over React" decision; migration is incremental, legacy `.html` pages coexist with `src/` React components until fully ported
+- **Dynamic condo imagery** — `PropertyHero.tsx` accepts an optional `coverImage` prop (default `/public/condos/placeholder.jpg`) so MLS-sourced property photos can be wired in later without a rewrite; contrast is preserved via `mix-blend-overlay` + dark gradient overlay
 
 ---
 

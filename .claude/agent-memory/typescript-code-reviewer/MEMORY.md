@@ -1,0 +1,1 @@
+- [HOA Auditor project architecture](project_hoa_auditor.md) — vanilla JS/Vite/Supabase, page logic in HTML files, empty src/pages stubs, XSS risk via innerHTML from AI JSON
