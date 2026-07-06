@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from './services/supabase';
 import Header from './components/Header';
 import SummaryTab from './components/tabs/SummaryTab';
 import FinancialTab from './components/tabs/FinancialTab';
@@ -17,9 +18,23 @@ import { ThemeContext, theme } from './theme';
 import { TABS, Tab, FindingId, CURRENT_USER_EMAIL } from './domain';
 import { useForensicChat } from './hooks/useForensicChat';
 import { useAiInsight } from './hooks/useAiInsight';
+import Auth from './components/Auth';
 
 const App = () => {
+  const [session, setSession] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<Tab>('Summary');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      setSession(currentSession);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [flaggedItems, setFlaggedItems] = useState<Set<FindingId>>(new Set());
 
@@ -62,11 +77,19 @@ const App = () => {
     }
   };
 
+  if (!session) {
+    return (
+      <ThemeContext.Provider value={theme}>
+        <Auth onAuthSuccess={(newSession) => setSession(newSession)} />
+      </ThemeContext.Provider>
+    );
+  }
+
   return (
     <ThemeContext.Provider value={theme}>
       <div style={{ backgroundColor: theme.pageBg }} className="min-h-screen font-sans antialiased text-slate-900 pb-20">
         {/* 1. TOP NAVBAR */}
-        <Header setActiveTab={setActiveTab} currentUserEmail={CURRENT_USER_EMAIL} />
+        <Header setActiveTab={setActiveTab} currentUserEmail={session?.user?.email || CURRENT_USER_EMAIL} />
 
         {/* 2. PROPERTY HERO SECTION */}
         <section style={{ backgroundColor: theme.heroBg }} className="text-white px-8 pt-8 pb-0">

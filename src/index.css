@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "daisyui";
+
 
 @theme {
   --color-bg-dark: #1F1224;
