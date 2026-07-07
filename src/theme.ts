@@ -19,7 +19,7 @@ export interface Theme {
 }
 
 export const theme: Theme = {
-  brand: '#9333EA',
+  brand: '#6D28D9',
   darkHeader: '#1F1224',
   heroBg: '#2D1B33',
   pageBg: '#F8F9FB',
@@ -34,3 +34,4 @@ export const theme: Theme = {
 export const ThemeContext = createContext<Theme>(theme);
 
 export const useTheme = (): Theme => useContext(ThemeContext);
+

@@ -11,9 +11,10 @@ import { supabase } from '../services/supabase';
 interface HeaderProps {
   setActiveTab: (tab: Tab) => void;
   currentUserEmail: string;
+  onLogoClick?: () => void;
 }
 
-const Header = ({ setActiveTab, currentUserEmail }: HeaderProps) => {
+const Header = ({ setActiveTab, currentUserEmail, onLogoClick }: HeaderProps) => {
   const theme = useTheme();
 
   const handleSignOut = async () => {
@@ -34,16 +35,15 @@ const Header = ({ setActiveTab, currentUserEmail }: HeaderProps) => {
   return (
     <header style={{ backgroundColor: theme.darkHeader }} className="text-white px-8 py-3 flex justify-between items-center w-full sticky top-0 z-50 shadow-md">
       <div className="flex items-center gap-8">
-        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => setActiveTab('Summary')}>
-          <div style={{ backgroundColor: theme.brand }} className="w-7 h-7 rounded flex items-center justify-center font-bold text-sm text-white transition-transform group-hover:scale-110">U</div>
-          <span className="font-bold text-lg tracking-tight">Ultovate</span>
+        <div className="flex items-center gap-2 group cursor-pointer select-none" onClick={() => onLogoClick ? onLogoClick() : setActiveTab('Summary')}>
+          <span className="font-bold text-lg tracking-tight text-white">HOA Auditor</span>
         </div>
         <div className="relative hidden md:block">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search findings, clauses, or financials..."
-            className="bg-white/10 border-none rounded-md py-1.5 pl-10 pr-4 text-sm w-80 focus:ring-1 focus:ring-purple-400 outline-none text-white placeholder-slate-400 transition-all focus:bg-white/15"
+            className="bg-white/10 border-none rounded-md py-1.5 pl-10 pr-4 text-sm w-80 focus:ring-1 focus:ring-accent outline-none text-white placeholder-slate-400 transition-all focus:bg-white/15"
           />
         </div>
       </div>

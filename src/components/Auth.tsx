@@ -143,11 +143,11 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
   return (
     <div 
       style={{ backgroundColor: theme.pageBg }} 
-      className="min-h-screen w-full flex items-center justify-center px-4 py-12 canvas-grid relative overflow-hidden"
+      className="min-h-screen w-full flex items-center justify-center px-4 py-12 relative overflow-hidden"
     >
       {/* Ambient Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#9333EA]/10 rounded-full blur-[120px] pointer-events-none animate-pulse duration-5000"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#9333EA]/10 rounded-full blur-[120px] pointer-events-none animate-pulse duration-7000"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#6D28D9]/10 rounded-full blur-[120px] pointer-events-none animate-pulse duration-5000"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#6D28D9]/10 rounded-full blur-[120px] pointer-events-none animate-pulse duration-7000"></div>
 
       <div className="w-full max-w-md z-10 transition-all duration-300">
         {/* Main Card */}
@@ -158,14 +158,8 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
             style={{ backgroundColor: theme.darkHeader }} 
             className="p-8 text-center border-b border-white/10"
           >
-            <div className="flex items-center justify-center gap-2.5 mb-3">
-              <div 
-                style={{ backgroundColor: theme.brand }} 
-                className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-lg text-white shadow-lg transition-transform hover:scale-105"
-              >
-                U
-              </div>
-              <span className="font-bold text-2xl tracking-tight text-white">Ultovate</span>
+            <div className="flex items-center justify-center gap-2.5 mb-3 select-none">
+              <span className="font-bold text-lg tracking-tight text-white">HOA Auditor</span>
             </div>
             <p className="text-purple-200/70 text-xs font-semibold uppercase tracking-wider">
               HOA Forensic Audit Platform
@@ -210,7 +204,7 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                       placeholder="Jane Doe"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="input input-bordered w-full pl-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#9333EA] focus:ring-1 focus:ring-[#9333EA] outline-none"
+                      className="input input-bordered w-full pl-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9] outline-none"
                     />
                   </div>
                 </div>
@@ -231,7 +225,7 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                     placeholder="name@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="input input-bordered w-full pl-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#9333EA] focus:ring-1 focus:ring-[#9333EA] outline-none"
+                    className="input input-bordered w-full pl-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9] outline-none"
                   />
                 </div>
               </div>
@@ -251,7 +245,7 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                       placeholder="Chiavari Owners Association"
                       value={orgName}
                       onChange={(e) => setOrgName(e.target.value)}
-                      className="input input-bordered w-full pl-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#9333EA] focus:ring-1 focus:ring-[#9333EA] outline-none"
+                      className="input input-bordered w-full pl-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9] outline-none"
                     />
                   </div>
                 </div>
@@ -264,10 +258,10 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                     Password
                     {viewMode === 'signup' && (
                       <span 
-                        className="tooltip tooltip-right tooltip-primary cursor-help text-[#9333EA]" 
+                        className="tooltip tooltip-right tooltip-primary cursor-help text-[#6D28D9]" 
                         data-tip="Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol"
                       >
-                        <Info className="w-3.5 h-3.5 inline-block text-slate-400 hover:text-[#9333EA] transition-colors" />
+                        <Info className="w-3.5 h-3.5 inline-block text-slate-400 hover:text-[#6D28D9] transition-colors" />
                       </span>
                     )}
                   </span>
@@ -282,7 +276,7 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="input input-bordered w-full pl-10 pr-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#9333EA] focus:ring-1 focus:ring-[#9333EA] outline-none"
+                    className="input input-bordered w-full pl-10 pr-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9] outline-none"
                   />
                   <button
                     type="button"
@@ -303,10 +297,10 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                     <span className="label-text text-slate-700 font-semibold text-xs flex items-center gap-1.5">
                       Confirm Password
                       <span 
-                        className="tooltip tooltip-right tooltip-primary cursor-help text-[#9333EA]" 
+                        className="tooltip tooltip-right tooltip-primary cursor-help text-[#6D28D9]" 
                         data-tip="Must be at least 8 characters with 1 uppercase, 1 lowercase, 1 number, and 1 symbol"
                       >
-                        <Info className="w-3.5 h-3.5 inline-block text-slate-400 hover:text-[#9333EA] transition-colors" />
+                        <Info className="w-3.5 h-3.5 inline-block text-slate-400 hover:text-[#6D28D9] transition-colors" />
                       </span>
                     </span>
                   </label>
@@ -320,7 +314,7 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                       placeholder="Re-enter password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="input input-bordered w-full pl-10 pr-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#9333EA] focus:ring-1 focus:ring-[#9333EA] outline-none"
+                      className="input input-bordered w-full pl-10 pr-10 bg-slate-50 border-slate-200 text-slate-800 text-sm focus:bg-white focus:border-[#6D28D9] focus:ring-1 focus:ring-[#6D28D9] outline-none"
                     />
                     <button
                       type="button"
@@ -343,7 +337,7 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="checkbox checkbox-xs border-slate-300 rounded text-[#9333EA] focus:ring-[#9333EA]"
+                      className="checkbox checkbox-xs border-slate-300 rounded text-[#6D28D9] focus:ring-[#6D28D9]"
                     />
                     <span className="text-xs text-slate-600">Remember this device</span>
                   </label>
@@ -355,10 +349,10 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                       type="checkbox"
                       checked={agreeTerms}
                       onChange={(e) => setAgreeTerms(e.target.checked)}
-                      className="checkbox checkbox-xs mt-0.5 border-slate-300 rounded text-[#9333EA] focus:ring-[#9333EA]"
+                      className="checkbox checkbox-xs mt-0.5 border-slate-300 rounded text-[#6D28D9] focus:ring-[#6D28D9]"
                     />
                     <span className="text-[11px] text-slate-500 leading-normal">
-                      I agree to the <a href="#terms" className="text-[#9333EA] hover:underline font-semibold">Terms of Service</a> and <a href="#privacy" className="text-[#9333EA] hover:underline font-semibold">Privacy Policy</a>.
+                      I agree to the <a href="#terms" style={{ color: theme.brand }} className="hover:underline font-semibold cursor-pointer">Terms of Service</a> and <a href="#privacy" style={{ color: theme.brand }} className="hover:underline font-semibold cursor-pointer">Privacy Policy</a>.
                     </span>
                   </label>
                 </div>
@@ -402,10 +396,11 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
               <p className="text-xs text-slate-500">
                 {viewMode === 'login' ? (
                   <>
-                    New to Ultovate?{' '}
+                    New to HOA Auditor?{' '}
                     <button
                       onClick={() => setViewMode('signup')}
-                      className="font-semibold text-[#9333EA] hover:underline"
+                      style={{ color: theme.brand }}
+                      className="font-semibold hover:underline cursor-pointer"
                     >
                       Create an account
                     </button>
@@ -415,7 +410,8 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
                     Already have an account?{' '}
                     <button
                       onClick={() => setViewMode('login')}
-                      className="font-semibold text-[#9333EA] hover:underline"
+                      style={{ color: theme.brand }}
+                      className="font-semibold hover:underline cursor-pointer"
                     >
                       Sign in
                     </button>
@@ -430,7 +426,7 @@ const Auth = ({ onAuthSuccess }: AuthProps) => {
         {/* Bottom copyright notice */}
         <div className="text-center mt-6">
           <p className="text-xs text-purple-200/50">
-            &copy; 2026 Ultovate Inc. All rights reserved. • Secure B2B SSO compliant
+            &copy; 2026 HOA Auditor. All rights reserved. • Secure B2B SSO compliant
           </p>
         </div>
       </div>

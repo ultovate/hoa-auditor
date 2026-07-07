@@ -13,7 +13,7 @@ interface ChatMessage {
 
 const WELCOME_MESSAGE: ChatMessage = {
   role: 'assistant',
-  text: "Welcome to Ultovate. I've finished scanning the 6 uploaded documents for the Bellevue property. There are a few critical liability risks regarding the reserve study and pet restrictions. How can I help you today?",
+  text: "Welcome to HOA Auditor. I've finished scanning the 6 uploaded documents for the Bellevue property. There are a few critical liability risks regarding the reserve study and pet restrictions. How can I help you today?",
 };
 
 export const useForensicChat = () => {
